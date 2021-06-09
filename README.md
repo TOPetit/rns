@@ -12,11 +12,11 @@ sudo wrmsr -a 0x38d 0x0333
 # TODO
 
 ## Timings:
-1. Instructions / cycles
+1. Instructions per cycles
 
 ## Vectorisation:
-1. Conversion de base
-2. Multiplication modulaire
+1. Base conversion
+2. Modular multplication
 
-## Réparer:
-1. Soustraction vectorisée
+## Fix:
+1. Vectorized substraction

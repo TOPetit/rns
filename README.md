@@ -9,6 +9,10 @@ sudo echo 2 | dd of=/sys/devices/cpu/rdpmc
 sudo echo 2 | dd of=/sys/bus/event_source/devices/cpu/rdpmc
 sudo wrmsr -a 0x38d 0x0333
 ```
+or
+```shell
+sudo ./init.sh
+```
 # TODO
 
 ## Timings:

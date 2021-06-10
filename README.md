@@ -11,6 +11,7 @@ sudo wrmsr -a 0x38d 0x0333
 ```
 or
 ```shell
+chmod +x ./init.sh
 sudo ./init.sh
 ```
 # TODO

@@ -18,10 +18,11 @@ sudo ./init.sh
 
 ## Timings:
 1. Instructions per cycles
+2. Explain cycles for first call (cool)
 
 ## Vectorisation:
-1. Base conversion
-2. Modular multplication
+1. Base conversion DONE
+2. Modular multplication ????
 
 ## Fix:
 1. Vectorized substraction

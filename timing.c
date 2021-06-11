@@ -104,10 +104,6 @@ int main(void){
 		mpz_urandomm (B, state, M);  //Randomly generates B < M
 		from_int_to_rns(op1, &rns_a, A);
 		from_int_to_rns(op2, &rns_a, B);
-		unsigned long long int timer = 0;
-		unsigned long int cycles_tmp = 0;
-		unsigned long int instructions_tmp = 0;
-		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++) {
 
 
@@ -161,7 +157,6 @@ int main(void){
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/NFUNS;
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 		fprintf(fpt,"\t\t\t{\n");
@@ -219,10 +214,6 @@ int main(void){
 		from_int_to_rns(op2, &rns_a, B);
 		from_rns_to_m256i(avx_op1,&rns_a,op1);
 		from_rns_to_m256i(avx_op2,&rns_a,op2);
-		unsigned long long int timer = 0;
-		unsigned long int cycles_tmp = 0;
-		unsigned long int instructions_tmp = 0;
-		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++)
 		{
 
@@ -276,7 +267,6 @@ int main(void){
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/NFUNS;
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 
@@ -333,10 +323,6 @@ int main(void){
 		mpz_urandomm (B, state, M);  //Randomly generates B < M
 		from_int_to_rns(op1, &rns_a, A);
 		from_int_to_rns(op2, &rns_a, B);
-		unsigned long long int timer = 0;
-		unsigned long int cycles_tmp = 0;
-		unsigned long int instructions_tmp = 0;
-		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++) {
 
 			// RDTSC
@@ -389,7 +375,6 @@ int main(void){
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/NFUNS;
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 
@@ -452,10 +437,6 @@ int main(void){
 		from_int_to_rns(op2, &rns_a, B);
 		from_rns_to_m256i(avx_op1,&rns_a,op1);
 		from_rns_to_m256i(avx_op2,&rns_a,op2);
-		unsigned long long int timer = 0;
-		unsigned long int cycles_tmp = 0;
-		unsigned long int instructions_tmp = 0;
-		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++)
 		{
 
@@ -509,7 +490,6 @@ int main(void){
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/NFUNS;
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 
@@ -564,10 +544,6 @@ int main(void){
 		mpz_urandomm (B, state, M);  //Randomly generates B < M
 		from_int_to_rns(op1, &rns_a, A);
 		from_int_to_rns(op2, &rns_a, B);
-		unsigned long long int timer = 0;
-		unsigned long int cycles_tmp = 0;
-		unsigned long int instructions_tmp = 0;
-		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++) {
 
 			// RDTSC
@@ -620,7 +596,6 @@ int main(void){
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/NFUNS;
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 
@@ -681,10 +656,6 @@ int main(void){
 		from_int_to_rns(op2, &rns_a, B);
 		from_rns_to_m256i(avx_op1,&rns_a,op1);
 		from_rns_to_m256i(avx_op2,&rns_a,op2);
-		unsigned long long int timer = 0;
-		unsigned long int cycles_tmp = 0;
-		unsigned long int instructions_tmp = 0;
-		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++)
 		{
 			
@@ -738,7 +709,6 @@ int main(void){
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/NFUNS;
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 
@@ -829,10 +799,6 @@ int main(void){
 		mpz_urandomm (A, state, M);  //Randomly generates A < M
 		mpz_urandomm (B, state, M);  //Randomly generates B < M
 		from_int_to_rns(op1, &rns_a, A);
-		unsigned long long int timer = 0;
-		unsigned long int cycles_tmp = 0;
-		unsigned long int instructions_tmp = 0;
-		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++) {
 
 			// RDTSC
@@ -885,7 +851,6 @@ int main(void){
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/NFUNS;
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 
@@ -941,10 +906,6 @@ int main(void){
 		mpz_urandomm (A, state, M);  //Randomly generates A < M
 		from_int_to_rns(op1, &rns_a, A);
 		from_rns_to_m256i(avx_op1,&rns_a,op1);
-		unsigned long long int timer = 0;
-		unsigned long int cycles_tmp = 0;
-		unsigned long int instructions_tmp = 0;
-		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++)
 		{
 			// RDTSC
@@ -997,7 +958,6 @@ int main(void){
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/NFUNS;
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 

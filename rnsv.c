@@ -316,7 +316,7 @@ void avx_init_mrs(struct conv_base_t *conv_base){
 // using the MRS conversion. The RNS base uses Crandall 
 // numbers
 ///////////////////////////////////////////////////////
-void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a){	
+void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a){
 	int i, j;
 //	int64_t a[NB_COEFF];  // En externe, car ça prend du temps 
 	int64_t tmp;
@@ -356,18 +356,21 @@ void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i
 	{
 		for(i=1; i<size ; i++)
 		{
-			avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]),
+			avx_tmp = (_mm256_set1_epi64x(a[i]),
 				conv_base->avx_mrsa_to_b[i-1][j], conv_base->rns_b->avx_k[j]);
 			rop[j]= avx_add_mod_cr(rop[j], avx_tmp, conv_base->rns_b->avx_k[j]);
 
-			/*if (rop[j]<0){	//Sinon, ca part en couille ?????????????
+			if (&rop[j]<0){	//Sinon, ca part en couille ????????????? jamais atteint en pratique
 				rop[j] += conv_base->rns_b->m[j];
 				printf("conv");
-			}*/
+			}
 			//on verra pour le if après
 		}
 	} 
 }
+
+
+
 
 //TODO : function to initialize avx_p_modMa and the others 
 

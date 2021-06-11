@@ -2,5 +2,6 @@
 mainv
 timing
 csv_writing
-*.csv
+*.json
 .vscode/
+/results/.ipynb_checkpoints

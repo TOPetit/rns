@@ -13,7 +13,9 @@ int main(void){
 	
 	FILE* fpt;
 
-	fpt = fopen("results/Results.csv", "w+");
+	fpt = fopen("results/Results.json", "w+");
+
+	fprintf(fpt, "{\n");
 
 	printf("\nVectorized RNS timing :\n");
 
@@ -185,8 +187,9 @@ int main(void){
 
 	}
 
-	fprintf(fpt, "multiplication\n");
-	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\"multiplication\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t{\n");
+	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t},\n", timing, instructions, cycles, ref);
 
 	printf("Done.\n");
 	printf("\tRNS sequential multiplication : %lld CPU cycles.\n", timing);
@@ -318,7 +321,9 @@ int main(void){
 
 	}
 
-	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\t\"vectorized\" :\n\t\t{\n");
+	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t}\n\t},\n", timing, instructions, cycles, ref);
+
 
 	printf("Done.\n");
 	printf("\tRNS vectorized multiplication : %lld CPU cycles.\n", timing);
@@ -444,8 +449,10 @@ int main(void){
 
 	}
 
-	fprintf(fpt, "addition\n");
-	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\"addition\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t{\n");
+	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t},\n", timing, instructions, cycles, ref);
+
 
 	printf("Done.\n");
 	printf("\tRNS sequential addition : %lld CPU cycles.\n", timing);
@@ -577,7 +584,9 @@ int main(void){
 
 	}
 
-	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\t\"vectorized\" :\n\t\t{\n");
+	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t}\n\t},\n", timing, instructions, cycles, ref);
+
 
 	printf("Done.\n");
 	printf("\tRNS vectorized addition : %lld CPU cycles.\n", timing);
@@ -701,8 +710,9 @@ int main(void){
 
 	}
 
-	fprintf(fpt, "addition\n");
-	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\"substraction\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t{\n");
+	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t},\n", timing, instructions, cycles, ref);
 
 	printf("Done.\n");
 	printf("\tRNS sequential substraction : %lld CPU cycles.\n", timing);
@@ -834,7 +844,9 @@ int main(void){
 
 	}
 
-	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\t\"vectorized\" :\n\t\t{\n");
+	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t}\n\t},\n", timing, instructions, cycles, ref);
+
 
 	printf("Done.\n");
 	printf("\tRNS vectorized substraction : %lld CPU cycles.\n", timing);
@@ -995,8 +1007,10 @@ int main(void){
 
 	}
 
-	fprintf(fpt, "substraction\n");
-	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\"base_conversion\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t{\n");
+	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t},\n", timing, instructions, cycles, ref);
+
 
 	printf("Done.\n");
 	printf("\tRNS sequential base conversion : %lld CPU cycles.\n", timing);
@@ -1123,7 +1137,9 @@ int main(void){
 
 	}
 
-	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\t\"vectorized\" :\n\t\t{\n");
+	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t}\n\t}\n}", timing, instructions, cycles, ref);
+
 
 	printf("Done.\n");
 	printf("\tRNS vectorized base conversion : %lld CPU cycles.\n", timing);

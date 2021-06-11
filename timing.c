@@ -11,10 +11,13 @@
 
 int main(void){
 	
+	FILE* fpt;
 
-	//printf("\nVectorized RNS timing :\n");
+	fpt = fopen("results/Results.csv", "w+");
 
-	//printf("\n1. Generating data :\n");
+	printf("\nVectorized RNS timing :\n");
+
+	printf("\n1. Generating data :\n");
 	
 	// Initializing random
 	gmp_randstate_t state;
@@ -181,6 +184,10 @@ int main(void){
 		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
 
 	}
+
+	fprintf(fpt, "multiplication\n");
+	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+
 	printf("Done.\n");
 	printf("\tRNS sequential multiplication : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential multiplication : %ld instructions.\n", instructions);
@@ -310,6 +317,9 @@ int main(void){
 		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
 
 	}
+
+	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+
 	printf("Done.\n");
 	printf("\tRNS vectorized multiplication : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized multiplication : %ld instructions.\n", instructions);
@@ -433,6 +443,10 @@ int main(void){
 		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
 
 	}
+
+	fprintf(fpt, "addition\n");
+	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+
 	printf("Done.\n");
 	printf("\tRNS sequential addition : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential addition : %ld instructions.\n", instructions);
@@ -562,6 +576,9 @@ int main(void){
 		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
 
 	}
+
+	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+
 	printf("Done.\n");
 	printf("\tRNS vectorized addition : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized addition : %ld instructions.\n", instructions);
@@ -683,6 +700,10 @@ int main(void){
 		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
 
 	}
+
+	fprintf(fpt, "addition\n");
+	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+
 	printf("Done.\n");
 	printf("\tRNS sequential substraction : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential substraction : %ld instructions.\n", instructions);
@@ -812,6 +833,9 @@ int main(void){
 		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
 
 	}
+
+	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+
 	printf("Done.\n");
 	printf("\tRNS vectorized substraction : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized substraction : %ld instructions.\n", instructions);
@@ -970,6 +994,10 @@ int main(void){
 		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
 
 	}
+
+	fprintf(fpt, "substraction\n");
+	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+
 	printf("Done.\n");
 	printf("\tRNS sequential base conversion : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential base conversion : %ld instructions.\n", instructions);
@@ -1094,6 +1122,9 @@ int main(void){
 		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
 
 	}
+
+	fprintf(fpt, "%lld,%ld,%ld,%ld\n", timing, instructions, cycles, ref);
+
 	printf("Done.\n");
 	printf("\tRNS vectorized base conversion : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized base conversion : %ld instructions.\n", instructions);
@@ -1105,6 +1136,7 @@ int main(void){
 	printf("\t -> %lld \%% actual cycles improvment.\n", 100 - (100 * cycles) / memory_actual_cycles);
 	printf("\t -> %lld \%% reference cycles improvment.\n", 100 - (100 * ref) / memory_ref);
 
+	fclose(fpt);
 
 	return 0;
 }

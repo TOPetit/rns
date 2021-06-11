@@ -1,3 +1,6 @@
 *.o
 mainv
 timing
+csv_writing
+*.csv
+.vscode/

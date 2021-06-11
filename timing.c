@@ -83,6 +83,9 @@ int main(void){
 
 	printf("\n2. Multiplication :\n");
 
+	fprintf(fpt, "\"multiplication\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
+
 	printf("\n\tHeating caches... ");
 	mpz_urandomm(A, state, M); // Randomly generates A < M
 	mpz_urandomm(B, state, M); // Randomly generated B < M
@@ -116,15 +119,10 @@ int main(void){
 			mul_rns_cr(res, &rns_a, op1, op2);
 			mul_rns_cr(res, &rns_a, op1, op2);
 			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-
+			
 			t2 = cpucyclesStop();
 
-			timer += (t2-t1)/10;
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
 
 			// Instructions
 			before_instructions = rdpmc_instructions();
@@ -134,15 +132,10 @@ int main(void){
 			mul_rns_cr(res, &rns_a, op1, op2);
 			mul_rns_cr(res, &rns_a, op1, op2);
 			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-
+			
 			after_instructions = rdpmc_instructions();
 
-			instructions_tmp += (after_instructions - before_instructions)/10;
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
 
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
@@ -152,15 +145,10 @@ int main(void){
 			mul_rns_cr(res, &rns_a, op1, op2);
 			mul_rns_cr(res, &rns_a, op1, op2);
 			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-
+			
 			after_cycles = rdpmc_actual_cycles();
 
-			cycles_tmp += (after_cycles - before_cycles)/10;
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
 
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
@@ -170,32 +158,27 @@ int main(void){
 			mul_rns_cr(res, &rns_a, op1, op2);
 			mul_rns_cr(res, &rns_a, op1, op2);
 			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-			mul_rns_cr(res, &rns_a, op1, op2);
-
+			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/10;
+			ref_tmp += (after_ref - before_ref)/NFUNS;
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
-		if (timing > timer/NTEST) timing = timer/NTEST;
-		if (instructions > instructions_tmp/NTEST) instructions = instructions_tmp/NTEST;
-		if (cycles > cycles_tmp/NTEST) cycles = cycles_tmp/NTEST;
-		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 
 	}
-
-	fprintf(fpt, "\"multiplication\" :\n\t{\n");
-	fprintf(fpt, "\t\"sequential\" :\n\t\t{\n");
-	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t},\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\t\t],\n");
 
 	printf("Done.\n");
 	printf("\tRNS sequential multiplication : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential multiplication : %ld instructions.\n", instructions);
 	printf("\tRNS sequential multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS sequential multiplication : %ld reference CPU cycles.\n", ref);
+
+	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 	
 	memory_cycles = timing;
 	memory_actual_cycles = cycles;
@@ -242,88 +225,71 @@ int main(void){
 		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++)
 		{
+
 			// RDTSC
 			t1 = cpucyclesStart();
 
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			t2 = cpucyclesStop();
 
-			timer += (t2-t1)/10;
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
 
 			// Instructions
 			before_instructions = rdpmc_instructions();
 
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			after_instructions = rdpmc_instructions();
 
-			instructions_tmp += (after_instructions - before_instructions)/10;
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
 
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
 
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			after_cycles = rdpmc_actual_cycles();
 
-			cycles_tmp += (after_cycles - before_cycles)/10;
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
 
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
 
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_mul_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/10;
+			ref_tmp += (after_ref - before_ref)/NFUNS;
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
-		if (timing > timer/NTEST) timing = timer/NTEST;
-		if (instructions > instructions_tmp/NTEST) instructions = instructions_tmp/NTEST;
-		if (cycles > cycles_tmp/NTEST) cycles = cycles_tmp/NTEST;
-		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
+
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 
 	}
 
-	fprintf(fpt, "\t\"vectorized\" :\n\t\t{\n");
-	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t}\n\t},\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\t\t]\n\t},\n");
 
+	
 
 	printf("Done.\n");
 	printf("\tRNS vectorized multiplication : %lld CPU cycles.\n", timing);
@@ -340,6 +306,9 @@ int main(void){
 
 
 	printf("\n\n2. Addition :\n");
+
+	fprintf(fpt, "\"addition\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
 	
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
@@ -378,15 +347,10 @@ int main(void){
 			add_rns_cr(res, &rns_a, op1, op2);
 			add_rns_cr(res, &rns_a, op1, op2);
 			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
 			
 			t2 = cpucyclesStop();
 
-			timer += (t2-t1)/10;
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
 
 			// Instructions
 			before_instructions = rdpmc_instructions();
@@ -396,15 +360,10 @@ int main(void){
 			add_rns_cr(res, &rns_a, op1, op2);
 			add_rns_cr(res, &rns_a, op1, op2);
 			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
 			
 			after_instructions = rdpmc_instructions();
 
-			instructions_tmp += (after_instructions - before_instructions)/10;
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
 
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
@@ -414,15 +373,10 @@ int main(void){
 			add_rns_cr(res, &rns_a, op1, op2);
 			add_rns_cr(res, &rns_a, op1, op2);
 			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
 			
 			after_cycles = rdpmc_actual_cycles();
 
-			cycles_tmp += (after_cycles - before_cycles)/10;
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
 
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
@@ -432,33 +386,32 @@ int main(void){
 			add_rns_cr(res, &rns_a, op1, op2);
 			add_rns_cr(res, &rns_a, op1, op2);
 			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
-			add_rns_cr(res, &rns_a, op1, op2);
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/10;
+			ref_tmp += (after_ref - before_ref)/NFUNS;
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
-		if (timing > timer/NTEST) timing = timer/NTEST;
-		if (instructions > instructions_tmp/NTEST) instructions = instructions_tmp/NTEST;
-		if (cycles > cycles_tmp/NTEST) cycles = cycles_tmp/NTEST;
-		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
+
+
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 
 	}
 
-	fprintf(fpt, "\"addition\" :\n\t{\n");
-	fprintf(fpt, "\t\"sequential\" :\n\t\t{\n");
-	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t},\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\t\t],\n");
 
 
+	
 	printf("Done.\n");
 	printf("\tRNS sequential addition : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential addition : %ld instructions.\n", instructions);
 	printf("\tRNS sequential addition : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS sequential addition : %ld reference CPU cycles.\n", ref);
+
+	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
 	memory_cycles = timing;
 	memory_actual_cycles = cycles;
@@ -505,87 +458,70 @@ int main(void){
 		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++)
 		{
+
 			// RDTSC
 			t1 = cpucyclesStart();
 
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			t2 = cpucyclesStop();
 
-			timer += (t2-t1)/10;
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
 
 			// Instructions
 			before_instructions = rdpmc_instructions();
 
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			after_instructions = rdpmc_instructions();
 
-			instructions_tmp += (after_instructions - before_instructions)/10;
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
 
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
 
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			after_cycles = rdpmc_actual_cycles();
 
-			cycles_tmp += (after_cycles - before_cycles)/10;
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
 
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
 
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_add_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/10;
+			ref_tmp += (after_ref - before_ref)/NFUNS;
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
-		if (timing > timer/NTEST) timing = timer/NTEST;
-		if (instructions > instructions_tmp/NTEST) instructions = instructions_tmp/NTEST;
-		if (cycles > cycles_tmp/NTEST) cycles = cycles_tmp/NTEST;
-		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
+
+
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 
 	}
 
-	fprintf(fpt, "\t\"vectorized\" :\n\t\t{\n");
-	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t}\n\t},\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\t\t]\n\t},\n");
 
 
 	printf("Done.\n");
@@ -601,6 +537,9 @@ int main(void){
 
 
 	printf("\n\n3. Substraction :\n");
+
+	fprintf(fpt, "\"substraction\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
 	
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
@@ -639,15 +578,10 @@ int main(void){
 			sub_rns_cr(res, &rns_a, op1, op2);
 			sub_rns_cr(res, &rns_a, op1, op2);
 			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
 			
 			t2 = cpucyclesStop();
 
-			timer += (t2-t1)/10;
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
 
 			// Instructions
 			before_instructions = rdpmc_instructions();
@@ -657,15 +591,10 @@ int main(void){
 			sub_rns_cr(res, &rns_a, op1, op2);
 			sub_rns_cr(res, &rns_a, op1, op2);
 			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
 			
 			after_instructions = rdpmc_instructions();
 
-			instructions_tmp += (after_instructions - before_instructions)/10;
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
 
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
@@ -675,15 +604,10 @@ int main(void){
 			sub_rns_cr(res, &rns_a, op1, op2);
 			sub_rns_cr(res, &rns_a, op1, op2);
 			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
 			
 			after_cycles = rdpmc_actual_cycles();
 
-			cycles_tmp += (after_cycles - before_cycles)/10;
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
 
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
@@ -693,32 +617,30 @@ int main(void){
 			sub_rns_cr(res, &rns_a, op1, op2);
 			sub_rns_cr(res, &rns_a, op1, op2);
 			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
-			sub_rns_cr(res, &rns_a, op1, op2);
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/10;
+			ref_tmp += (after_ref - before_ref)/NFUNS;
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
-		if (timing > timer/NTEST) timing = timer/NTEST;
-		if (instructions > instructions_tmp/NTEST) instructions = instructions_tmp/NTEST;
-		if (cycles > cycles_tmp/NTEST) cycles = cycles_tmp/NTEST;
-		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
+
+
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 
 	}
 
-	fprintf(fpt, "\"substraction\" :\n\t{\n");
-	fprintf(fpt, "\t\"sequential\" :\n\t\t{\n");
-	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t},\n", timing, instructions, cycles, ref);
+	fprintf(fpt, "\t\t],\n");
 
 	printf("Done.\n");
 	printf("\tRNS sequential substraction : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential substraction : %ld instructions.\n", instructions);
 	printf("\tRNS sequential substraction : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS sequential substraction : %ld reference CPU cycles.\n", ref);
+
+	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
 	memory_cycles = timing;
 	memory_actual_cycles = cycles;
@@ -765,88 +687,70 @@ int main(void){
 		unsigned long int ref_tmp = 0;
 		for(int j=0;j<NTEST;j++)
 		{
+			
 			// RDTSC
 			t1 = cpucyclesStart();
 
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			t2 = cpucyclesStop();
 
-			timer += (t2-t1)/10;
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
 
 			// Instructions
 			before_instructions = rdpmc_instructions();
 
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			after_instructions = rdpmc_instructions();
 
-			instructions_tmp += (after_instructions - before_instructions)/10;
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
 
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
 
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			after_cycles = rdpmc_actual_cycles();
 
-			cycles_tmp += (after_cycles - before_cycles)/10;
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
 
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
 
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-			avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
+			avx_sub_rns_cr(avx_res,&rns_a,avx_op1, avx_op2);
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/10;
+			ref_tmp += (after_ref - before_ref)/NFUNS;
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
-		if (timing > timer/NTEST) timing = timer/NTEST;
-		if (instructions > instructions_tmp/NTEST) instructions = instructions_tmp/NTEST;
-		if (cycles > cycles_tmp/NTEST) cycles = cycles_tmp/NTEST;
-		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
+
+
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 
 	}
 
-	fprintf(fpt, "\t\"vectorized\" :\n\t\t{\n");
-	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t}\n\t},\n", timing, instructions, cycles, ref);
-
+	fprintf(fpt, "\t\t]\n\t},\n");
 
 	printf("Done.\n");
 	printf("\tRNS vectorized substraction : %lld CPU cycles.\n", timing);
@@ -904,6 +808,10 @@ int main(void){
 
 	printf("\n\n4. Base conversion :\n");
 
+	fprintf(fpt, "\"base_conversion\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
+
+
 	printf("\n\tHeating caches... ");
 	mpz_urandomm(A, state, M); // Randomly generates A < M
 	mpz_urandomm(B, state, M); // Randomly generated B < M
@@ -911,7 +819,7 @@ int main(void){
 	from_int_to_rns(op2, &rns_a, B);
 
 	for(int i=0; i<NTEST; i++){
-		sub_rns_cr(res, &rns_a, op1, op2);
+		base_conversion_cr(op2, &conv, op1, ttt);
 	}
 	printf("Done.\n");
 	
@@ -935,15 +843,10 @@ int main(void){
 			base_conversion_cr(op2, &conv, op1, ttt);
 			base_conversion_cr(op2, &conv, op1, ttt);
 			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
 			
 			t2 = cpucyclesStop();
 
-			timer += (t2-t1)/10;
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
 
 			// Instructions
 			before_instructions = rdpmc_instructions();
@@ -953,16 +856,11 @@ int main(void){
 			base_conversion_cr(op2, &conv, op1, ttt);
 			base_conversion_cr(op2, &conv, op1, ttt);
 			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
 			
 			after_instructions = rdpmc_instructions();
 
-			instructions_tmp += (after_instructions - before_instructions)/10;
-			
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
+
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
 
@@ -971,15 +869,10 @@ int main(void){
 			base_conversion_cr(op2, &conv, op1, ttt);
 			base_conversion_cr(op2, &conv, op1, ttt);
 			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
 			
 			after_cycles = rdpmc_actual_cycles();
 
-			cycles_tmp += (after_cycles - before_cycles)/10;
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
 
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
@@ -989,34 +882,30 @@ int main(void){
 			base_conversion_cr(op2, &conv, op1, ttt);
 			base_conversion_cr(op2, &conv, op1, ttt);
 			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
-			base_conversion_cr(op2, &conv, op1, ttt);
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/10;
-			;
+			ref_tmp += (after_ref - before_ref)/NFUNS;
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
-		if (timing > timer/NTEST) timing = timer/NTEST;
-		if (instructions > instructions_tmp/NTEST) instructions = instructions_tmp/NTEST;
-		if (cycles > cycles_tmp/NTEST) cycles = cycles_tmp/NTEST;
-		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
+
+
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 
 	}
 
-	fprintf(fpt, "\"base_conversion\" :\n\t{\n");
-	fprintf(fpt, "\t\"sequential\" :\n\t\t{\n");
-	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t},\n", timing, instructions, cycles, ref);
-
+	fprintf(fpt, "\t\t],\n");
 
 	printf("Done.\n");
 	printf("\tRNS sequential base conversion : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential base conversion : %ld instructions.\n", instructions);
 	printf("\tRNS sequential base conversion : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS sequential base conversion : %ld reference CPU cycles.\n", ref);
+	
+	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
 
 	memory_cycles = timing;
@@ -1066,15 +955,10 @@ int main(void){
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			
 			t2 = cpucyclesStop();
 
-			timer += (t2-t1)/10;
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
 
 			// Instructions
 			before_instructions = rdpmc_instructions();
@@ -1084,15 +968,10 @@ int main(void){
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			
 			after_instructions = rdpmc_instructions();
 
-			instructions_tmp += (after_instructions - before_instructions)/10;
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
 
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
@@ -1102,15 +981,10 @@ int main(void){
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			
 			after_cycles = rdpmc_actual_cycles();
 
-			cycles_tmp += (after_cycles - before_cycles)/10;
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
 
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
@@ -1120,26 +994,23 @@ int main(void){
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
 			
 			after_ref = rdpmc_reference_cycles();
 
-			ref_tmp += (after_ref - before_ref)/10;
+			ref_tmp += (after_ref - before_ref)/NFUNS;
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
-		if (timing > timer/NTEST) timing = timer/NTEST;
-		if (instructions > instructions_tmp/NTEST) instructions = instructions_tmp/NTEST;
-		if (cycles > cycles_tmp/NTEST) cycles = cycles_tmp/NTEST;
-		if (ref > ref_tmp/NTEST) ref = ref_tmp/NTEST;
+
+
+
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 
 	}
 
-	fprintf(fpt, "\t\"vectorized\" :\n\t\t{\n");
-	fprintf(fpt, "\t\t\"Cycles\" : %lld,\n\t\t\"Instructions\" : %ld,\n\t\t\"Actual cycles\" : %ld,\n\t\t\"Reference cycles\" : %ld\n\t\t}\n\t}\n}", timing, instructions, cycles, ref);
-
+	fprintf(fpt, "\t\t]\n\t}\n}");
 
 	printf("Done.\n");
 	printf("\tRNS vectorized base conversion : %lld CPU cycles.\n", timing);

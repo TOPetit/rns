@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <sys/syscall.h>
 
+#define NFUNS 5 // nombre de fois qu'on appelle la fonction à tester entre 2 mesures
 #define NTEST 500 // nombre de fois ou on repete le meme jeu de donnees
 #define NSAMPLES 200 // nombre differents de jeu de donnees
 

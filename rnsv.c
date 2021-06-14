@@ -383,18 +383,18 @@ void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i
 // mult : constants
 // tmp and a: temporary arrays for intermediate results 
 void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb, 
-	__m256i *pbb, struct mod_mul_t *mult, __m256i *tmp[3], int64_t *a){
+	__m256i *pbb, struct mod_mul_t *mult, __m256i *tmp0, __m256i *tmp1, __m256i *tmp2, int64_t *a){
 
 
-	avx_mul_rns_cr(tmp[0], mult->conv->rns_a, pa, pb); //A*B
-	avx_mul_rns_cr(tmp[1], mult->conv->rns_b, pab, pbb); //A*B in base2
+	avx_mul_rns_cr(tmp0, mult->conv->rns_a, pa, pb); //A*B
+	avx_mul_rns_cr(tmp1, mult->conv->rns_b, pab, pbb); //A*B in base2
 	
-	avx_mul_rns_cr(tmp[2], mult->conv->rns_a, tmp[0], mult->avx_inv_p_modMa); //Q*{P-1}
+	avx_mul_rns_cr(tmp2, mult->conv->rns_a, tmp0, mult->avx_inv_p_modMa); //Q*{P-1}
 
-	avx_base_conversion_cr(tmp[0], mult->conv, tmp[2], a); // Q in base2
-	avx_mul_rns_cr(tmp[2] , mult->conv->rns_b, tmp[0], mult->avx_p_modMb); // Q*P base2
-	avx_add_rns_cr(tmp[0] , mult->conv->rns_b, tmp[1], tmp[2]); // A*B + Q*P in base 2
-	avx_mul_rns_cr(rop, mult->conv->rns_b, tmp[0], mult->avx_inv_Ma_modMb); // Division by Ma
+	avx_base_conversion_cr(tmp0, mult->conv, tmp2, a); // Q in base2
+	avx_mul_rns_cr(tmp2 , mult->conv->rns_b, tmp0, mult->avx_p_modMb); // Q*P base2
+	avx_add_rns_cr(tmp0 , mult->conv->rns_b, tmp1, tmp2); // A*B + Q*P in base 2
+	avx_mul_rns_cr(rop, mult->conv->rns_b, tmp0, mult->avx_inv_Ma_modMb); // Division by Ma
 
 }
 

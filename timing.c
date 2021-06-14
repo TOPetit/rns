@@ -11,6 +11,7 @@
 
 int main(void){
 	
+	
 	FILE* fpt;
 
 	fpt = fopen("results/Results.json", "w+");
@@ -982,6 +983,298 @@ int main(void){
 	printf("\t -> %lld \%% instructions improvment.\n", 100 - (100 * instructions) / memory_instructions);
 	printf("\t -> %lld \%% actual cycles improvment.\n", 100 - (100 * cycles) / memory_actual_cycles);
 	printf("\t -> %lld \%% reference cycles improvment.\n", 100 - (100 * ref) / memory_ref);
+
+
+	timing = ULLONG_MAX;
+	cycles = ULONG_MAX;
+	instructions = ULONG_MAX;
+	ref = ULONG_MAX;
+
+
+	// MODULAR MULTIPLICATION
+	printf("\n\n5. Modular multiplication :\n");
+
+	mpz_t inv_p_modM, inv_M_modMp, modul_p;
+	mpz_inits (inv_p_modM, inv_M_modMp, modul_p, NULL);
+
+	
+	int64_t pa[NB_COEFF];
+	int64_t pb[NB_COEFF];
+	int64_t pab[NB_COEFF];
+	int64_t pbb[NB_COEFF];
+	int64_t pc[NB_COEFF];
+	int64_t pp1[NB_COEFF];
+	int64_t pp2[NB_COEFF];
+	int64_t pp3[NB_COEFF];
+
+	// Set custom values
+	mpz_set_str (modul_p, "115792089021636622262124715160334756877804245386980633020041035952359812890593", 10);
+	mpz_set_str (inv_p_modM, "-7210642370083763919688086698199040857322895088554003933210287226647459666846134833419938084604981461493089686639677942359747717700454441525223348684285", 10);
+	mpz_set_str (inv_M_modMp, "2926906825829426928727294150364906856635623568440932569450673109926460590684432927230290255276608760237299661987870702836538185953568700154975953006659", 10);
+
+    // Initialization
+	base_conversion_cr(pb, &conv, pa, ttt);		
+	
+
+	//Modular multiplication
+
+    struct mod_mul_t mult;
+	mpz_t tmp_gcd, t, tmp_inv; 
+
+	mpz_init(tmp_gcd);
+	mpz_init(t);
+	mpz_init(tmp_inv);
+	from_int_to_rns(pp2, &rns_b, modul_p);      // P mod Mb
+
+	mpz_sub (tmp_inv, rns_a.M, modul_p);
+	mpz_gcdext(tmp_gcd, inv_p_modM, t, tmp_inv, rns_a.M);  
+	from_int_to_rns(pp1, &rns_a, inv_p_modM);   //(-P)^-1 mod Ma
+
+	mpz_gcdext(tmp_gcd, inv_M_modMp, t, rns_a.M, rns_b.M);  
+	from_int_to_rns(pp3, &rns_b, inv_M_modMp);  // Ma^{-1} mod Mb
+
+	mult.inv_p_modMa = pp1;
+	mult.p_modMb = pp2; 
+	mult.inv_Ma_modMb = pp3;
+	mult.conv = &conv;
+
+    int64_t *tmp[4];  // RNS modular multiplication intermediate results
+     				  // One more for the base convertion
+    tmp[0]=(int64_t *)malloc(NB_COEFF*sizeof(int64_t));
+    tmp[1]=(int64_t *)malloc(NB_COEFF*sizeof(int64_t));
+    tmp[2]=(int64_t *)malloc(NB_COEFF*sizeof(int64_t));
+    tmp[3]=(int64_t *)malloc(NB_COEFF*sizeof(int64_t));
+ 
+	mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+	mpz_urandomm (B, state, modul_p);  //Randomly generates A < P
+	from_int_to_rns(pa, &rns_a, A);
+	from_int_to_rns(pb, &rns_a, B);
+	from_int_to_rns(pab, &rns_b, A);
+	from_int_to_rns(pbb, &rns_b, B);
+
+	// Heating caches
+	printf("\n\tHeating caches... ");
+	for (int i=0; i<NTEST; i++) {
+
+    	mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+
+	}
+	printf("Done.\n");
+
+	// Testing
+	printf("\tTesting... ");
+
+	for(int i=0;i<NSAMPLES;i++) {
+		mpz_urandomm (A, state, modul_p);  //Randomly generates A < M
+		mpz_urandomm (B, state, modul_p);  //Randomly generates B < M
+		from_int_to_rns(pa, &rns_a, A);
+		from_int_to_rns(pb, &rns_a, B);
+		from_int_to_rns(pab, &rns_b, A);
+		from_int_to_rns(pbb, &rns_b, B);
+
+		for(int j=0;j<NTEST;j++) {
+
+			// RDTSC
+			t1 = cpucyclesStart();
+
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			
+			t2 = cpucyclesStop();
+
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
+
+			// Instructions
+			before_instructions = rdpmc_instructions();
+
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			
+			after_instructions = rdpmc_instructions();
+
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
+
+			// actual cycles
+			before_cycles = rdpmc_actual_cycles();
+
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			
+			after_cycles = rdpmc_actual_cycles();
+
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
+
+			// reference cycles
+			before_ref = rdpmc_reference_cycles();
+
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr(pc, pa, pab, pb, pbb, &mult, tmp);
+			
+			after_ref = rdpmc_reference_cycles();
+
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
+		}
+	}
+	printf("Done.\n");
+	printf("\tRNS sequential modular multiplication : %lld CPU cycles.\n", timing);
+	printf("\tRNS sequential modular multiplication : %ld instructions.\n", instructions);
+	printf("\tRNS sequential modular multiplication : %ld actual CPU cycles.\n", cycles);
+	printf("\tRNS sequential modular multiplication : %ld reference CPU cycles.\n", ref);
+
+	memory_cycles = timing;
+	memory_actual_cycles = cycles;
+	memory_instructions = instructions;
+	memory_ref = ref;
+
+	timing = ULLONG_MAX;
+	cycles = ULONG_MAX;
+	instructions = ULONG_MAX;
+	ref = ULONG_MAX;
+	
+
+	__m256i avx_pa[NB_COEFF/4];
+	__m256i avx_pb[NB_COEFF/4];
+	__m256i avx_pab[NB_COEFF/4];
+	__m256i avx_pbb[NB_COEFF/4];
+
+	__m256i avx_pp1[NB_COEFF/4];
+	__m256i avx_pp2[NB_COEFF/4];
+	__m256i avx_pp3[NB_COEFF/4];
+
+	from_rns_to_m256i(avx_pp1, &rns_a, pp1);
+	from_rns_to_m256i(avx_pp2, &rns_b, pp2);
+	from_rns_to_m256i(avx_pp3, &rns_b, pp3);
+
+	mult.avx_inv_p_modMa = avx_pp1;
+	mult.avx_p_modMb = avx_pp2; 
+	mult.avx_inv_Ma_modMb = avx_pp3;
+
+	int64_t *a = malloc(sizeof(int64_t));
+	__m256i tmp0[NB_COEFF/4];
+	__m256i tmp1[NB_COEFF/4];
+	__m256i tmp2[NB_COEFF/4];
+	// /!\ Using an array is less efficient
+
+	mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+	mpz_urandomm (B, state, modul_p);  //Randomly generates A < P
+	from_int_to_rns(pa, &rns_a, A);
+	from_int_to_rns(pb, &rns_a, B);
+	from_int_to_rns(pab, &rns_b, A);
+	from_int_to_rns(pbb, &rns_b, B);
+
+	from_rns_to_m256i(avx_pa, &rns_a, pa);
+	from_rns_to_m256i(avx_pb, &rns_a, pb);
+	from_rns_to_m256i(avx_pab, &rns_b, pab);
+	from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+	
+
+	
+
+	// Heating caches
+	printf("\n\tHeating caches... ");
+	for (int i=0; i<NTEST; i++) {
+
+    	avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+
+	}
+	printf("Done.\n");
+
+	// Testing
+	printf("\tTesting... ");
+
+	for(int i=0;i<NSAMPLES;i++) {
+		mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+		mpz_urandomm (B, state, modul_p);  //Randomly generates A < P
+
+		from_int_to_rns(pa, &rns_a, A);
+		from_int_to_rns(pb, &rns_a, B);
+		from_int_to_rns(pab, &rns_b, A);
+		from_int_to_rns(pbb, &rns_b, B);
+
+		from_rns_to_m256i(avx_pa, &rns_a, pa);
+		from_rns_to_m256i(avx_pb, &rns_a, pb);
+		from_rns_to_m256i(avx_pab, &rns_b, pab);
+		from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+
+		for(int j=0;j<NTEST;j++) {
+
+			// RDTSC
+			t1 = cpucyclesStart();
+
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			
+			t2 = cpucyclesStop();
+
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
+
+			// Instructions
+			before_instructions = rdpmc_instructions();
+
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			
+			after_instructions = rdpmc_instructions();
+
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
+
+			// actual cycles
+			before_cycles = rdpmc_actual_cycles();
+
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			
+			after_cycles = rdpmc_actual_cycles();
+
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
+
+			// reference cycles
+			before_ref = rdpmc_reference_cycles();
+
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			
+			after_ref = rdpmc_reference_cycles();
+
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
+		}
+	}
+	printf("Done.\n");
+	printf("\tRNS parallel modular multiplication : %lld CPU cycles.\n", timing);
+	printf("\tRNS parallel modular multiplication : %ld instructions.\n", instructions);
+	printf("\tRNS parallel modular multiplication : %ld actual CPU cycles.\n", cycles);
+	printf("\tRNS parallel modular multiplication : %ld reference CPU cycles.\n", ref);
+
+	printf("\n\t -> %lld \%% cycles improvment.\n", 100 - (100 * timing) / memory_cycles);
+	printf("\t -> %lld \%% instructions improvment.\n", 100 - (100 * instructions) / memory_instructions);
+	printf("\t -> %lld \%% actual cycles improvment.\n", 100 - (100 * cycles) / memory_actual_cycles);
+	printf("\t -> %lld \%% reference cycles improvment.\n", 100 - (100 * ref) / memory_ref);
+	
+	free(a);
 
 	fclose(fpt);
 

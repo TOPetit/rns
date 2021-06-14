@@ -17,12 +17,12 @@ sudo ./init.sh
 # TODO
 
 ## Timings:
-1. Instructions per cycles
-2. Explain cycles for first call (cool)
+- [ ] Instructions per cycles
+- [ ] Explain cycles for first call (cool)
 
 ## Vectorisation:
-1. Base conversion DONE
-2. Modular multplication DONE
+- [x] Base conversion
+- [x] Modular multplication
 
 ## Fix:
-1. Vectorized substraction
+- [x] Vectorized substraction

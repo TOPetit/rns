@@ -22,7 +22,7 @@ sudo ./init.sh
 
 ## Vectorisation:
 1. Base conversion DONE
-2. Modular multplication ????
+2. Modular multplication DONE
 
 ## Fix:
 1. Vectorized substraction

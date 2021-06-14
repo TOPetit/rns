@@ -971,7 +971,7 @@ int main(void){
 
 	}
 
-	fprintf(fpt, "\t\t]\n\t}\n}");
+	fprintf(fpt, "\t\t]\n\t},\n");
 
 	printf("Done.\n");
 	printf("\tRNS vectorized base conversion : %lld CPU cycles.\n", timing);
@@ -993,6 +993,9 @@ int main(void){
 
 	// MODULAR MULTIPLICATION
 	printf("\n\n5. Modular multiplication :\n");
+
+	fprintf(fpt, "\"modular_multiplication\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
 
 	mpz_t inv_p_modM, inv_M_modMp, modul_p;
 	mpz_inits (inv_p_modM, inv_M_modMp, modul_p, NULL);
@@ -1126,12 +1129,21 @@ int main(void){
 
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 	}
+
+	fprintf(fpt, "\t\t],\n");
+
 	printf("Done.\n");
 	printf("\tRNS sequential modular multiplication : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential modular multiplication : %ld instructions.\n", instructions);
 	printf("\tRNS sequential modular multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS sequential modular multiplication : %ld reference CPU cycles.\n", ref);
+
+	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
 	memory_cycles = timing;
 	memory_actual_cycles = cycles;
@@ -1262,7 +1274,14 @@ int main(void){
 
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
 	}
+
+	fprintf(fpt, "\t\t]\n\t}\n}");
+
 	printf("Done.\n");
 	printf("\tRNS parallel modular multiplication : %lld CPU cycles.\n", timing);
 	printf("\tRNS parallel modular multiplication : %ld instructions.\n", instructions);

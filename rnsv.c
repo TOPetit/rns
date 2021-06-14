@@ -166,7 +166,7 @@ inline void avx_sub_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 
 		
 
-	} //pb à régler : resulats aberrants quand resulat négatif
+	}
 }
 
 

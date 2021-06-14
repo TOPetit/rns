@@ -1,5 +1,7 @@
 # RNS
-Internship repository
+2021 internship repository.
+> A residue numeral system (RNS) is a numeral system representing integers by their values modulo several pairwise coprime integers called the moduli. This representation is allowed by the Chinese remainder theorem, which asserts that, if N is the product of the moduli, there is, in an interval of length N, exactly one integer having any given set of modular values. The arithmetic of a residue numeral system is also called multi-modular arithmetic.
+Wikipedia.
 
 # Config
 ```shell

@@ -728,3 +728,17 @@ void base_conversion_cox(int64_t *rop, struct conv_base_t *conv_base, int64_t *o
 		}
 	}
 }
+
+void mult_mod_rns_cr_cox(int64_t *rop, int64_t *pa, int64_t *pab, int64_t *pb, 
+	int64_t *pbb, struct mod_mul_t *mult, int64_t *tmp[4]){
+
+	int i;
+
+	mul_rns_cr(tmp[0], mult->conv->rns_a, pa, pb); //A*B
+	mul_rns_cr(tmp[1], mult->conv->rns_b, pab, pbb); //A*B in base2	
+	mul_rns_cr(tmp[2], mult->conv->rns_a, tmp[0], mult->inv_p_modMa); //Q*{P-1}
+	base_conversion_cox(tmp[0], mult->conv, tmp[2],  0, 0, 0); //Q in base 2
+	mul_rns_cr(tmp[2] , mult->conv->rns_b, tmp[0], mult->p_modMb); // Q*P base2
+	add_rns_cr(tmp[0] , mult->conv->rns_b, tmp[1], tmp[2]); // A*B + Q*P in base 2
+	mul_rns_cr(rop, mult->conv->rns_b, tmp[0], mult->inv_Ma_modMb); // Division by Ma
+}

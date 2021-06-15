@@ -21,7 +21,7 @@ sudo ./init.sh
 
 ## Timings:
 - [x] Instructions per cycles
-- [ ] Explain cycles for first call (cool)
+- [x] Explain cycles for first call
 
 ## Vectorisation:
 - [x] Base conversion

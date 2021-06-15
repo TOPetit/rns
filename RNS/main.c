@@ -152,9 +152,8 @@ int main(void){
     rns_b.size = NB_COEFF;
 	rns_b.m = base2_bis;
 	rns_b.k = k2_bis;
+    
     init_rns(&rns_b);
-
-
 	conv.rns_a = &rns_a;
 	conv.rns_b = &rns_b;
 	initialize_inverses_base_conversion(&conv);		
@@ -177,7 +176,7 @@ int main(void){
 	uint128 mod, tmpo;
 	uint128 ta_l, tb_l;
 
-	for(i=0; i< (1<<20); i++)
+/*	for(i=0; i< (1<<20); i++)
 	{
 		ta=rand();   // Rand() produces an integer in [0, 2^30[
 		ta_l = ta<<32;
@@ -221,12 +220,12 @@ int main(void){
 	}
 
 	printf(" test of the modular multiplication Done\n");
-
+*/
 	gmp_randstate_t st;
 	gmp_randinit_default (st);
  	mpz_t AA, BB;
  	mpz_inits (AA, BB, NULL);
-	for(i=0; i< (1<<15); i++)
+/*	for(i=0; i< (1<<15); i++)
 	{
 		mpz_urandomm (AA, st, modul_p);  //Randomly generates A < P
 		// mpz_urandomm (BB, st, modul_p);  //Randomly generates B < P
@@ -240,7 +239,39 @@ int main(void){
 
 	}
 	printf("\n test of the base extension done\n");
+*/
 
+    //Cox conversion test
+    printf("##########################################\n");
+    init_rns(&rns_a);
+    
+    rns_b.size = NB_COEFF;
+	rns_b.m = base2_bis;
+	rns_b.k = k2_bis;
+    
+    init_rns(&rns_b);
+	conv.rns_a = &rns_a;
+	conv.rns_b = &rns_b;
+	initialize_inverses_base_conversion(&conv);		
+
+    from_int_to_rns(pa, &rns_a, A);
+    gmp_printf("Le A utilisé : %Zd\n", A);
+
+    printf("******* k= %d \n", compute_k_cox(pa, &rns_a, 0,0,0));
+    from_rns_to_int_crt(A, &rns_a, pa);
+    gmp_printf("A to be converted : %Zd\n", A);
+	printf("\n test of the cox conversion done\n");
+
+	gmp_printf("\nRNS Cox-Rower results : \nB to be converted   : %Zd\n", B);
+	from_int_to_rns(pa, &rns_a, B);
+//	printf("******* k= %d \n", compute_k_cox(pa, &rns_a, 0,0,0));
+
+	base_conversion_cox(pb, &conv, pa,  0,0,0);
+	from_rns_to_int_crt(C, &rns_b, pb);
+	gmp_printf("B converted  : %Zd\n", C);
+
+
+    printf("##########################################\n");
 
 	//Modular multiplication
 
@@ -501,6 +532,105 @@ int main(void){
     printf("\n RNS Crandall Modular multiplication : %lld CPU cycles  \n", meanTimer/NSAMPLES);
 
 
+    ///////////////////////////////////////////////////////////////////
+    // Crandall RNS base Cox conversion
+    ///////////////////////////////////////////////////////////////////
+
+       // Initialization
+
+    /* struct rns_base_t rns_c;
+	int64_t base3[NB_COEFF]={ 9223372036854775807,9223372036854775803,
+		9223372036854775799,9223372036854775795,9223372036854775787,
+		9223372036854775783,9223372036854775771,9223372036854775763};
+	int k3[NB_COEFF] = {1, 5, 9, 13, 21, 25, 37, 45};
+    rns_c.size = NB_COEFF;
+	rns_c.m = base3;
+	rns_c.k = k3;
+    init_rns(&rns_c);
+
+    struct rns_base_t rns_d;
+	int64_t base4[NB_COEFF]={ 9223372036854775805,9223372036854775801,
+		9223372036854775797,9223372036854775793,9223372036854775789,
+		9223372036854775781,9223372036854775777,9223372036854775769};
+	int k4[NB_COEFF] = { 3, 7, 11, 15, 19, 27, 31, 39};
+    rns_d.size = NB_COEFF;
+	rns_d.m = base4;
+	rns_d.k = k4;
+    init_rns(&rns_d);
+    */
+
+
+    // New constants for these new bases
+	mpz_set_str (inv_p_modM, "21693078482973340509982853143798430575319512745533392255515620251574074455759948281164430134922732925648364830157422883443108685399968728543675726190767", 10);
+		
+	mpz_set_str (inv_M_modMp, "129815111504256952841543163587079826784843206503137094084041764328371834023366811606378043065985956427717294679212436277317010435733086197442429103533", 10);
+	//struct conv_base_t conv2;
+
+	conv2.rns_a = &rns_c;
+	conv2.rns_b = &rns_d;
+	initialize_inverses_base_conversion(&conv2);	
+
+	from_int_to_rns(pa, &rns_c, A);
+	from_int_to_rns(pb, &rns_c, B);
+	from_int_to_rns(pab, &rns_d, A);
+	from_int_to_rns(pbb, &rns_d, B);
+	from_int_to_rns(pp1, &rns_c, inv_p_modM);   //(-P)^-1 mod Ma
+	from_int_to_rns(pp2, &rns_d, modul_p);      // P mod Mb
+	from_int_to_rns(pp3, &rns_d, inv_M_modMp);  // Ma^{-1} mod Mb
+
+	mult.inv_p_modMa = pp1;
+	mult.p_modMb = pp2;
+	mult.inv_Ma_modMb = pp3;
+	mult.conv = &conv2;
+
+    meanTimer =0;
+	meanTimer2 =0;
+	// Heating caches
+	for(int i=0;i<NTEST;i++)
+	{
+		// appel de la fonction a mesurer a mettre ici
+		// juste pour chauffer les caches
+		mult_mod_rns_cr_cox(pc, pa, pab, pb, pbb, &mult, tmp);
+
+	}
+  
+	// timing
+	for(int i=0;i<NSAMPLES;i++)
+	{
+
+     // initialiser un nouveau jeu de donnees a tester
+		mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+		mpz_urandomm (B, state, modul_p);  //Randomly generates B < P
+		from_int_to_rns(pa, &rns_c, A);
+		from_int_to_rns(pb, &rns_c, B);
+		from_int_to_rns(pab, &rns_d, A);
+		from_int_to_rns(pbb, &rns_d, B);
+		timer = (unsigned long long int)0x1<<63;
+		timer2 = (unsigned long long int)0x1<<63;
+		for(int j=0;j<NTEST;j++)
+		{
+			t1 = cpucyclesStart();
+
+			// t1 = rdpmc_actual_cycles();
+			// nb1 = rdpmc_instructions();
+			// appeler la fonction ici avec toujours le meme jeu de donnees
+			mult_mod_rns_cr_cox(pc, pa, pab, pb, pbb, &mult, tmp);
+
+			// nb2= rdpmc_instructions();
+			// t2 = rdpmc_actual_cycles();
+			t2 = cpucyclesStop();
+			//if(timer2>nb2-nb1) timer2 = nb2-nb1;
+			if(timer>t2-t1) timer = t2-t1;
+		}
+		
+		meanTimer += timer;
+		//meanTimer2 += timer2;
+
+		//printf("%lld \n", meanTimer3);
+	}
+
+ //   printf("\n RNS Crandall Modular multiplication :  %lld instruction %lld CPU cycles %f IPC \n", meanTimer2/NSAMPLES, meanTimer/NSAMPLES, (double)meanTimer2/meanTimer);
+    printf("\n RNS Crandall Modular multiplication, cox conversion : %lld CPU cycles  \n", meanTimer/NSAMPLES);
 
 	mpz_clears (A, B, C, E, F, inv_p_modM, modul_p, inv_M_modMp, NULL);
 

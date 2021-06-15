@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <sys/syscall.h>
 
-#define NTEST 1000 // nombre de fois ou on repete le meme jeu de donnees
-#define NSAMPLES 50 // nombre differents de jeu de donnees
+#define NTEST 10000 // nombre de fois ou on repete le meme jeu de donnees
+#define NSAMPLES 500 // nombre differents de jeu de donnees
 
 inline  uint64_t cpucyclesStart (void) ;
 inline  uint64_t cpucyclesStop (void) ;

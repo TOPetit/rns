@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <sys/syscall.h>
 
-#define NTEST 500 // nombre de fois ou on repete le meme jeu de donnees
-#define NSAMPLES 200 // nombre differents de jeu de donnees
+#define NTEST 1000 // nombre de fois ou on repete le meme jeu de donnees
+#define NSAMPLES 50 // nombre differents de jeu de donnees
 
 /**** Measurements procedures according to INTEL white paper
 

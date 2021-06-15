@@ -20,7 +20,7 @@ sudo ./init.sh
 # TODO
 
 ## Timings:
-- [ ] Instructions per cycles
+- [x] Instructions per cycles
 - [ ] Explain cycles for first call (cool)
 
 ## Vectorisation:

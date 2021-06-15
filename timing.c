@@ -161,7 +161,7 @@ int main(void){
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 
@@ -272,7 +272,7 @@ int main(void){
 		}
 
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 
@@ -381,7 +381,7 @@ int main(void){
 
 
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 
@@ -496,7 +496,7 @@ int main(void){
 
 
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 
@@ -602,7 +602,7 @@ int main(void){
 
 
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 
@@ -715,7 +715,7 @@ int main(void){
 
 
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 
@@ -857,7 +857,7 @@ int main(void){
 
 
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 
@@ -965,7 +965,7 @@ int main(void){
 
 
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 
@@ -1130,7 +1130,7 @@ int main(void){
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 	}
@@ -1275,7 +1275,7 @@ int main(void){
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 	}
@@ -1384,7 +1384,7 @@ int main(void){
 			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
 		}
 		fprintf(fpt,"\t\t\t{\n");
-		fprintf(fpt, "\t\t\t\t\"Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
 		if (i < NSAMPLES - 1) fprintf(fpt, ",");
 		fprintf(fpt, "\n");
 	}

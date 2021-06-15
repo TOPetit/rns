@@ -399,3 +399,17 @@ void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb,
 }
 
 
+// COX
+
+int avx_compute_k_cox(__m256i *op, struct rns_base_t *base, int r, int q, int alpha) {
+	return 0;
+}
+
+void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int r, int q, int alpha) {
+
+}
+
+void avx_mult_mod_rns_cr_cox(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb, 
+	__m256i *pbb, struct mod_mul_t *mult, __m256i *tmp[4]) {
+
+	}

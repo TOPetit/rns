@@ -29,6 +29,7 @@ struct rns_base_t
 	int64_t *inv_p;     // p^{-1} mod M in the RNS base
 	mpz_t *Mi;          // Mi for the CRT conversion
 	mpz_t *inv_Mi;      // Mi^{-1} mod mi for the CRT conversion
+	int64_t *int_inv_Mi; // Mi^{-1} mod mi for the Cox conversion
 	mpz_t M;            // M for the CRT conversion
 };
 
@@ -39,6 +40,9 @@ struct conv_base_t //Constants for the RNSa -> RNSb conversion
 	int64_t **inva_to_b;       // modular inverses of RNSa modulo RNSb
 	int64_t **mrsa_to_b;       // MRS Radices modulo RNSb
 	__m256i **avx_mrsa_to_b; // mrsa_to_b vectored
+
+	int64_t *invM_modPi;       // -M^{-1}mod pi for Cox conversion /////////////////////
+	int64_t **Mi_modPi;        // Mi mod pj  for Cox conversion    /////////////////////
 };
 
 struct mod_mul_t // Constants for modular multiplication from RNSa to RNSb

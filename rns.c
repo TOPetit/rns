@@ -610,3 +610,121 @@ int64_t mul_mod_cr(int64_t a, int64_t b, int k)
 	}
 	return res;
 }
+
+//////////////////////////////////////////////
+// Cox-rower method for conversion
+//////////////////////////////////////////////
+int compute_k_cox(int64_t *op, struct rns_base_t *base, int r, int q, int alpha)
+{
+	int i;
+	int n, sigma, k=0, k_i;
+	int64_t mask, mask2, xhi, trunk;  //We certainly could compute with 32bits words, Probably less
+
+    //int32_t low_mask, up_mask;
+        
+
+	r=63; //////////////////////////////////////
+	q=7; //////////////////////////////////
+	alpha = ((int64_t)1<<(q-1)); //////////////////////////////////////////
+
+	mask = ((int64_t)1<<r) - ((int64_t)1<<(r-q));
+	mask2 = ((int64_t)1<<q);
+	n=base->size;
+
+ 	//printf(" mask = %ld mask2 = %ld  n = %d \n",mask, mask2, n);
+   
+    //low_mask = (int32_t)mask;
+    //up_mask= (int32_t)((uint64_t)mask>>32); 
+
+    //printf("upmask = %d  low mask = %d \n", up_mask, low_mask);
+
+    sigma = alpha;
+
+    //printf("alpha = %d\n",alpha);
+
+	for(i=0;i<n;i++)
+	{
+//		xhi = op[i] * base->int_invM_i[i] % base->m[i];
+
+		xhi = mul_mod_cr(op[i], base->int_inv_Mi[i], base->k[i]);    // x_i*invM_i mod m_i
+		trunk = xhi & mask; 
+
+		//trunk = ((xhi>>32) & up_mask)<<32;  // There are some unusefull operations. Works if q<r/2
+		//printf("zzzz xhi = %ld, xhi_shift=%ld  xhi_s_masked=%ld trunk = %ld \n", xhi, xhi>>32, (xhi>>32) & up_mask, trunk);
+
+		sigma += trunk >>(r-q);
+		k_i = sigma & mask2;
+
+	//	gmp_printf("inv_Mi[%d] = %Zd ", i, base->inv_Mi[i]);
+	//	printf("op[%d]=%ld int_inv_Mi[%d]=%ld xhi[%d]= %ld  trunk[%d]=%ld  sigma[%d]=%d   k[%d]=%d \n ", i, op[i], i, base->int_inv_Mi[i], i, xhi, i, trunk, i, sigma, i, k_i);
+
+		sigma -= k_i;
+		k_i = k_i >> q ;
+
+//printf("k[%d]=%d \n", i, k_i);
+
+		k += k_i;
+	}
+    return k;
+}
+
+/////////////////////////////////////////////
+// Base conversion using Cox-Rower metod
+/////////////////////////////////////////////
+void base_conversion_cox(int64_t *rop, struct conv_base_t *conv_base, int64_t *op, int r, int q, int alpha)
+{
+	int i, j;
+	int n, k_i;
+	int sigma;
+	//unsigned char sigma;
+	int64_t mask, mask2, xhi, trunk;  //We certainly could compute with 32bits words, Probably less     
+    int size = conv_base->rns_a->size; //Should be the size of secondary base
+    int64_t tmp, tmp2, tmp3;
+
+	r=63; //////////////////////////////////////
+	q=7; //////////////////////////////////
+	alpha = ((int64_t)1<<(q-1)); //////////////////////////////////////////
+
+	mask = ((int64_t)1<<r) - ((int64_t)1<<(r-q));
+	mask2 = ((int64_t)1<<q);
+	n = conv_base->rns_a->size;
+
+ 	//printf(" mask = %ld mask2 = %ld  n = %d \n",mask, mask2, n);
+   
+    sigma = alpha;
+
+    //printf("alpha = %d\n",alpha);
+ 
+    // Initialize rop[]
+    for(i=0;i<n;i++)
+    	rop[i]=0;
+	for(i=0;i<n;i++)
+	{
+//		xhi = op[i] * base->int_invM_i[i] % base->m[i];
+
+		xhi = mul_mod_cr(op[i], conv_base->rns_a->int_inv_Mi[i], conv_base->rns_a->k[i]);    // x_i*invM_i mod m_i
+		trunk = xhi & mask; 
+
+		//printf("zzzz xhi = %ld, xhi_shift=%ld  xhi_s_masked=%ld trunk = %ld \n", xhi, xhi>>32, (xhi>>32) & up_mask, trunk);
+
+		sigma += trunk >>(r-q);
+		k_i = sigma & mask2;
+
+//		gmp_printf("inv_Mi[%d] = %Zd ", i, base->inv_Mi[i]);
+//		printf("£££op[%d]=%ld int_inv_Mi[%d]=%ld xhi[%d]= %ld  trunk[%d]=%ld  sigma[%d]=%d   k[%d]=%d \n ", i, op[i], i, conv_base->rns_a->int_inv_Mi[i], i, xhi, i, trunk, i, sigma, i, k_i);
+
+		sigma -= k_i;
+		k_i = k_i >> q ;  // 0 or 1
+
+//printf("k[%d]=%d \n", i, k_i);
+
+		for(j=0; j<size ;j++)  // Computation of tmp2 has been simplified
+		{
+			tmp = mul_mod_cr(xhi, conv_base->Mi_modPi[i][j], conv_base->rns_b->k[j]);
+			tmp2 = conv_base->invM_modPi[j]*k_i;
+			tmp3 = add_mod_cr(tmp, tmp2, conv_base->rns_b->k[j]);
+			//rop[j]+=tmp3;
+			rop[j] = add_mod_cr(rop[j], tmp3, conv_base->rns_b->k[j]);
+		}
+	}
+}

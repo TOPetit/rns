@@ -68,12 +68,16 @@ int main(void){
     from_rns_to_m256i(avx_k,&rns_a,tmp_k);
     rns_a.avx_k = avx_k;
 
+/*
+	__m256i avx_inv_Mi[NB_COEFF/4];
+	from_rns_to_m256i(avx_inv_Mi, &rns_a, rns_a.inv_Mi);
+	rns_a.avx_inv_Mi = avx_inv_Mi;
+*/
 	
 	mpz_t M;
 	mpz_inits(M, NULL);
 	mpz_set(M, rns_a.M); // Get M from the base
 	unsigned long long int timing = ULLONG_MAX;
-	unsigned long long int memory_cycles, memory_actual_cycles, memory_instructions, memory_ref;
 	unsigned long before_cycles, after_cycles, cycles = ULONG_MAX;
 	unsigned long before_instructions, after_instructions, instructions = ULONG_MAX;
 	unsigned long before_ref, after_ref, ref = ULONG_MAX;
@@ -175,11 +179,6 @@ int main(void){
 	printf("\tRNS sequential multiplication : %ld reference CPU cycles.\n", ref);
 
 	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
-	
-	memory_cycles = timing;
-	memory_actual_cycles = cycles;
-	memory_instructions = instructions;
-	memory_ref = ref;
 
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
@@ -288,13 +287,6 @@ int main(void){
 	printf("\tRNS vectorized multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS vectorized multiplication : %ld reference CPU cycles.\n", ref);
 
-	printf("\n\t -> %lld \%% cycles improvment.\n", 100 - (100 * timing) / memory_cycles);
-	printf("\t -> %lld \%% instructions improvment.\n", 100 - (100 * instructions) / memory_instructions);
-	printf("\t -> %lld \%% actual cycles improvment.\n", 100 - (100 * cycles) / memory_actual_cycles);
-	printf("\t -> %lld \%% reference cycles improvment.\n", 100 - (100 * ref) / memory_ref);
-	
-
-
 
 	printf("\n\n2. Addition :\n");
 
@@ -398,11 +390,6 @@ int main(void){
 	printf("\tRNS sequential addition : %ld reference CPU cycles.\n", ref);
 
 	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
-
-	memory_cycles = timing;
-	memory_actual_cycles = cycles;
-	memory_instructions = instructions;
-	memory_ref = ref;
 
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
@@ -511,12 +498,7 @@ int main(void){
 	printf("\tRNS vectorized addition : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS vectorized addition : %ld reference CPU cycles.\n", ref);
 
-	printf("\n\t -> %lld \%% cycles improvment.\n", 100 - (100 * timing) / memory_cycles);
-	printf("\t -> %lld \%% instructions improvment.\n", 100 - (100 * instructions) / memory_instructions);
-	printf("\t -> %lld \%% actual cycles improvment.\n", 100 - (100 * cycles) / memory_actual_cycles);
-	printf("\t -> %lld \%% reference cycles improvment.\n", 100 - (100 * ref) / memory_ref);
-
-
+	
 	printf("\n\n3. Substraction :\n");
 
 	fprintf(fpt, "\"substraction\" :\n\t{\n");
@@ -618,10 +600,7 @@ int main(void){
 
 	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
-	memory_cycles = timing;
-	memory_actual_cycles = cycles;
-	memory_instructions = instructions;
-	memory_ref = ref;
+	
 
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
@@ -729,12 +708,6 @@ int main(void){
 	printf("\tRNS vectorized substraction : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS vectorized substraction : %ld reference CPU cycles.\n", ref);
 
-	printf("\n\t -> %lld \%% cycles improvment.\n", 100 - (100 * timing) / memory_cycles);
-	printf("\t -> %lld \%% instructions improvment.\n", 100 - (100 * instructions) / memory_instructions);
-	printf("\t -> %lld \%% actual cycles improvment.\n", 100 - (100 * cycles) / memory_actual_cycles);
-	printf("\t -> %lld \%% reference cycles improvment.\n", 100 - (100 * ref) / memory_ref);
-
-	
 
 
 	// Second Base
@@ -762,13 +735,26 @@ int main(void){
     from_rns_to_m256i(avx_k2,&rns_b,tmp_k2); 
     rns_b.avx_k = avx_k2;
 
+	/*
+	__m256i avx_inv_Mi2[NB_COEFF/4];
+	from_rns_to_m256i(avx_inv_Mi2, &rns_b, rns_b.inv_Mi);
+	rns_b.avx_inv_Mi = avx_inv_Mi2;
+*/
 
 	// Base conversion
 	struct conv_base_t conv;
 	conv.rns_a = &rns_a;
 	conv.rns_b = &rns_b;
 	initialize_inverses_base_conversion(&conv);
+/*
+	__m256i avx_invM_modPi[NB_COEFF/4];
+	from_int_to_m256i(conv.invM_modPi);
+	conv.avx_invM_modPi = avx_invM_modPi;
 
+	__m256i avx_Mi_modPi[NB_COEFF/4];
+	from_int_to_m256i(conv.Mi_modPi);
+	conv.avx_Mi_modPi = avx_Mi_modPi;
+*/
 
 	int64_t ttt[NB_COEFF];
 
@@ -874,11 +860,6 @@ int main(void){
 	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
 
-	memory_cycles = timing;
-	memory_actual_cycles = cycles;
-	memory_instructions = instructions;
-	memory_ref = ref;
-
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
 	instructions = ULONG_MAX;
@@ -979,11 +960,7 @@ int main(void){
 	printf("\tRNS vectorized base conversion : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS vectorized base conversion : %ld reference CPU cycles.\n", ref);
 
-	printf("\n\t -> %lld \%% cycles improvment.\n", 100 - (100 * timing) / memory_cycles);
-	printf("\t -> %lld \%% instructions improvment.\n", 100 - (100 * instructions) / memory_instructions);
-	printf("\t -> %lld \%% actual cycles improvment.\n", 100 - (100 * cycles) / memory_actual_cycles);
-	printf("\t -> %lld \%% reference cycles improvment.\n", 100 - (100 * ref) / memory_ref);
-
+	
 
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
@@ -1145,11 +1122,7 @@ int main(void){
 
 	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
-	memory_cycles = timing;
-	memory_actual_cycles = cycles;
-	memory_instructions = instructions;
-	memory_ref = ref;
-
+	
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
 	instructions = ULONG_MAX;
@@ -1177,7 +1150,7 @@ int main(void){
 	__m256i tmp0[NB_COEFF/4];
 	__m256i tmp1[NB_COEFF/4];
 	__m256i tmp2[NB_COEFF/4];
-	// /!\ Using an array is less efficient
+	// Using an array is less efficient
 
 	mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
 	mpz_urandomm (B, state, modul_p);  //Randomly generates A < P
@@ -1288,10 +1261,6 @@ int main(void){
 	printf("\tRNS parallel modular multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS parallel modular multiplication : %ld reference CPU cycles.\n", ref);
 
-	printf("\n\t -> %lld \%% cycles improvment.\n", 100 - (100 * timing) / memory_cycles);
-	printf("\t -> %lld \%% instructions improvment.\n", 100 - (100 * instructions) / memory_instructions);
-	printf("\t -> %lld \%% actual cycles improvment.\n", 100 - (100 * cycles) / memory_actual_cycles);
-	printf("\t -> %lld \%% reference cycles improvment.\n", 100 - (100 * ref) / memory_ref);
 
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
@@ -1302,12 +1271,18 @@ int main(void){
 
 
 	// Cox conversion
-	printf("\n\n6. Cox Base conversion :\n");
+	printf("\n\n6. Cox modular multiplication :\n");
 
-	fprintf(fpt, "\"cox_conversion\" :\n\t{\n");
+	fprintf(fpt, "\"cox_mod_mul\" :\n\t{\n");
 	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
 
-
+ 
+	mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+	mpz_urandomm (B, state, modul_p);  //Randomly generates A < P
+	from_int_to_rns(pa, &rns_a, A);
+	from_int_to_rns(pb, &rns_a, B);
+	from_int_to_rns(pab, &rns_b, A);
+	from_int_to_rns(pbb, &rns_b, B);
 
 	// Heating caches
 	printf("\n\tHeating caches... ");
@@ -1316,7 +1291,7 @@ int main(void){
 	from_int_to_rns(op1, &rns_a, A);
 	for (int i=0; i<NTEST; i++) {
 
-    	base_conversion_cox(res, &conv, op1, 0, 0, 0);
+    	mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
 
 	}
 	printf("Done.\n");
@@ -1326,19 +1301,23 @@ int main(void){
 
 	for(int i=0;i<NSAMPLES;i++) {
 
-		mpz_urandomm(A, state, M);
-		from_int_to_rns(op1, &rns_a, A);
+		mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+		mpz_urandomm (B, state, modul_p);  //Randomly generates A < P
+		from_int_to_rns(pa, &rns_a, A);
+		from_int_to_rns(pb, &rns_a, B);
+		from_int_to_rns(pab, &rns_b, A);
+		from_int_to_rns(pbb, &rns_b, B);
 
 		for(int j=0;j<NTEST;j++) {
 
 			// RDTSC
 			t1 = cpucyclesStart();
 
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
 			
 			t2 = cpucyclesStop();
 
@@ -1347,11 +1326,11 @@ int main(void){
 			// Instructions
 			before_instructions = rdpmc_instructions();
 
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
 			
 			after_instructions = rdpmc_instructions();
 
@@ -1360,11 +1339,11 @@ int main(void){
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
 
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
 			
 			after_cycles = rdpmc_actual_cycles();
 
@@ -1373,11 +1352,128 @@ int main(void){
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
 
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
-			base_conversion_cox(res, &conv, op1, 0, 0, 0);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			mult_mod_rns_cr_cox(res, pa, pab, pb, pbb, &mult, tmp);
+			
+			after_ref = rdpmc_reference_cycles();
+
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
+		}
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
+	}
+
+	fprintf(fpt, "\t\t],\n");
+
+	printf("Done.\n");
+	printf("\tRNS sequential cox base conversion : %lld CPU cycles.\n", timing);
+	printf("\tRNS sequential cox base conversion : %ld instructions.\n", instructions);
+	printf("\tRNS sequential cox base conversion : %ld actual CPU cycles.\n", cycles);
+	printf("\tRNS sequential cox base conversion : %ld reference CPU cycles.\n", ref);
+
+	timing = ULLONG_MAX;
+	cycles = ULONG_MAX;
+	instructions = ULONG_MAX;
+	ref = ULONG_MAX;
+
+	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
+
+	// Heating caches
+	printf("\n\tHeating caches... ");
+
+	mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+	mpz_urandomm (B, state, modul_p);  //Randomly generates A < P
+		
+	from_int_to_rns(pa, &rns_a, A);
+	from_int_to_rns(pb, &rns_a, B);
+	from_int_to_rns(pab, &rns_b, A);
+	from_int_to_rns(pbb, &rns_b, B);
+
+	from_rns_to_m256i(avx_pa, &rns_a, pa);
+	from_rns_to_m256i(avx_pb, &rns_a, pb);
+	from_rns_to_m256i(avx_pab, &rns_b, pab);
+	from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+
+	for (int i=0; i<NTEST; i++) {
+
+    	avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+
+	}
+	printf("Done.\n");
+
+	// Testing
+	printf("\tTesting... ");
+
+	for(int i=0;i<NSAMPLES;i++) {
+
+		mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+		mpz_urandomm (B, state, modul_p);  //Randomly generates A < P
+
+		from_int_to_rns(pa, &rns_a, A);
+		from_int_to_rns(pb, &rns_a, B);
+		from_int_to_rns(pab, &rns_b, A);
+		from_int_to_rns(pbb, &rns_b, B);
+
+		from_rns_to_m256i(avx_pa, &rns_a, pa);
+		from_rns_to_m256i(avx_pb, &rns_a, pb);
+		from_rns_to_m256i(avx_pab, &rns_b, pab);
+		from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+	
+
+		for(int j=0;j<NTEST;j++) {
+
+			// RDTSC
+			t1 = cpucyclesStart();
+
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			
+			t2 = cpucyclesStop();
+
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
+
+			// Instructions
+			before_instructions = rdpmc_instructions();
+
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			
+			after_instructions = rdpmc_instructions();
+
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
+
+			// actual cycles
+			before_cycles = rdpmc_actual_cycles();
+
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			
+			after_cycles = rdpmc_actual_cycles();
+
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
+
+			// reference cycles
+			before_ref = rdpmc_reference_cycles();
+
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+			avx_mult_mod_rns_cr_cox(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
 			
 			after_ref = rdpmc_reference_cycles();
 
@@ -1392,20 +1488,11 @@ int main(void){
 	fprintf(fpt, "\t\t]\n\t}\n}");
 
 	printf("Done.\n");
-	printf("\tRNS sequential cox base conversion : %lld CPU cycles.\n", timing);
-	printf("\tRNS sequential cox base conversion : %ld instructions.\n", instructions);
-	printf("\tRNS sequential cox base conversion : %ld actual CPU cycles.\n", cycles);
-	printf("\tRNS sequential cox base conversion : %ld reference CPU cycles.\n", ref);
+	printf("\tRNS parallel cox base conversion : %lld CPU cycles.\n", timing);
+	printf("\tRNS parallel cox base conversion : %ld instructions.\n", instructions);
+	printf("\tRNS parallel cox base conversion : %ld actual CPU cycles.\n", cycles);
+	printf("\tRNS parallel cox base conversion : %ld reference CPU cycles.\n", ref);
 
-	memory_cycles = timing;
-	memory_actual_cycles = cycles;
-	memory_instructions = instructions;
-	memory_ref = ref;
-
-	timing = ULLONG_MAX;
-	cycles = ULONG_MAX;
-	instructions = ULONG_MAX;
-	ref = ULONG_MAX;
 
 
 	fclose(fpt);

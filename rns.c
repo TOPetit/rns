@@ -548,7 +548,7 @@ int compute_k_cox(int64_t *op, struct rns_base_t *base, int r, int q, int alpha)
 	int i;
 	int n, sigma, k=0, k_i;
 	int64_t mask, mask2, xhi, trunk;  //We certainly could compute with 32bits words, Probably less
-
+	printf("\nk COMPUTED\n");
     //int32_t low_mask, up_mask;
         
 

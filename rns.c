@@ -24,15 +24,12 @@ inline void add_rns_cr(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64
 	int j;
 	// int128 tmp;
 	// int128 up;
-	int64_t tmp, up, lo, mask = ((int64_t)1<<63) -1;  /////////////////////////////////////
+	//int64_t tmp, up, lo, mask = ((int64_t)1<<63) -1;  /////////////////////////////////////
 	
 	for (j=0; j<base->size; j++)
 	{
 		rop[j] = add_mod_cr(pa[j], pb[j], base->k[j]);
 	}
-
-	//printf("%ld %ld %ld %ld \n",rop[0],rop[1],rop[2],rop[3]);
-	//printf("%ld %ld %ld %ld \n",rop[4],rop[	5],rop[6],rop[7]);
 }
 
 ///////////////////////////////
@@ -156,17 +153,27 @@ void mult_mod_rns_cr(int64_t *rop, int64_t *pa, int64_t *pab, int64_t *pb,
 	int i;
 
 	mul_rns_cr(tmp[0], mult->conv->rns_a, pa, pb); //A*B
-	mul_rns_cr(tmp[1], mult->conv->rns_b, pab, pbb); //A*B in base2
-
-	// base_conversion_cr(tmp[1], mult->conv, tmp[0], tmp[3]); // A*B in base2
-	
+	mul_rns_cr(tmp[1], mult->conv->rns_b, pab, pbb); //A*B in base2	
 	mul_rns_cr(tmp[2], mult->conv->rns_a, tmp[0], mult->inv_p_modMa); //Q*{P-1}
-
 	base_conversion_cr(tmp[0], mult->conv, tmp[2], tmp[3]); // Q in base2
 	mul_rns_cr(tmp[2] , mult->conv->rns_b, tmp[0], mult->p_modMb); // Q*P base2
 	add_rns_cr(tmp[0] , mult->conv->rns_b, tmp[1], tmp[2]); // A*B + Q*P in base 2
 	mul_rns_cr(rop, mult->conv->rns_b, tmp[0], mult->inv_Ma_modMb); // Division by Ma
+}
 
+
+void mult_mod_rns_cr_cox(int64_t *rop, int64_t *pa, int64_t *pab, int64_t *pb, 
+	int64_t *pbb, struct mod_mul_t *mult, int64_t *tmp[4]){
+
+	int i;
+
+	mul_rns_cr(tmp[0], mult->conv->rns_a, pa, pb); //A*B
+	mul_rns_cr(tmp[1], mult->conv->rns_b, pab, pbb); //A*B in base2	
+	mul_rns_cr(tmp[2], mult->conv->rns_a, tmp[0], mult->inv_p_modMa); //Q*{P-1}
+	base_conversion_cox(tmp[0], mult->conv, tmp[2],  0, 0, 0); //Q in base 2
+	mul_rns_cr(tmp[2] , mult->conv->rns_b, tmp[0], mult->p_modMb); // Q*P base2
+	add_rns_cr(tmp[0] , mult->conv->rns_b, tmp[1], tmp[2]); // A*B + Q*P in base 2
+	mul_rns_cr(rop, mult->conv->rns_b, tmp[0], mult->inv_Ma_modMb); // Division by Ma
 }
 
 ///////////////////////////////
@@ -190,7 +197,6 @@ void from_int_to_rns(int64_t *rop, struct rns_base_t *base, mpz_t op){
 //		printf(" i %d\n",i);
 		
 		mpz_fdiv_r_ui(tmp_residue, op, base->m[i]);
-		//printf("%ld\n",mpz_get_ui(tmp_residue));//ajouté pour comprendre des trucs
 		rop[i] = mpz_get_ui(tmp_residue);
 	}
 	
@@ -211,9 +217,12 @@ void init_rns(struct rns_base_t *base)
 	mpz_t *inv_Mi; 
 	int i;
 	mpz_t tmp_gcd, tmp_mi, tmp, t; 
-
+	int64_t *int_inv_Mi;
+	int64_t up;
+	
 	Mi = (mpz_t*)malloc(base->size*sizeof(mpz_t));
 	inv_Mi = (mpz_t*)malloc(base->size*sizeof(mpz_t));
+	int_inv_Mi = (int64_t*)malloc(base->size*sizeof(int64_t));
 	for(i=0; i<base->size;i++)
 	{
 		mpz_init(Mi[i]);
@@ -222,6 +231,7 @@ void init_rns(struct rns_base_t *base)
 	mpz_init(base->M);
 	mpz_init(tmp_gcd);
 	mpz_init(tmp_mi);
+	mpz_init(tmp);
 	mpz_init(t);
 
 	// Computes M
@@ -237,7 +247,22 @@ void init_rns(struct rns_base_t *base)
 	}
 	base->Mi = Mi;
 	base->inv_Mi = inv_Mi;
-	mpz_clears(tmp_gcd, tmp_mi, t, NULL);
+    // Converts inv_Mi in RNS ie just Inv_Mi mod m_i
+	for(i=0; i<base->size; i++){ 
+			int_inv_Mi[i] = mpz_get_si(inv_Mi[i]); 
+
+			//printf("lll %ld \n",int_inv_Mi[i]);
+
+		//	mpz_tdiv_q_2exp(tmp, inv_Mi[i], 32);  //gives the up part
+		//	gmp_printf("inv_M[%d] = %Zd\n", i, inv_Mi[i]);
+		//	up = mpz_get_si(tmp);
+		//	printf("uuu %ld \n",up);
+
+		//	int_inv_Mi[i] += up<<32;
+		//	printf("iii %ld \n",int_inv_Mi[i]);
+	}
+	base->int_inv_Mi = int_inv_Mi;
+	mpz_clears(tmp_gcd, tmp_mi, tmp, t, NULL);
 	
 }
 
@@ -267,7 +292,7 @@ void clear_rns(struct rns_base_t *base)
 void from_rns_to_int_crt(mpz_t rop, struct rns_base_t *base, int64_t *op){
 	mpz_t tmp; 
 	int i;
-		
+	
 	// Initializations
 	mpz_init(tmp);
 	mpz_set_ui(rop,0);
@@ -278,8 +303,12 @@ void from_rns_to_int_crt(mpz_t rop, struct rns_base_t *base, int64_t *op){
 		mpz_mul(tmp, tmp, base->Mi[i]);
 		mpz_add(rop, rop, tmp);		
 	}
+	//mpz_fdiv_q(tmp, rop, base->M);
+	//gmp_printf("k with gmp : %Zd\n", tmp);
+
     // Modulo M	
 	mpz_fdiv_r(rop, rop, base->M);
+
 	mpz_clear(tmp);
 }
    
@@ -320,16 +349,25 @@ void initialize_inverses_base_conversion(struct conv_base_t *conv_base){
 	int128 tmp2;
 //	int64_t res;
 //	int128 prod;
-	
+	mpz_t tmpz, tmp_residue, tmp_divisor; 
+
 	int size = conv_base->rns_a->size;
+
+    mpz_init(tmpz);
+    mpz_init(tmp_residue);
+    mpz_init(tmp_divisor);
 
 	// Memory allocation for mrs and inverse
 	conv_base->inva_to_b = (int64_t **) malloc(size*sizeof(int64_t*));
-	conv_base->mrsa_to_b = (int64_t **) malloc(size*sizeof(int64_t*));		
+	conv_base->mrsa_to_b = (int64_t **) malloc(size*sizeof(int64_t*));	
+	conv_base->Mi_modPi  = (int64_t **) malloc(size*sizeof(int64_t*));	
+	conv_base->invM_modPi  = (int64_t *) malloc(size*sizeof(int64_t));
+
 	for(i=0; i<NB_COEFF; i++)
 	{
 		conv_base->inva_to_b[i] = (int64_t *) malloc(size*sizeof(int64_t));
 		conv_base->mrsa_to_b[i] = (int64_t *) malloc(size*sizeof(int64_t));	
+		conv_base->Mi_modPi[i]  = (int64_t *) malloc(size*sizeof(int64_t));	
 	}
     // Initialization of the arrays for mrs and inverse
 	for(i=0; i<size; i++)  
@@ -372,6 +410,34 @@ void initialize_inverses_base_conversion(struct conv_base_t *conv_base){
 //	for(i=0; i<NB_COEFF-1; i++)
 //		for(j = 0; j<NB_COEFF; j++)
 //			printf("mrs[%d, %d] = %ld\n",i ,j, mrs[i][j]); 
+	// -M in base b
+	mpz_neg (tmpz, conv_base->rns_a->M);
+
+//gmp_printf("M = %Zd \n-M=%Zd\n", conv_base->rns_a->M, tmpz);
+//printf("Taille base b %d\n", conv_base->rns_b->size);
+
+	for(i=0; i<conv_base->rns_b->size; i++){
+		//mpz_set_ui(tmp_divisor, conv_base->rns_b->m[i]); 
+		mpz_fdiv_r_ui(tmp_residue, tmpz, conv_base->rns_b->m[i]);
+
+//gmp_printf("p[%d]=%ld MmodPi=%Zd \n", i, conv_base->rns_b->m[i], tmp_residue);
+
+		conv_base->invM_modPi[i] = mpz_get_ui(tmp_residue);
+	}
+    // Mi mod pj
+    for(i=0; i<conv_base->rns_a->size; i++)
+    {
+//gmp_printf("M[%d]=%Zd \n", i, conv_base->rns_a->Mi[i]);
+
+ 		for(j=0; j<conv_base->rns_b->size; j++)
+ 		{
+ 			//mpz_set_ui(tmp_divisor, conv_base->rns_b->m[i]); 
+ 			mpz_fdiv_r_ui(tmp_residue, conv_base->rns_a->Mi[i], conv_base->rns_b->m[j]);
+ 			conv_base->Mi_modPi[i][j] = mpz_get_ui(tmp_residue);
+//printf("   p[%d]=%ld   Mi_modPi[%d][%d]=%ld\n", j, conv_base->rns_b->m[j], i, j, conv_base->Mi_modPi[i][j]);
+ 		}
+    }
+ 	mpz_clears(tmpz, tmp_residue, tmp_divisor, NULL);
 }
 
 ///////////////////////////////////////////////////////
@@ -448,9 +514,9 @@ void base_conversion_cr(int64_t *rop, struct conv_base_t *conv_base, int64_t *op
 		for(j = i+1; j<size; j++)
 		{
 			tmp = a[j]-a[i];
-			a[j] = mul_mod_cr(tmp, conv_base->inva_to_b[i][j],  conv_base->rns_a->k[j]);
-			if(a[j]<0)	// Sinon ca part en couille ?
-				a[j]+=conv_base->rns_a->m[j];
+			a[j] = mul_mod_cr_t(tmp, conv_base->inva_to_b[i][j],  conv_base->rns_a->k[j]);
+			// if(a[j]<0)	// Sinon ca part en couille ??????? To be Checked
+			// 	a[j]+=conv_base->rns_a->m[j];
 		}
 
 	}
@@ -465,151 +531,14 @@ void base_conversion_cr(int64_t *rop, struct conv_base_t *conv_base, int64_t *op
 			tmp = mul_mod_cr(a[i], conv_base->mrsa_to_b[i-1][j], conv_base->rns_b->k[j]);
 			rop[j]= add_mod_cr(rop[j], tmp, conv_base->rns_b->k[j]);
 
-			if (rop[j]<0){	//Sinon, ca part en couille ?????????????
-				rop[j] += conv_base->rns_b->m[j];
-				printf("conv");
-			}
+			// if (rop[j]<0){	//Sinon, ca part en couille ????????????? To be checked
+			// 	rop[j] += conv_base->rns_b->m[j];
+			// 	printf("conv");
+			// }
 		}
 	} 
 }
 
-///////////////////////////////////////////////////////
-// Converts a RNS number from a base into an other
-// using the Shenoy - Kumaresan approximate conversion
-// IN DEVELOPMENT
-///////////////////////////////////////////////////////
-
-void base_conversion_sk(int64_t *rop, struct conv_base_t *conv_base, int64_t *op, int64_t *a){	
-	int i, j;
-//	int64_t a[NB_COEFF];  // En externe, car ça prend du temps 
-	int64_t tmp;
-	int128 tmp2;
-	int128 tmp3;
-	int64_t up, up2, lo, lo2;
-	int64_t mask = ((int64_t)1<<63) -1;  /////////////////////////////////////
-	int size = conv_base->rns_a->size;
-
-
-	int64_t xi[NB_COEFF];
-	int64_t sigma=0;		// Sigma_0
-	int64_t t1, t2, t, q;
-	mul_rns(xi, conv_base->rns_a, op, conv_base->mrsa_to_b[0]);  // Juste pour le LOL
-	for(i=0; j<size; i++){
-		t = xi[i]/conv_base->rns_a->m[i];
-		sigma += t;
-		q=sigma;
-		sigma -=q;
-		for(j=0; j<size; j++){
-			t1 = mul_mod_cr(xi[i],conv_base->mrsa_to_b[1][j], conv_base->rns_b->k[i]); // Juste pour le LOL
-			rop[j] = add_mod_cr(rop[j], t1, conv_base->rns_b->k[i]);
-			t1= mul_mod_cr(q,conv_base->mrsa_to_b[1][j], conv_base->rns_b->k[i]); // Juste pour le LOL
-			rop[j] = add_mod_cr(rop[j], t1, conv_base->rns_b->k[i]);
-		}
-	}
-
-
-// 	for(j=0; j<size; j++)
-// 	// Set target number to 0
-// 	// for(j=0; j<NB_COEFF; j++)
-// 	// 	rop[j]=0;	
-// 	for(j=0; j<size; j++)   // Indispensable
-// 		a[j]=op[j];
-// 	for(i=0; i<size-1; i++) 
-// 	{
-// 		for(j = i+1; j<size; j++)
-// 		{
-// 			tmp = a[j]-a[i];
-// 			a[j] = mul_mod_cr(tmp, conv_base->inva_to_b[i][j],  conv_base->rns_a->k[j]);
-// 			if(a[j]<0)	// Sinon ca part en couille ?
-// 				a[j]+=conv_base->rns_a->m[j];
-// 		}
-
-// 	}
-	
-// 	// Residue of the MRS radix
-// 	for(j=0; j<size; j++)
-// 		rop[j]=a[0] % conv_base->rns_b->m[j];	
-// 	for(j=0; j<size; j++)
-// 	{
-// 		for(i=1; i<size ; i++)
-// 		{
-// 			tmp = mul_mod_cr(a[i], conv_base->mrsa_to_b[i-1][j], conv_base->rns_b->k[j]);
-// 			rop[j]= add_mod_cr(rop[j], tmp, conv_base->rns_b->k[j]);
-
-// 			if (rop[j]<0){	//Sinon, ca part en couille ?????????????
-// 				rop[j] += conv_base->rns_b->m[j];
-// 				printf("conv");
-// 			}
-// 		}
-// 	} 
-}
-
-///////////////////////////////////////////////////
-// Modular addition and multiplication using 
-// Crandall moduli
-///////////////////////////////////////////////////
-int64_t add_mod_cr(int64_t a, int64_t b, int k)   
-{
-	int64_t tmp, up, lo, mask = ((int64_t)1<<63) -1; /////////////////////////////////////
-	int64_t res=0;  // Required, else computation on 32 bits with a sign extension to 64 bits
-	uint64_t u_res, u_mod;
-
-	u_mod = ((int64_t)1<<63)-k;  // only 32 shifts without int64_t extension
-	tmp = a + b;
-	up = (uint64_t)tmp >> 63 ; //////////////////////////////////////////////////////
-								/// Unsigned conversion to avoid sign extension
-	lo = tmp & mask;
-	res += lo + up*k;  
-	u_res = (uint64_t) res;
-	if ( u_res  >  u_mod	){	// For the unfrequent case :  2^63 > res >=mod ????
-		res -=u_mod;
-		printf("a");
-	}
-	return res;
-
-}
-
-int64_t mul_mod_cr(int64_t a, int64_t b, int k)   
-{
-	int128 prod;
-	uint128 tmp;
-	uint128 tmp2;
-	int64_t up;
-	int64_t lo;
-	int64_t up2, up3;
-	int64_t lo2, lo3;
-	int64_t mask = ((int64_t)1<<63) -1;  /////////////////////////////////////
-	int64_t res=0;  // Required, else computation on 32 bits with a sign extension to 64 bits
-	uint64_t u_res, u_mod;
-
-	u_mod = ((int64_t)1<<63)-k;  // only 32 shifts without int64_t extension
-	prod = (int128)a * b;
-	up = (int64_t) ((uint128)prod >> 63); //////////////////////////////////
-	lo = (int64_t)prod & mask;
-
-	//printf("a:%ld  ",a);
-	//printf("b:%ld  ",b);
-
-	//printf("up --> %ld\n",up);
-	//printf("lo --> %ld\n",lo);
-
-	tmp = (int128)up * k;
-	lo2 = (int64_t)tmp & mask;
-	up2 = (int64_t)((uint128)tmp >> 63); ///////////////////////////////////
-	tmp2 = (uint128)lo + lo2 + up2*k;
-	up3 = (uint64_t)(tmp2 >> 63); ///////////////////////////////////
-	lo3 = (uint64_t)tmp2 & mask;
-
-	res += lo3 + up3*k;
-
-	u_res = (uint64_t) res;
-// printf("i");
-	if ( u_res  >  u_mod ){	// For the unfrequent case :  2^63 > res >=mod ????
-		res -=u_mod;
-		// printf("m");
-	}
-	return res;
-}
 
 //////////////////////////////////////////////
 // Cox-rower method for conversion
@@ -729,16 +658,104 @@ void base_conversion_cox(int64_t *rop, struct conv_base_t *conv_base, int64_t *o
 	}
 }
 
-void mult_mod_rns_cr_cox(int64_t *rop, int64_t *pa, int64_t *pab, int64_t *pb, 
-	int64_t *pbb, struct mod_mul_t *mult, int64_t *tmp[4]){
 
-	int i;
+///////////////////////////////////////////////////
+// Modular addition and multiplication using 
+// Crandall moduli
+///////////////////////////////////////////////////
+int64_t add_mod_cr(int64_t a, int64_t b, int k)   
+{
+	int64_t tmp, up, lo, mask = ((int64_t)1<<63) -1; /////////////////////////////////////
+	int64_t res=0;  // Required, else computation on 32 bits with a sign extension to 64 bits
+	uint64_t u_res, u_mod;
 
-	mul_rns_cr(tmp[0], mult->conv->rns_a, pa, pb); //A*B
-	mul_rns_cr(tmp[1], mult->conv->rns_b, pab, pbb); //A*B in base2	
-	mul_rns_cr(tmp[2], mult->conv->rns_a, tmp[0], mult->inv_p_modMa); //Q*{P-1}
-	base_conversion_cox(tmp[0], mult->conv, tmp[2],  0, 0, 0); //Q in base 2
-	mul_rns_cr(tmp[2] , mult->conv->rns_b, tmp[0], mult->p_modMb); // Q*P base2
-	add_rns_cr(tmp[0] , mult->conv->rns_b, tmp[1], tmp[2]); // A*B + Q*P in base 2
-	mul_rns_cr(rop, mult->conv->rns_b, tmp[0], mult->inv_Ma_modMb); // Division by Ma
+	u_mod = ((int64_t)1<<63)-k;  // only 32 shifts without int64_t extension
+	tmp = a + b;
+	up = (uint64_t)tmp >> 63 ; //////////////////////////////////////////////////////
+								/// Unsigned conversion to avoid sign extension
+	lo = tmp & mask;
+	res += lo + up*k;  
+	u_res = (uint64_t) res;
+//	if ( u_res  >  u_mod	){	// For the unfrequent case :  2^63 > res >=mod ???? To Be Checked
+//		res -=u_mod;
+//		printf("a");
+//	}
+	return res;
+
 }
+
+// Crandal modular multiplication with test
+int64_t mul_mod_cr_t(int64_t a, int64_t b, int k)   
+{
+	int128 prod;
+	uint128 tmp;
+	uint128 tmp2;
+	int64_t up;
+	int64_t lo;
+	int64_t up2, up3;
+	int64_t lo2, lo3;
+	int64_t mask = ((int64_t)1<<63) -1;  /////////////////////////////////////
+	int64_t res=0;  // Required, else computation on 32 bits with a sign extension to 64 bits
+	uint64_t u_res, u_mod;
+
+	u_mod = ((int64_t)1<<63)-k;  // only 32 shifts without int64_t extension
+	prod = (int128)a * b;
+	up = (int64_t) ((uint128)prod >> 63); //////////////////////////////////
+	lo = (int64_t)prod & mask;
+
+	tmp = (int128)up * k;
+	lo2 = (int64_t)tmp & mask;
+	up2 = (int64_t)((uint128)tmp >> 63); ///////////////////////////////////
+	tmp2 = (uint128)lo + lo2 + up2*k;
+	up3 = (uint64_t)(tmp2 >> 63); ///////////////////////////////////
+	lo3 = (uint64_t)tmp2 & mask;
+
+	res += lo3 + up3*k;
+
+	u_res = (uint64_t) res;
+
+// printf("i");
+	if ( u_res  >  u_mod ){	// For the unfrequent case :  2^63 > res >=mod ???? TO be Checked
+		res -=u_mod;
+		printf("m\n");
+	}
+	return res;
+}
+
+int64_t mul_mod_cr(int64_t a, int64_t b, int k)   
+{
+	int128 prod;
+	uint128 tmp;
+	uint128 tmp2;
+	int64_t up;
+	int64_t lo;
+	int64_t up2, up3;
+	int64_t lo2, lo3;
+	int64_t mask = ((int64_t)1<<63) -1;  /////////////////////////////////////
+	int64_t res=0;  // Required, else computation on 32 bits with a sign extension to 64 bits
+	uint64_t u_res, u_mod;
+
+	u_mod = ((int64_t)1<<63)-k;  // only 32 shifts without int64_t extension
+	prod = (int128)a * b;
+	up = (int64_t) ((uint128)prod >> 63); //////////////////////////////////
+	lo = (int64_t)prod & mask;
+
+	tmp = (int128)up * k;
+	lo2 = (int64_t)tmp & mask;
+	up2 = (int64_t)((uint128)tmp >> 63); ///////////////////////////////////
+	tmp2 = (uint128)lo + lo2 + up2*k;
+	up3 = (uint64_t)(tmp2 >> 63); ///////////////////////////////////
+	lo3 = (uint64_t)tmp2 & mask;
+
+	res += lo3 + up3*k;
+
+	u_res = (uint64_t) res;
+
+// printf("i");
+	// if ( u_res  >  u_mod ){	// For the unfrequent case :  2^63 > res >=mod ???? TO be Checked
+	// 	res -=u_mod;
+	// 	printf("m\n");
+	// }
+	return res;
+}
+

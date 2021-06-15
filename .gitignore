@@ -5,3 +5,4 @@ csv_writing
 *.json
 .vscode/
 /results/.ipynb_checkpoints
+RNS/main

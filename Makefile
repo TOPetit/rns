@@ -6,7 +6,7 @@ csv_writing: csv_writing.c rns.o rnsv.o
 	gcc -march=native -Wno-overflow -o csv_writing csv_writing.c rns.o rnsv.o -lgmp
 
 timing: timing.c rns.o rnsv.o
-	gcc -march=native -Wno-overflow -o timing timing.c rns.o rnsv.o -lgmp
+	gcc -g -march=native -Wno-overflow -o timing timing.c rns.o rnsv.o -lgmp
 
 mainv: mainv.c rns.o rnsv.o
 	gcc -O3 -march=native -Wno-overflow -o mainv mainv.c rns.o rnsv.o -lgmp

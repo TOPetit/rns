@@ -15,7 +15,7 @@
 // RNS to __m256i convertion
 ///////////////////////////////
 //~ Assumes allocation already done for "rop".
-void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op){
+inline void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op){
 	int j;
 	for (j=0; j<(base->size)/4; j+=1)
 	{
@@ -32,7 +32,7 @@ void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op){
 // RNS to __m256i convertion
 ///////////////////////////////
 //~ Assumes allocation already done for "rop".
-void from_rns_to_m256i(__m256i *rop, struct rns_base_t *base, int64_t *op){
+inline void from_rns_to_m256i(__m256i *rop, struct rns_base_t *base, int64_t *op){
 	int j;
 	for (j=0; j<(base->size)/4; j+=1)
 	{
@@ -45,7 +45,7 @@ void from_rns_to_m256i(__m256i *rop, struct rns_base_t *base, int64_t *op){
 ///////////////////////////////
 // prints the 8 RNS compounds
 ///////////////////////////////
-void print_RNS(struct rns_base_t *base, int64_t *a){
+inline void print_RNS(struct rns_base_t *base, int64_t *a){
 	int j;
 	for (j=0; j<base->size; j++)
 	{
@@ -89,7 +89,7 @@ inline void print_alone_m256i(__m256i a){
 // Modular addition and multiplication using 
 // Crandall moduli
 ///////////////////////////////////////////////////
-__m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k){
+inline __m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k){
 
 	__m256i ini_res=_mm256_set1_epi64x(0);    // Juste 0. Est-ce vraiment utile ?
 
@@ -176,7 +176,7 @@ inline void avx_sub_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 // auxiliar addition between two terms
 ///////////////////////////////
 // result = 2^63 * rop_up + rop_lo
-void avx_add_aux_2e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b){
+inline void avx_add_aux_2e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b){
 	//given two positive numbers on 63 bits
 
 	__m256i tmp_mask3= _mm256_slli_epi64(_mm256_set1_epi64x(1),62);
@@ -195,7 +195,7 @@ void avx_add_aux_2e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b){
 // auxiliar addition between three terms
 ///////////////////////////////
 // result = 2^63 * rop_up + rop_lo
-void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b, __m256i c){
+inline void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b, __m256i c){
 
 	__m256i up,lo,up2,lo2;
 	avx_add_aux_2e(&up,&lo,a,b);
@@ -210,7 +210,7 @@ void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b, __m2
 // result = 2^63 * rop_up + rop_lo
 // had to divide the numbers into asymetrical parts, hence the tmp's
 // having 62, 63 or 64 bits
-void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b){
+inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b){
 
 	__m256i tmp_mask31 = _mm256_slli_epi64(_mm256_set1_epi64x(1),31);
 	__m256i tmp_mask32 = _mm256_slli_epi64(_mm256_set1_epi64x(1),32);
@@ -247,7 +247,7 @@ void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b){
 	}
 
 
-__m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k){
+inline __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k){
 
 	__m256i tmp_mask= _mm256_slli_epi64(_mm256_set1_epi64x(1),63);
 	__m256i mask =_mm256_sub_epi64 (tmp_mask,_mm256_set1_epi64x(1));
@@ -294,7 +294,7 @@ inline void avx_mul_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 
 
 
-void avx_init_mrs(struct conv_base_t *conv_base){
+inline void avx_init_mrs(struct conv_base_t *conv_base){
 	int i;
 	int size = conv_base->rns_a->size;
 	conv_base->avx_mrsa_to_b = (__m256i**) malloc(size*sizeof(__m256i*)/4);
@@ -316,7 +316,7 @@ void avx_init_mrs(struct conv_base_t *conv_base){
 // using the MRS conversion. The RNS base uses Crandall 
 // numbers
 ///////////////////////////////////////////////////////
-void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a){
+inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a){
 	int i, j;
 //	int64_t a[NB_COEFF];  // En externe, car ça prend du temps 
 	int64_t tmp;
@@ -382,7 +382,7 @@ void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i
 // pb : B
 // mult : constants
 // tmp and a: temporary arrays for intermediate results 
-void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb, 
+inline void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb, 
 	__m256i *pbb, struct mod_mul_t *mult, __m256i *tmp0, __m256i *tmp1, __m256i *tmp2, int64_t *a){
 
 
@@ -401,14 +401,14 @@ void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb,
 
 // COX
 
-int avx_compute_k_cox(__m256i *op, struct rns_base_t *base, int r, int q, int alpha) {
+inline int avx_compute_k_cox(__m256i *op, struct rns_base_t *base, int r, int q, int alpha) {
 	return 0;
 }
 
-void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int r, int q, int alpha) {
+inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int r, int q, int alpha) {
 }
 
-void avx_mult_mod_rns_cr_cox(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb, 
+inline void avx_mult_mod_rns_cr_cox(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb, 
 	__m256i *pbb, struct mod_mul_t *mult, __m256i *tmp0, __m256i *tmp1, __m256i *tmp2, int64_t *a) {
 	
 	int i;

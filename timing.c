@@ -1700,11 +1700,6 @@ int main(void){
 	printf("\tRNS parallel cox base conversion : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS parallel cox base conversion : %ld reference CPU cycles.\n", ref);
 
-	timing = ULLONG_MAX;
-	cycles = ULONG_MAX;
-	instructions = ULONG_MAX;
-	ref = ULONG_MAX;
-
 
 
 	fclose(fpt);

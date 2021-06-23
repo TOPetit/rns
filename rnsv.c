@@ -20,11 +20,23 @@ inline void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op
 	for (j=0; j<(base->size)/4; j+=1)
 	{
 
-		rop[4*j]=_mm256_extract_epi64(op[j],3);
-		rop[4*j+1]=_mm256_extract_epi64(op[j],2);
-		rop[4*j+2]=_mm256_extract_epi64(op[j],1);
-		rop[4*j+3]=_mm256_extract_epi64(op[j],0);
+		rop[4*j]=_mm256_extract_epi64(op[j],0);
+		rop[4*j+1]=_mm256_extract_epi64(op[j],1);
+		rop[4*j+2]=_mm256_extract_epi64(op[j],2);
+		rop[4*j+3]=_mm256_extract_epi64(op[j],3);
 	}
+
+}
+
+///////////////////////////////
+// RNS to __m256i convertion without extract
+///////////////////////////////
+//~ Assumes allocation already done for "rop".
+inline void from_m256i_to_rns_bis(int64_t *rop, struct rns_base_t *base, __m256i *op){
+	for (int i=0; i<NB_COEFF/4; i++) {
+        
+        _mm256_storeu_si256((__m256i*) &rop[4*i], op[i]);
+    }
 
 }
 
@@ -36,7 +48,7 @@ inline void from_rns_to_m256i(__m256i *rop, struct rns_base_t *base, int64_t *op
 	int j;
 	for (j=0; j<(base->size)/4; j+=1)
 	{
-		rop[j] = _mm256_set_epi64x(op[4*j],op[4*j+1],op[4*j+2],op[4*j+3]);
+		rop[j] = _mm256_set_epi64x(op[4*j + 3],op[4*j + 2],op[4*j + 1],op[4*j]);
 	}
 
 }

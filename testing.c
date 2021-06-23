@@ -16,12 +16,14 @@ int main(void) {
 	gmp_randinit_default (state);
 
     int64_t op1[NB_COEFF];
+    int64_t op2[NB_COEFF];
 	__m256i avx_op1[NB_COEFF/4];
+    __m256i avx_op2[NB_COEFF/4];
 
 
-	mpz_t A;
-	mpz_inits(A, NULL);
-    int64_t tmp;
+    
+	mpz_t A, B;
+    mpz_inits(A, B, NULL);
 
 	// Base
 	struct rns_base_t rns_a;
@@ -53,27 +55,41 @@ int main(void) {
     from_rns_to_m256i(avx_k,&rns_a,tmp_k);
     rns_a.avx_k = avx_k;
 
-/*
-	__m256i avx_inv_Mi[NB_COEFF/4];
-	from_rns_to_m256i(avx_inv_Mi, &rns_a, rns_a.inv_Mi);
-	rns_a.avx_inv_Mi = avx_inv_Mi;
-*/
 	
 	mpz_t M;
 	mpz_inits(M, NULL);
 	mpz_set(M, rns_a.M); // Get M from the base
 
 
-    mpz_urandomm(A, state, M); // random A
+    mpz_set_str (A, "100106136745050507346481674824002435247796236765700289941745547607771451581114", 10);
+    gmp_printf("A before : %Zd\n", A);
+    
     from_int_to_rns(op1, &rns_a, A);
-
-    printf("A in RNS : ");
     print_RNS(&rns_a, op1);
     printf("\n");
+    from_rns_to_m256i(avx_op1, &rns_a, op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_rns_to_int_crt(B, &rns_a, op2);
+    gmp_printf("already built functions.\nA after  : %Zd\n", B);
 
-    from_rns_to_int_crt(tmp, &rns_a, op1);
-    printf("A before : %Zd\n", tmp);
+    printf("tests.\n");
+    mpz_set_str (A, "100106136745050507346481674824002435247796236765700289941745547607771451581114", 10);
 
+    from_int_to_rns(op1, &rns_a, A);
+    from_rns_to_m256i(avx_op1, &rns_a, op1);
+
+    int64_t tmpArray[4];
+
+    for (int i=0; i<NB_COEFF/4; i++) {
+        
+        _mm256_storeu_si256((__m256i*) &op2[4*i], avx_op1[i]);
+    }
+    print_RNS(&rns_a, op2);
+    
+
+    from_rns_to_int_crt(B, &rns_a, op2);
+    gmp_printf("\nA after  : %Zd\n", B);
+    
 
 
 

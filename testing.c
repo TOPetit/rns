@@ -11,6 +11,9 @@
 
 int main(void) {
 
+    // Timing
+    unsigned long long before_cycles, after_cycles = ULLONG_MAX;
+
     // Initializing random
 	gmp_randstate_t state;
 	gmp_randinit_default (state);
@@ -69,6 +72,17 @@ int main(void) {
     printf("\n");
     from_rns_to_m256i(avx_op1, &rns_a, op1);
     from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    before_cycles = cpucyclesStart();
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    after_cycles = cpucyclesStop();
+    printf("\n Cycles with extract : %lld\n", after_cycles - before_cycles);
     from_rns_to_int_crt(B, &rns_a, op2);
     gmp_printf("already built functions.\nA after  : %Zd\n", B);
 
@@ -78,13 +92,18 @@ int main(void) {
     from_int_to_rns(op1, &rns_a, A);
     from_rns_to_m256i(avx_op1, &rns_a, op1);
 
-    int64_t tmpArray[4];
-
-    for (int i=0; i<NB_COEFF/4; i++) {
-        
-        _mm256_storeu_si256((__m256i*) &op2[4*i], avx_op1[i]);
-    }
-    print_RNS(&rns_a, op2);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    before_cycles = cpucyclesStart();
+    from_m256i_to_rns_bis(op2, &rns_a, avx_op1);
+    after_cycles = cpucyclesStop();
+    printf("\n Cycles without extract : %lld\n", after_cycles - before_cycles);
     
 
     from_rns_to_int_crt(B, &rns_a, op2);

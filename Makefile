@@ -21,5 +21,5 @@ rnsv.o: rnsv.c rns.h structs_data.h
 	gcc -O3 -march=native -Wno-overflow -c rnsv.c -lgmp 
 
 clean:
-	rm *.o mainv timing csv_writing
+	rm *.o mainv timing testing
 

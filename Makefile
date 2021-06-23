@@ -1,6 +1,9 @@
 # Makefile
 
-all: mainv timing csv_writing
+all: mainv timing csv_writing testing
+
+testing: testing.c rns.o rnsv.o
+	gcc -g -march=native -Wno-overflow -o testing testing.c rns.o rnsv.o -lgmp
 
 csv_writing: csv_writing.c rns.o rnsv.o
 	gcc -march=native -Wno-overflow -o csv_writing csv_writing.c rns.o rnsv.o -lgmp

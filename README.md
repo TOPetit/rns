@@ -26,6 +26,10 @@ sudo ./init.sh
 ## Vectorisation:
 - [x] Base conversion
 - [x] Modular multplication
+- [x] Cox multiplication
+- [ ] Cox base extension
+- [ ] Cox modular multiplication
+- [x] Better m256i -> int64_t rns conversion
 
 ## Fix:
 - [x] Vectorized substraction

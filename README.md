@@ -26,9 +26,9 @@ sudo ./init.sh
 ## Vectorisation:
 - [x] Base conversion
 - [x] Modular multplication
-- [x] Cox multiplication
+- [x] Cox modular multiplication
 - [ ] Cox base extension
-- [ ] Cox modular multiplication
+- [ ] Cox computing k
 
 ## Fix:
 - [x] Vectorized substraction

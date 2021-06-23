@@ -29,6 +29,7 @@ int64_t mul_mod_cr(int64_t a, int64_t b, int k) ;
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
 
 void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op);
+void from_m256i_to_rns_bis(int64_t *rop, struct rns_base_t *base, __m256i *op);
 void from_rns_to_m256i(__m256i *rop, struct rns_base_t *base, int64_t *op);
 
 void print_RNS(struct rns_base_t *base, int64_t *a);

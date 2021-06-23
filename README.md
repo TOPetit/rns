@@ -29,7 +29,7 @@ sudo ./init.sh
 - [x] Cox multiplication
 - [ ] Cox base extension
 - [ ] Cox modular multiplication
-- [x] Better m256i -> int64_t rns conversion
 
 ## Fix:
 - [x] Vectorized substraction
+- [x] Better m256i -> int64_t rns conversion

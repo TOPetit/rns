@@ -1371,10 +1371,10 @@ int main(void){
 	fprintf(fpt, "\t\t],\n");
 
 	printf("Done.\n");
-	printf("\tRNS sequential cox base conversion : %lld CPU cycles.\n", timing);
-	printf("\tRNS sequential cox base conversion : %ld instructions.\n", instructions);
-	printf("\tRNS sequential cox base conversion : %ld actual CPU cycles.\n", cycles);
-	printf("\tRNS sequential cox base conversion : %ld reference CPU cycles.\n", ref);
+	printf("\tRNS sequential cox modular multiplication : %lld CPU cycles.\n", timing);
+	printf("\tRNS sequential cox modular multiplication : %ld instructions.\n", instructions);
+	printf("\tRNS sequential cox modular multiplication : %ld actual CPU cycles.\n", cycles);
+	printf("\tRNS sequential cox modular multiplication : %ld reference CPU cycles.\n", ref);
 
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
@@ -1485,6 +1485,213 @@ int main(void){
 		fprintf(fpt, "\n");
 	}
 
+	fprintf(fpt, "\t\t]\n\t},\n");
+
+	printf("Done.\n");
+	printf("\tRNS parallel cox modular multiplication : %lld CPU cycles.\n", timing);
+	printf("\tRNS parallel cox modular multiplication : %ld instructions.\n", instructions);
+	printf("\tRNS parallel cox modular multiplication : %ld actual CPU cycles.\n", cycles);
+	printf("\tRNS parallel cox modular multiplication : %ld reference CPU cycles.\n", ref);
+
+	timing = ULLONG_MAX;
+	cycles = ULONG_MAX;
+	instructions = ULONG_MAX;
+	ref = ULONG_MAX;
+
+
+	// Cox base conversion
+	printf("\n\n7. Cox base conversion\n");
+
+	fprintf(fpt, "\"cox_base_conv\" :\n\t{\n");
+	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
+
+	printf("\n\tHeating caches... ");
+	mpz_urandomm(A, state, M); // Randomly generates A < M
+	mpz_urandomm(B, state, M); // Randomly generated B < M
+	from_int_to_rns(op1, &rns_a, A);
+	from_int_to_rns(op2, &rns_a, B);
+
+	for(int i=0; i<NTEST; i++){
+		base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+	}
+	printf("Done.\n");
+	
+	printf("\tTesting... ");
+	
+	for(int i=0;i<NSAMPLES;i++) {
+		mpz_urandomm (A, state, M);  //Randomly generates A < M
+		mpz_urandomm (B, state, M);  //Randomly generates B < M
+		from_int_to_rns(op1, &rns_a, A);
+		for(int j=0;j<NTEST;j++) {
+
+			// RDTSC
+			t1 = cpucyclesStart();
+
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			
+			t2 = cpucyclesStop();
+
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
+
+			// Instructions
+			before_instructions = rdpmc_instructions();
+
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			
+			after_instructions = rdpmc_instructions();
+
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
+
+			// actual cycles
+			before_cycles = rdpmc_actual_cycles();
+
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			
+			after_cycles = rdpmc_actual_cycles();
+
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
+
+			// reference cycles
+			before_ref = rdpmc_reference_cycles();
+
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+			
+			after_ref = rdpmc_reference_cycles();
+
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
+		}
+
+
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
+
+	}
+
+	fprintf(fpt, "\t\t],\n");
+
+	printf("Done.\n");
+	printf("\tRNS sequential cox base conversion : %lld CPU cycles.\n", timing);
+	printf("\tRNS sequential cox base conversion : %ld instructions.\n", instructions);
+	printf("\tRNS sequential cox base conversion : %ld actual CPU cycles.\n", cycles);
+	printf("\tRNS sequential cox base conversion : %ld reference CPU cycles.\n", ref);
+	
+	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
+
+
+	timing = ULLONG_MAX;
+	cycles = ULONG_MAX;
+	instructions = ULONG_MAX;
+	ref = ULONG_MAX;
+
+	// Vectored constants needed
+	avx_init_rns(&rns_a);
+	
+	mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+	mpz_urandomm (B, state, modul_p);  //Randomly generates A < P
+	from_int_to_rns(pa, &rns_a, A);
+	from_int_to_rns(pb, &rns_a, B);
+	from_int_to_rns(pab, &rns_b, A);
+	from_int_to_rns(pbb, &rns_b, B);
+
+	// Heating caches
+	printf("\n\tHeating caches... ");
+
+	mpz_urandomm(A, state, M);
+	from_int_to_rns(op1, &rns_a, A);
+	for (int i=0; i<NTEST; i++) {
+
+    	avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+
+	}
+	printf("Done.\n");
+
+	// Testing
+	printf("\tTesting... ");
+
+	for(int i=0;i<NSAMPLES;i++) {
+
+		mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
+		from_int_to_rns(op1, &rns_a, A);
+		from_rns_to_m256i(avx_op1, &rns_a, op1);
+
+		for(int j=0;j<NTEST;j++) {
+
+			// RDTSC
+			t1 = cpucyclesStart();
+
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+
+			t2 = cpucyclesStop();
+
+			if (timing > (t2-t1)/NFUNS) timing = (t2-t1)/NFUNS;
+
+			// Instructions
+			before_instructions = rdpmc_instructions();
+
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			
+			after_instructions = rdpmc_instructions();
+
+			if (instructions > (after_instructions - before_instructions)/NFUNS) instructions = (after_instructions - before_instructions)/NFUNS;
+
+			// actual cycles
+			before_cycles = rdpmc_actual_cycles();
+
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			
+			after_cycles = rdpmc_actual_cycles();
+
+			if (cycles > (after_cycles - before_cycles)/NFUNS) cycles = (after_cycles - before_cycles)/NFUNS;
+
+			// reference cycles
+			before_ref = rdpmc_reference_cycles();
+
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			avx_base_conversion_cox(avx_res, &conv, avx_op1, 0, 0, 0);
+			
+			after_ref = rdpmc_reference_cycles();
+
+			if (ref > (after_ref - before_ref)/NFUNS) ref = (after_ref - before_ref)/NFUNS;
+		}
+		fprintf(fpt,"\t\t\t{\n");
+		fprintf(fpt, "\t\t\t\t\"TSC Cycles\" : %lld,\n\t\t\t\t\"Instructions\" : %ld,\n\t\t\t\t\"Actual cycles\" : %ld,\n\t\t\t\t\"Reference cycles\" : %ld\n\t\t\t}", timing, instructions, cycles, ref);
+		if (i < NSAMPLES - 1) fprintf(fpt, ",");
+		fprintf(fpt, "\n");
+	}
+
 	fprintf(fpt, "\t\t]\n\t}\n}");
 
 	printf("Done.\n");
@@ -1492,6 +1699,11 @@ int main(void){
 	printf("\tRNS parallel cox base conversion : %ld instructions.\n", instructions);
 	printf("\tRNS parallel cox base conversion : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS parallel cox base conversion : %ld reference CPU cycles.\n", ref);
+
+	timing = ULLONG_MAX;
+	cycles = ULONG_MAX;
+	instructions = ULONG_MAX;
+	ref = ULONG_MAX;
 
 
 

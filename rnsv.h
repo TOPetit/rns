@@ -36,6 +36,9 @@ void print_RNS(struct rns_base_t *base, int64_t *a);
 void print_m256i(struct rns_base_t *base, __m256i *a);
 void print_alone_m256i(__m256i a);
 
+void avx_init_rns(struct rns_base_t *base);
+void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_base);
+
 __m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k);
 void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
 

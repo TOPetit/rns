@@ -94,6 +94,20 @@ inline void print_alone_m256i(__m256i a){
 }
 
 
+inline void avx_init_rns(struct rns_base_t *base) {
+
+	int n = base->size;
+
+	__m256i *avx_inv_Mi = (__m256i *)malloc(n*sizeof(__m256i));
+
+	for (int i=0; i<n; i++) {
+		avx_inv_Mi[i] = _mm256_set1_epi64x(base->int_inv_Mi[i]);
+	}
+
+	base->avx_inv_Mi = avx_inv_Mi;
+}
+
+
 //%%%%%%%%%%%%  ADD  %%%%%%%%%%%%%%%%%%%%%//
 
 
@@ -320,7 +334,26 @@ inline void avx_init_mrs(struct conv_base_t *conv_base){
 		from_rns_to_m256i(conv_base->avx_mrsa_to_b[i],
 			conv_base->rns_a, conv_base->mrsa_to_b[i]);
 	}
-}//call before calling function below
+} //call before calling function below
+
+
+inline void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_base) {
+
+	int size = conv_base->rns_a->size;
+
+	conv_base->avx_Mi_modPi = (__m256i **) malloc(size*sizeof(__m256i*));
+
+	for (int i=0; i<size; i++) {
+		conv_base->avx_Mi_modPi[i] = (__m256i *) malloc(size*sizeof(__m256i));
+		for (int j=0; j<size; j++) {
+			conv_base->avx_Mi_modPi[i][j] = _mm256_set1_epi64x((long long int)conv_base->Mi_modPi);
+		}
+	}
+}
+
+
+
+
 
 
 ///////////////////////////////////////////////////////
@@ -417,7 +450,61 @@ inline int avx_compute_k_cox(__m256i *op, struct rns_base_t *base, int r, int q,
 	return 0;
 }
 
-inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int r, int q, int alpha) {
+inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int r, int q, int alpha)
+{
+	int i, j;
+	int n;
+	__m256i sigma, k_i;
+	//unsigned char sigma;
+	__m256i mask, mask2, xhi, trunk;  //We certainly could compute with 32bits words, Probably less     
+    int size = conv_base->rns_b->size; //Should be the size of secondary base
+    __m256i tmp, tmp2, tmp3;
+
+	r=63; //////////////////////////////////////
+	q=7; //////////////////////////////////
+
+	mask = _mm256_slli_epi64(_mm256_set1_epi64x(1), r) - _mm256_slli_epi64(_mm256_set1_epi64x(1), r-q);
+	mask2 = _mm256_slli_epi64(_mm256_set1_epi64x(1), q);
+	n = conv_base->rns_a->size;
+
+ 	//printf(" mask = %ld mask2 = %ld  n = %d \n",mask, mask2, n);
+   
+    sigma = _mm256_slli_epi64(_mm256_set1_epi64x(1), q-1);
+
+    //printf("alpha = %d\n",alpha);
+ 
+    // Initialize rop[]
+    for(i=0;i<n/4;i++)
+    	rop[i]=_mm256_set1_epi64x(0);
+	for(i=0;i<n;i++)
+	{
+//		xhi = op[i] * base->int_invM_i[i] % base->m[i];
+
+		xhi = avx_mul_mod_cr(op[i], conv_base->rns_a->avx_inv_Mi[i], conv_base->rns_a->avx_k[i]);    // x_i*invM_i mod m_i
+		trunk = xhi & mask; 
+
+		//printf("zzzz xhi = %ld, xhi_shift=%ld  xhi_s_masked=%ld trunk = %ld \n", xhi, xhi>>32, (xhi>>32) & up_mask, trunk);
+
+		sigma += trunk >>(r-q);
+		k_i = sigma & mask2;
+
+//		gmp_printf("inv_Mi[%d] = %Zd ", i, base->inv_Mi[i]);
+//		printf("£££op[%d]=%ld int_inv_Mi[%d]=%ld xhi[%d]= %ld  trunk[%d]=%ld  sigma[%d]=%d   k[%d]=%d \n ", i, op[i], i, conv_base->rns_a->int_inv_Mi[i], i, xhi, i, trunk, i, sigma, i, k_i);
+
+		sigma -= k_i;
+		k_i = k_i >> q ;  // 0 or 1
+
+//printf("k[%d]=%d \n", i, k_i);
+
+		for(j=0; j<size/4 ;j++)  // Computation of tmp2 has been simplified
+		{
+			tmp = avx_mul_mod_cr(xhi, _mm256_set1_epi64x(conv_base->Mi_modPi[i][j]), conv_base->rns_b->avx_k[j]);
+			tmp2 = conv_base->invM_modPi[j]*k_i;
+			tmp3 = avx_add_mod_cr(tmp, tmp2, conv_base->rns_b->avx_k[j]);
+			//rop[j]+=tmp3;
+			rop[j] = avx_add_mod_cr(rop[j], tmp3, conv_base->rns_b->avx_k[j]);
+		}
+	}
 }
 
 inline void avx_mult_mod_rns_cr_cox(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb, 

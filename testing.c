@@ -21,6 +21,7 @@ int main(void) {
 
 	mpz_t A;
 	mpz_inits(A, NULL);
+    int64_t tmp;
 
 	// Base
 	struct rns_base_t rns_a;
@@ -66,9 +67,13 @@ int main(void) {
     mpz_urandomm(A, state, M); // random A
     from_int_to_rns(op1, &rns_a, A);
 
-    printf("\n A in RNS : ");
+    printf("A in RNS : ");
     print_RNS(&rns_a, op1);
     printf("\n");
+
+    from_rns_to_int_crt(tmp, &rns_a, op1);
+    printf("A before : %Zd\n", tmp);
+
 
 
 

@@ -15,7 +15,7 @@
 // RNS to __m256i convertion
 ///////////////////////////////
 //~ Assumes allocation already done for "rop".
-inline void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op){
+inline void from_m256i_to_rns_bis(int64_t *rop, struct rns_base_t *base, __m256i *op){
 	int j;
 	for (j=0; j<(base->size)/4; j+=1)
 	{
@@ -29,12 +29,12 @@ inline void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op
 }
 
 ///////////////////////////////
-// RNS to __m256i convertion without extract
+// RNS to __m256i convertion without extract (more efficient ~100 cycles less)
+// Better to code it directly in function and removing for when timing is important
 ///////////////////////////////
 //~ Assumes allocation already done for "rop".
-inline void from_m256i_to_rns_bis(int64_t *rop, struct rns_base_t *base, __m256i *op){
-	for (int i=0; i<NB_COEFF/4; i++) {
-        
+inline void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op){
+	for (int i=0; i<NB_COEFF/4; i++) {   
         _mm256_storeu_si256((__m256i*) &rop[4*i], op[i]);
     }
 

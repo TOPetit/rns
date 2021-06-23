@@ -82,7 +82,7 @@ int main(void) {
     before_cycles = cpucyclesStart();
     from_m256i_to_rns(op2, &rns_a, avx_op1);
     after_cycles = cpucyclesStop();
-    printf("\n Cycles with extract : %lld\n", after_cycles - before_cycles);
+    printf("\n Cycles without extract : %lld\n", after_cycles - before_cycles);
     from_rns_to_int_crt(B, &rns_a, op2);
     gmp_printf("already built functions.\nA after  : %Zd\n", B);
 
@@ -103,7 +103,7 @@ int main(void) {
     before_cycles = cpucyclesStart();
     from_m256i_to_rns_bis(op2, &rns_a, avx_op1);
     after_cycles = cpucyclesStop();
-    printf("\n Cycles without extract : %lld\n", after_cycles - before_cycles);
+    printf("\n Cycles with extract : %lld\n", after_cycles - before_cycles);
     
 
     from_rns_to_int_crt(B, &rns_a, op2);

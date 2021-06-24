@@ -341,12 +341,18 @@ inline void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_bas
 
 	int size = conv_base->rns_a->size;
 
-	conv_base->avx_Mi_modPi = (__m256i **) malloc(size*sizeof(__m256i*));
+	__m256i **tmp_Arr;
+
+	tmp_Arr = (__m256i **)malloc(size * sizeof(__m256i *));
 
 	for (int i=0; i<size; i++) {
-		conv_base->avx_Mi_modPi[i] = (__m256i *) malloc(size*sizeof(__m256i));
+		tmp_Arr[i] = (__m256i *)malloc(size * sizeof(__m256i));
+	}
+
+	for (int i=0; i<size; i++) {
 		for (int j=0; j<size; j++) {
-			conv_base->avx_Mi_modPi[i][j] = _mm256_set1_epi64x((long long int)conv_base->Mi_modPi);
+			//tmp_Arr[i][j] = _mm256_set1_epi64x(1) * conv_base->Mi_modPi[i][j];
+			//printf("%d %d %ld\n",i,j, conv_base->Mi_modPi[i][j]);
 		}
 	}
 }
@@ -452,6 +458,7 @@ inline int avx_compute_k_cox(__m256i *op, struct rns_base_t *base, int r, int q,
 
 inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int r, int q, int alpha)
 {
+	__m256i unit = _mm256_set1_epi64x(1);
 	int i, j;
 	int n;
 	__m256i sigma, k_i;
@@ -498,7 +505,9 @@ inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base,
 
 		for(j=0; j<size/4 ;j++)  // Computation of tmp2 has been simplified
 		{
-			tmp = avx_mul_mod_cr(xhi, _mm256_set1_epi64x(conv_base->Mi_modPi[i][j]), conv_base->rns_b->avx_k[j]);
+			// TO SHOW IT'S NOT WORTH IT
+			//tmp = avx_mul_mod_cr(xhi, unit, conv_base->rns_b->avx_k[j]);
+			tmp = avx_mul_mod_cr(xhi, unit * conv_base->Mi_modPi[i][j], conv_base->rns_b->avx_k[j]);
 			tmp2 = conv_base->invM_modPi[j]*k_i;
 			tmp3 = avx_add_mod_cr(tmp, tmp2, conv_base->rns_b->avx_k[j]);
 			//rop[j]+=tmp3;
@@ -506,6 +515,7 @@ inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base,
 		}
 	}
 }
+
 
 inline void avx_mult_mod_rns_cr_cox(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb, 
 	__m256i *pbb, struct mod_mul_t *mult, __m256i *tmp0, __m256i *tmp1, __m256i *tmp2, int64_t *a) {

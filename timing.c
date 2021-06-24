@@ -1603,6 +1603,7 @@ int main(void){
 
 	// Vectored constants needed
 	avx_init_rns(&rns_a);
+	avx_initialize_inverses_base_conversion(&conv);
 	
 	mpz_urandomm (A, state, modul_p);  //Randomly generates A < P
 	mpz_urandomm (B, state, modul_p);  //Randomly generates A < P

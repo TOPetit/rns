@@ -27,7 +27,7 @@ sudo ./init.sh
 - [x] Base conversion
 - [x] Modular multplication
 - [x] Cox modular multiplication
-- [ ] Cox base extension
+- [x] Cox base extension
 - [ ] Cox computing k
 
 ## Fix:

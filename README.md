@@ -28,7 +28,7 @@ sudo ./init.sh
 - [x] Modular multplication
 - [x] Cox modular multiplication
 - [x] Cox base extension
-- [ ] Cox computing k
+- [x] Cox computing k
 
 ## Fix:
 - [x] Vectorized substraction

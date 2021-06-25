@@ -478,8 +478,7 @@ inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base,
     //printf("alpha = %d\n",alpha);
  
     // Initialize rop[]
-    for(i=0;i<n/4;i++)
-    	rop[i]=_mm256_set1_epi64x(0);
+    
 	for(i=0;i<n;i++)
 	{
 //		xhi = op[i] * base->int_invM_i[i] % base->m[i];

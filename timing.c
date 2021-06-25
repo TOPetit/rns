@@ -503,6 +503,7 @@ int main(void)
 			avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
 
 			after_ref = rdpmc_reference_cycles();
+			//printf("%ld\n", after_ref-before_ref);
 
 			if (ref > (after_ref - before_ref) / NFUNS)
 				ref = (after_ref - before_ref) / NFUNS;
@@ -1768,6 +1769,11 @@ int main(void)
 	printf("\tRNS parallel cox base conversion : %ld instructions.\n", instructions);
 	printf("\tRNS parallel cox base conversion : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS parallel cox base conversion : %ld reference CPU cycles.\n", ref);
+
+	timing = ULLONG_MAX;
+	cycles = ULONG_MAX;
+	instructions = ULONG_MAX;
+	ref = ULONG_MAX;
 
 	fclose(fpt);
 

@@ -10,3 +10,4 @@ RNS/main
 testing
 modular/modular
 modular/*.pdf
+*.c.*

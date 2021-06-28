@@ -29,7 +29,7 @@ sudo ./init.sh
 - [x] Cox modular multiplication
 - [x] Cox base extension
 - [x] Cox computing k
-- [ ] Hierarchical base extension
+- [ ] ~~Hierarchical base extension~~
 
 ## Fix:
 - [x] Vectorized substraction

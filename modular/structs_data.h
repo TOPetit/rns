@@ -26,6 +26,7 @@ struct rns_base_t
 	mpz_t *Mi;		   // Mi for the CRT conversion
 	mpz_t *inv_Mi;	   // Mi^{-1} mod mi for the CRT conversion
 	mpz_t M;		   // M for the CRT conversion
+	int64_t *r;		   // Constants for mod mul
 };
 
 struct conv_base_t //Constants for the RNSa -> RNSb conversion

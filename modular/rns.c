@@ -62,19 +62,24 @@ inline void mul_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t 
     }
 }
 
-static inline int64_t mul_mod_rns(int64_t a, int64_t b, int64_t p, int64_t r, int64_t n)
+static inline int64_t mul_mod_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb, int64_t n)
 {
     int64_t c;
     int64_t tmp1_w;
     int64_t tmp2_w;
-    int W = 32 * n;
+    int W = 2 * n;
+    int size = base->size;
 
-    c = (int64_t)a * b;
-    tmp1_w = ((c * r) >> W) + 1;
-    tmp2_w = ((int64_t)tmp1_w * p) >> W;
-    if (tmp2_w == p)
-        return 0;
-    return tmp2_w;
+    for (int i = 0; i < size; i++)
+    {
+        c = (int64_t)pa[i] * pb[i];
+        tmp1_w = ((c * base->r[i]) >> W) + 1;
+        tmp2_w = ((int64_t)tmp1_w * base->m[i]) >> W;
+        if (tmp2_w == base->m[i])
+            rop[i] = 0;
+        else
+            rop[i] = tmp2_w;
+    }
 }
 
 ///////////////////////////////

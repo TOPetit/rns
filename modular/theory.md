@@ -9,7 +9,7 @@ Plantard's Algorithm naturally computes $AB(-2^{2^n}) mod P$, so we keep the sam
 $$\framebox[1.1\width]{$\widetilde{A}\widetilde{B}\ mod\ P\ =\ \widetilde{AB}$}$$
 
 ## Multiplication
-Without correcting, we don't have the correct reprentation for the result. We can either shift the result correctly, or use modular multiplication with $(P\ >>\ \widetilde{A}\widetilde{B})$.
+Without correcting, we don't have the correct reprentation for the result. We can either shift the result correctly, or use modular multiplication where $(P\ >>\ \widetilde{A}\widetilde{B})$.
 $$\framebox[1.1\width]{$\widetilde{A}\widetilde{B}\ =\ AB(-2^{4n})\ =\ \widetilde{AB}(-2^{2n})\ =\ \widetilde{\widetilde{AB}}$}$$
 
 ## Addition
@@ -18,3 +18,4 @@ $$\framebox[1.1\width]{$\widetilde{A}+\widetilde{B}\ =\ A(-2^{2n})+B(-2^{2n})\ =
 
 ## Soustraction
 Same as addition.
+$$\framebox[1.1\width]{$\widetilde{A}-\widetilde{B}\ =\ A(-2^{2n})-B(-2^{2n})\ =\ (A-B)(-2^{2n})\ =\ \widetilde{A-B}$}$$

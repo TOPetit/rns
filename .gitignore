@@ -8,3 +8,5 @@ csv_writing
 RNS/main
 *.asm
 testing
+modular/modular
+modular/*.pdf

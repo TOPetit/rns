@@ -5,3 +5,6 @@ modular :
 
 clean :
 	rm modular
+
+doc :
+	pandoc theory.md -o theory.pdf

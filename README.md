@@ -34,3 +34,11 @@ sudo ./init.sh
 ## Fix:
 - [x] Vectorized substraction
 - [x] Better m256i -> int64_t rns conversion
+
+## Test:
+- [ ] Conversion
+- [ ] Addition
+- [ ] Multiplication
+- [ ] Substraction
+- [ ] Base conversion
+- [ ] Modular multiplication

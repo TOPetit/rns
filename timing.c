@@ -100,7 +100,7 @@ int main(void)
 		printf("\t\t %ld\n", m_tmp[i]);
 	}
 
-	printf("\n2. Multiplication :\n");
+	printf("\n1. Multiplication :\n");
 
 	fprintf(fpt, "\"multiplication\" :\n\t{\n");
 	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");

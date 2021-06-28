@@ -49,21 +49,32 @@ inline void sub_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t 
 // base : RNS base
 // pa : A
 // pb : B
-inline void mul_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb)
+inline void mul_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb, int64_t n)
 {
     int j;
-    int128 tmp;
+    int128 tmp, tmp1;
 
     for (j = 0; j < base->size; j++)
     {
         tmp = (int128)pa[j] * pb[j];
+        tmp1 = (int128)tmp * 1 << (2 * n);
         rop[j] = (int64_t)(tmp % base->m[j]);
     }
 }
 
-void mult_mod_rns(int64_t *rop, int64_t *pa, int64_t *pab, int64_t *pb,
-                  int64_t *pbb, struct mod_mul_t *mult, int64_t *tmp[3])
+static inline int64_t mul_mod_rns(int64_t a, int64_t b, int64_t p, int64_t r, int64_t n)
 {
+    int64_t c;
+    int64_t tmp1_w;
+    int64_t tmp2_w;
+    int W = 32 * n;
+
+    c = (int64_t)a * b;
+    tmp1_w = ((c * r) >> W) + 1;
+    tmp2_w = ((int64_t)tmp1_w * p) >> W;
+    if (tmp2_w == p)
+        return 0;
+    return tmp2_w;
 }
 
 ///////////////////////////////

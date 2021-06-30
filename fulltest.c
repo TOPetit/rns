@@ -104,7 +104,7 @@ int main(void)
     rns_a.k = k_tmp;
 
     init_rns(&rns_a);
-
+    
     struct rns_base_t rns_b;
     rns_b.size = NB_COEFF;
 

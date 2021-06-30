@@ -52,8 +52,8 @@ inline void add_rns_cr(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64
 	for (j = 0; j < base->size; j++)
 	{
 		tmp = (int128)pa[j] + pb[j];
-		rop[j] = (int64_t)tmp - (tmp >= base->m[j]) * base->m[j];
-		//rop[j] = add_mod_cr(pa[j], pb[j], base->k[j]);
+		//rop[j] = (int64_t)tmp - (tmp >= base->m[j]) * base->m[j];
+		rop[j] = add_mod_cr(pa[j], pb[j], base->k[j]);
 	}
 }
 

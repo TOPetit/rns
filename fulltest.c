@@ -53,6 +53,35 @@ int main(void)
     rns_a.size = NB_COEFF;
 
     int64_t m_tmp[NB_COEFF] = {
+        9223372036854775805,
+        9223372036854775801,
+        9223372036854775789,
+        9223372036854775783,
+        9223372036854775777,
+        9223372036854775769,
+        9223372036854775757,
+        9223372036854775747};
+    rns_a.m = m_tmp;
+
+    int k_tmp[NB_COEFF] = {
+        3,
+        7,
+        19,
+        25,
+        31,
+        39,
+        51,
+        61};
+    rns_a.k = k_tmp;
+
+    init_rns(&rns_a);
+
+    /*
+    // Base
+    struct rns_base_t rns_a;
+    rns_a.size = NB_COEFF;
+
+    int64_t m_tmp[NB_COEFF] = {
         32767,
         32763,
         32759,
@@ -102,6 +131,7 @@ int main(void)
     rns_b.k = k_tmp_bis;
 
     init_rns(&rns_b);
+    */
 
     gmp_printf("M = %Zd\n", rns_a.M);
 
@@ -187,6 +217,28 @@ int main(void)
     from_int_to_rns(op2, &rns_a, C);
 
     printf("Sequential substraction... ");
+    if (rns_equal(rns_a, res, op2))
+        printf("OK\n");
+    else
+        printf("ERROR\n");
+
+    /////////////////////////////
+    // TEST SEQUENTIAL MULTIPLICATION
+    /////////////////////////////
+
+    mpz_urandomm(A, r_state, rns_a.M);
+    mpz_urandomm(B, r_state, rns_a.M);
+    from_int_to_rns(op1, &rns_a, A);
+    from_int_to_rns(op2, &rns_a, B);
+
+    mul_rns_cr(res, &rns_a, op1, op2);
+
+    from_rns_to_int_crt(D, &rns_a, res);
+
+    mpz_mul(C, A, B);
+    from_int_to_rns(op2, &rns_a, C);
+
+    printf("Sequential multipliation... ");
     if (rns_equal(rns_a, res, op2))
         printf("OK\n");
     else

@@ -5,6 +5,25 @@
 #include <stdio.h>
 
 ///////////////////////////////
+// RNS equality test
+///////////////////////////////
+// base : rns base
+// pa : A
+// pb : B
+// return 0 if not equal, 1 if equal
+unsigned int rns_equal(struct rns_base_t base, int64_t *pa, int64_t *pb)
+{
+	unsigned int res = 1;
+
+	for (int i = 0; i < base.size; i++)
+	{
+		//printf("%lu and %lu\n", pa[i], pb[i]);
+		res = res && (pa[i] == pb[i]);
+	}
+	return res;
+}
+
+///////////////////////////////
 // RNS addition
 ///////////////////////////////
 // rop : result
@@ -26,13 +45,15 @@ inline void add_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t 
 inline void add_rns_cr(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb)
 {
 	int j;
-	// int128 tmp;
+	int128 tmp;
 	// int128 up;
 	//int64_t tmp, up, lo, mask = ((int64_t)1<<63) -1;  /////////////////////////////////////
 
 	for (j = 0; j < base->size; j++)
 	{
-		rop[j] = add_mod_cr(pa[j], pb[j], base->k[j]);
+		tmp = (int128)pa[j] + pb[j];
+		rop[j] = (int64_t)tmp - (tmp >= base->m[j]) * base->m[j];
+		//rop[j] = add_mod_cr(pa[j], pb[j], base->k[j]);
 	}
 }
 

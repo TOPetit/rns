@@ -156,18 +156,23 @@ int main(void)
     mpz_urandomm(B, r_state, rns_a.M);
     from_int_to_rns(op1, &rns_a, A);
     from_int_to_rns(op2, &rns_a, B);
+
     add_rns_cr(res, &rns_a, op1, op2);
+
     from_rns_to_int_crt(D, &rns_a, res);
 
     mpz_add(C, A, B);
-
-    gmp_printf("%Zd\n%Zd\n", C, D);
+    from_int_to_rns(op2, &rns_a, C);
 
     printf("Sequential addition... ");
-    if (mpz_cmp(C, D) == 0)
+    if (rns_equal(rns_a, res, op2))
         printf("OK\n");
     else
         printf("ERROR\n");
+
+    /////////////////////////////
+    // TEST SEQUENTIAL SUBSTRACTION
+    /////////////////////////////
 
     gmp_randclear(r_state);
     mpz_clear(A);

@@ -206,8 +206,7 @@ void from_int_to_rns(int64_t *rop, struct rns_base_t *base, mpz_t op)
 	{
 		//		printf(" i %d\n",i);
 
-		mpz_fdiv_r_ui(tmp_residue, op, base->m[i]);
-		rop[i] = mpz_get_ui(tmp_residue);
+		rop[i] = mpz_fdiv_r_ui(tmp_residue, op, base->m[i]);
 	}
 
 	//printf("On sorte de la conversion \n");

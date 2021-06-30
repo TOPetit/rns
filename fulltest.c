@@ -174,6 +174,24 @@ int main(void)
     // TEST SEQUENTIAL SUBSTRACTION
     /////////////////////////////
 
+    mpz_urandomm(A, r_state, rns_a.M);
+    mpz_urandomm(B, r_state, rns_a.M);
+    from_int_to_rns(op1, &rns_a, A);
+    from_int_to_rns(op2, &rns_a, B);
+
+    sub_rns_cr(res, &rns_a, op1, op2);
+
+    from_rns_to_int_crt(D, &rns_a, res);
+
+    mpz_sub(C, A, B);
+    from_int_to_rns(op2, &rns_a, C);
+
+    printf("Sequential substraction... ");
+    if (rns_equal(rns_a, res, op2))
+        printf("OK\n");
+    else
+        printf("ERROR\n");
+
     gmp_randclear(r_state);
     mpz_clear(A);
     mpz_clear(B);

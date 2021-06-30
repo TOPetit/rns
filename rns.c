@@ -85,9 +85,10 @@ inline void sub_rns_cr(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64
 	for (j = 0; j < base->size; j++)
 	{
 		tmp = (int128)pa[j] - pb[j];
-		up = tmp >> 63; //////////////////////////////////////////////////////
+		rop[j] = tmp + (tmp < 0) * base->m[j];
+		//up = tmp >> 63; //////////////////////////////////////////////////////
 
-		rop[j] = (int64_t)(tmp + up * base->k[j]);
+		//rop[j] = (int64_t)(tmp + up * base->k[j]);
 	}
 }
 

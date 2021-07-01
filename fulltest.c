@@ -76,6 +76,34 @@ int main(void)
 
     init_rns(&rns_a);
 
+    // Second Base
+    struct rns_base_t rns_b;
+    rns_b.size = NB_COEFF;
+
+    int64_t base2_bis[NB_COEFF] = {
+        9223372036854775807,
+        9223372036854775803,
+        9223372036854775799,
+        9223372036854775787,
+        9223372036854775781,
+        9223372036854775771,
+        9223372036854775763,
+        9223372036854775753};
+    rns_b.m = base2_bis;
+
+    int k2_bis[NB_COEFF] = {
+        1,
+        5,
+        9,
+        21,
+        27,
+        37,
+        45,
+        55};
+    rns_b.k = k2_bis;
+
+    init_rns(&rns_b);
+
     /*
     // Base
     struct rns_base_t rns_a;
@@ -240,6 +268,29 @@ int main(void)
 
     printf("Sequential multipliation... ");
     if (rns_equal(rns_a, res, op2))
+        printf("OK\n");
+    else
+        printf("ERROR\n");
+
+    /////////////////////////////
+    // TEST SEQUENTIAL BASE CONVERSION
+    /////////////////////////////
+
+    struct conv_base_t conv;
+    conv.rns_a = &rns_a;
+    conv.rns_b = &rns_b;
+    initialize_inverses_base_conversion(&conv);
+
+    mpz_urandomm(A, r_state, rns_a.M);
+    from_int_to_rns(op1, &rns_a, A);
+
+    int64_t a[NB_COEFF];
+    base_conversion_cr(op2, &conv, op1, a);
+    from_rns_to_int_crt(A, &rns_a, op1);
+    from_rns_to_int_crt(B, &rns_b, op2);
+
+    printf("Sequential base conversion... ");
+    if (mpz_cmp(A, B) == 0)
         printf("OK\n");
     else
         printf("ERROR\n");

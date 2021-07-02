@@ -12,3 +12,4 @@ modular/modular
 modular/*.pdf
 *.c.*
 fulltest
+*.pdf

@@ -32,6 +32,7 @@ struct rns_base_t
 	int64_t *int_inv_Mi; // Mi^{-1} mod mi for the Cox conversion
 	mpz_t M;			 // M for the CRT conversion
 	__m256i *avx_inv_Mi; // inv_Mi vectored
+	__m256i *avx_m;		 // m vectored for substraction
 };
 
 struct conv_base_t //Constants for the RNSa -> RNSb conversion

@@ -115,6 +115,15 @@ inline void avx_init_rns(struct rns_base_t *base)
 	}
 
 	base->avx_inv_Mi = avx_inv_Mi;
+
+	__m256i *tmp = (__m256i *)malloc(n * sizeof(__m256i) / 4);
+
+	for (int i = 0; i < n / 4; i++)
+	{
+		tmp[i] = _mm256_set_epi64x(base->m[4 * i + 3], base->m[4 * i + 2], base->m[4 * i + 1], base->m[4 * i]);
+	}
+
+	base->avx_m = tmp;
 }
 
 //%%%%%%%%%%%%  ADD  %%%%%%%%%%%%%%%%%%%%%//
@@ -126,14 +135,8 @@ inline void avx_init_rns(struct rns_base_t *base)
 inline __m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k)
 {
 
-	__m256i ini_res = _mm256_set1_epi64x(0); // Juste 0. Est-ce vraiment utile ?
-
 	__m256i tmp_mask = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
 	__m256i mask = _mm256_sub_epi64(tmp_mask, _mm256_set1_epi64x(1));
-
-	__m256i tmp_u_mod = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63); // Pas utilisé
-
-	__m256i u_mod = _mm256_sub_epi64(tmp_u_mod, k); // pas utilisé
 
 	__m256i tmp = _mm256_add_epi64(a, b);
 
@@ -143,9 +146,7 @@ inline __m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k)
 
 	__m256i tmp_res = _mm256_madd_epi16(up, k); // mul et add ? Il ne manque pas un terme ?
 
-	__m256i tmp_res2 = _mm256_add_epi64(lo, tmp_res);
-
-	__m256i res = _mm256_add_epi64(ini_res, tmp_res2); // 0 + tmp_res2 ?????
+	__m256i res = _mm256_add_epi64(lo, tmp_res);
 
 	//on verra après pour le if
 
@@ -172,6 +173,31 @@ inline void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 
 //%%%%%%%%%%%%  SUB  %%%%%%%%%%%%%%%%%%%%%//
 
+///////////////////////////////////////////////////
+// Modular substraction and multiplication using
+// Crandall moduli
+///////////////////////////////////////////////////
+inline __m256i avx_sub_mod_cr(__m256i a, __m256i b, __m256i k, __m256i m)
+{
+
+	__m256i tmp_mask = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
+	__m256i mask = _mm256_sub_epi64(tmp_mask, _mm256_set1_epi64x(1));
+
+	__m256i tmp1 = _mm256_add_epi64(a, m);
+
+	__m256i tmp = _mm256_sub_epi64(tmp1, b);
+
+	__m256i up = _mm256_srli_epi64(tmp, 63); // La retenue sortante
+
+	__m256i lo = _mm256_and_si256(tmp, mask); // La partie basse de la somme
+
+	__m256i tmp_res = _mm256_madd_epi16(up, k); // mul et add ? Il ne manque pas un terme ?
+
+	__m256i res = _mm256_add_epi64(lo, tmp_res);
+
+	return res;
+}
+
 ///////////////////////////////
 // RNS substraction
 ///////////////////////////////
@@ -186,13 +212,7 @@ inline void avx_sub_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 	for (j = 0; j < (base->size) / 4; j += 1)
 	{
 
-		__m256i tmp = _mm256_sub_epi64(pa[j], pb[j]);
-
-		__m256i up = _mm256_srli_epi64(tmp, 63);
-
-		__m256i tmp_rop = _mm256_madd_epi16(up, base->avx_k[j]);
-
-		rop[j] = _mm256_add_epi64(tmp, tmp_rop);
+		rop[j] = avx_sub_mod_cr(pa[j], pb[j], base->avx_k[j], base->avx_m[j]);
 	}
 }
 

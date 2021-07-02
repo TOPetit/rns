@@ -28,14 +28,13 @@ int main(void)
     /////////////////////////////
 
     // Init Random
-    mpz_t rand_Num;
     unsigned long int i, seed;
     gmp_randstate_t r_state;
 
-    seed = clock();
+    //seed = clock();
 
     gmp_randinit_default(r_state);
-    gmp_randseed_ui(r_state, seed);
+    //gmp_randseed_ui(r_state, seed);
 
     // Test variables
     bool test;
@@ -75,6 +74,7 @@ int main(void)
     rns_a.k = k1;
 
     init_rns(&rns_a);
+    avx_init_rns(&rns_a);
 
     int64_t tmp_k[NB_COEFF];
 
@@ -114,6 +114,7 @@ int main(void)
     rns_b.k = k2;
 
     init_rns(&rns_b);
+    avx_init_rns(&rns_b);
 
     for (int j = 0; j < NB_COEFF; j++)
     {
@@ -151,7 +152,7 @@ int main(void)
     rns_a.k = k_tmp;
 
     init_rns(&rns_a);
-    
+
     struct rns_base_t rns_b;
     rns_b.size = NB_COEFF;
 
@@ -375,6 +376,28 @@ int main(void)
     from_m256i_to_rns(op1, &rns_a, avx_res);
 
     printf("AVX-2 RNS addition... ");
+    if (rns_equal(rns_a, op1, res))
+        printf("OK\n");
+    else
+        printf("ERROR\n");
+
+    /////////////////////////////
+    // TEST PARALLEL SUBSTRACTION
+    /////////////////////////////
+
+    //mpz_urandomm(A, r_state, rns_a.M);
+    //mpz_urandomm(B, r_state, rns_a.M);
+    from_int_to_rns(op1, &rns_a, A);
+    from_int_to_rns(op2, &rns_a, B);
+    from_rns_to_m256i(avx_op1, &rns_a, op1);
+    from_rns_to_m256i(avx_op2, &rns_a, op2);
+
+    avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+    sub_rns_cr(res, &rns_a, op1, op2);
+
+    from_m256i_to_rns(op1, &rns_a, avx_res);
+
+    printf("AVX-2 RNS substraction... ");
     if (rns_equal(rns_a, op1, res))
         printf("OK\n");
     else

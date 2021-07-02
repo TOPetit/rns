@@ -68,6 +68,7 @@ int main(void)
 	rns_a.k = k_tmp;
 
 	init_rns(&rns_a);
+	avx_init_rns(&rns_a);
 
 	int64_t tmp_k[NB_COEFF];
 	int j;
@@ -1664,7 +1665,6 @@ int main(void)
 	ref = ULONG_MAX;
 
 	// Vectored constants needed
-	avx_init_rns(&rns_a);
 	avx_initialize_inverses_base_conversion(&conv);
 
 	mpz_urandomm(A, state, modul_p); //Randomly generates A < P

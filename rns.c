@@ -537,7 +537,6 @@ void base_conversion_cr(int64_t *rop, struct conv_base_t *conv_base, int64_t *op
 	int128 tmp2;
 	int128 tmp3;
 	int64_t up, up2, lo, lo2;
-	int64_t mask = ((int64_t)1 << 63) - 1; /////////////////////////////////////
 	int size = conv_base->rns_a->size;
 
 	// Set target number to 0

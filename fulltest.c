@@ -87,14 +87,6 @@ int main(void)
     from_rns_to_m256i(avx_k1, &rns_a, tmp_k);
     rns_a.avx_k = avx_k1;
 
-    __m256i avx_m[NB_COEFF / 4];
-    for (int j = 0; j < (rns_a.size) / 4; j++)
-    {
-        avx_m[j] = _mm256_set_epi64x(m1[4 * j + 3], m1[4 * j + 2], m1[4 * j + 1], m1[4 * j]);
-    }
-
-    rns_a.avx_m = avx_m;
-
     // Second Base
     struct rns_base_t rns_b;
     rns_b.size = NB_COEFF;
@@ -130,13 +122,6 @@ int main(void)
     __m256i avx_k2[NB_COEFF / 4];
     from_rns_to_m256i(avx_k2, &rns_b, tmp_k);
     rns_b.avx_k = avx_k2;
-
-    for (int j = 0; j < (rns_a.size) / 4; j++)
-    {
-        avx_m[j] = _mm256_set_epi64x(m1[4 * j + 3], m1[4 * j + 2], m1[4 * j + 1], m1[4 * j]);
-    }
-
-    rns_a.avx_m = avx_m;
 
     /*
     // Base
@@ -370,6 +355,10 @@ int main(void)
     // TEST PARALLEL ADDITION
     /////////////////////////////
 
+    mpz_t M;
+    mpz_inits(M, NULL);
+    mpz_set(M, rns_a.M);
+
     __m256i avx_op2[NB_COEFF / 4];
     __m256i avx_res[NB_COEFF / 4];
 
@@ -386,35 +375,6 @@ int main(void)
     from_m256i_to_rns(op1, &rns_a, avx_res);
 
     printf("AVX-2 RNS addition... ");
-    if (rns_equal(rns_a, op1, res))
-        printf("OK\n");
-    else
-        printf("ERROR\n");
-
-    /////////////////////////////
-    // TEST PARALLEL SUBSTRACTION
-    /////////////////////////////
-
-    //mpz_urandomm(A, r_state, rns_a.M);
-    //mpz_urandomm(B, r_state, rns_a.M);
-    from_int_to_rns(op1, &rns_a, A);
-    from_int_to_rns(op2, &rns_a, B);
-    from_rns_to_m256i(avx_op1, &rns_a, op1);
-    from_rns_to_m256i(avx_op2, &rns_a, op2);
-
-    avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
-    sub_rns_cr(res, &rns_a, op1, op2);
-
-    from_m256i_to_rns(op1, &rns_a, avx_res);
-
-    /*
-    for (int i = 0; i < rns_a.size; i++)
-    {
-        printf("%ld\n%ld\n\n", op1[i], res[i]);
-    }
-    */
-
-    printf("AVX-2 RNS substraction... ");
     if (rns_equal(rns_a, op1, res))
         printf("OK\n");
     else

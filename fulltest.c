@@ -87,6 +87,14 @@ int main(void)
     from_rns_to_m256i(avx_k1, &rns_a, tmp_k);
     rns_a.avx_k = avx_k1;
 
+    __m256i avx_m[NB_COEFF / 4];
+    for (int j = 0; j < (rns_a.size) / 4; j++)
+    {
+        avx_m[j] = _mm256_set_epi64x(m1[4 * j + 3], m1[4 * j + 2], m1[4 * j + 1], m1[4 * j]);
+    }
+
+    rns_a.avx_m = avx_m;
+
     // Second Base
     struct rns_base_t rns_b;
     rns_b.size = NB_COEFF;
@@ -122,6 +130,13 @@ int main(void)
     __m256i avx_k2[NB_COEFF / 4];
     from_rns_to_m256i(avx_k2, &rns_b, tmp_k);
     rns_b.avx_k = avx_k2;
+
+    for (int j = 0; j < (rns_a.size) / 4; j++)
+    {
+        avx_m[j] = _mm256_set_epi64x(m1[4 * j + 3], m1[4 * j + 2], m1[4 * j + 1], m1[4 * j]);
+    }
+
+    rns_a.avx_m = avx_m;
 
     /*
     // Base
@@ -392,10 +407,12 @@ int main(void)
 
     from_m256i_to_rns(op1, &rns_a, avx_res);
 
+    /*
     for (int i = 0; i < rns_a.size; i++)
     {
         printf("%ld\n%ld\n\n", op1[i], res[i]);
     }
+    */
 
     printf("AVX-2 RNS substraction... ");
     if (rns_equal(rns_a, op1, res))

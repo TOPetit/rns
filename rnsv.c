@@ -1,23 +1,5 @@
 #include "rnsv.h"
 
-#include <stdlib.h>
-
-#include <stdio.h>
-
-#include <unistd.h>
-
-#include <stdint.h>
-
-#include <string.h>
-
-#include <time.h>
-
-#include <gmp.h>
-
-#include <immintrin.h>
-
-#include <time.h>
-
 ///////////////////////////////
 // RNS to __m256i convertion
 ///////////////////////////////
@@ -177,7 +159,7 @@ inline void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 // Modular substraction and multiplication using
 // Crandall moduli
 ///////////////////////////////////////////////////
-inline __m256i avx_sub_mod_cr(__m256i a, __m256i b, __m256i k, __m256i m)
+__m256i avx_sub_mod_cr(__m256i a, __m256i b, __m256i k, __m256i m)
 {
 
 	__m256i tmp_mask = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);

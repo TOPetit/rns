@@ -83,7 +83,7 @@ inline void print_m256i(struct rns_base_t *base, __m256i *a)
 	for (j = 0; j < (base->size) / 4; j++)
 	{
 
-		printf("%lld %lld %lld %lld\n", _mm256_extract_epi64(a[j], 3),
+		printf("%lld %lld %lld %lld ", _mm256_extract_epi64(a[j], 3),
 			   _mm256_extract_epi64(a[j], 2),
 			   _mm256_extract_epi64(a[j], 1),
 			   _mm256_extract_epi64(a[j], 0));
@@ -177,7 +177,7 @@ inline void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 // Modular substraction and multiplication using
 // Crandall moduli
 ///////////////////////////////////////////////////
-inline __m256i avx_sub_mod_cr(__m256i a, __m256i b, __m256i k, __m256i m)
+__m256i avx_sub_mod_cr(__m256i a, __m256i b, __m256i k, __m256i m)
 {
 
 	__m256i tmp_mask = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
@@ -342,17 +342,18 @@ inline void avx_init_mrs(struct conv_base_t *conv_base)
 {
 	int i;
 	int size = conv_base->rns_a->size;
-	conv_base->avx_mrsa_to_b = (__m256i **)malloc(size * sizeof(__m256i *) / 4);
+	conv_base->avx_mrsa_to_b = (__m256i **)malloc(size * sizeof(__m256i *));
 	//don't know why but sizeof has to be divided by 8 so it work (maybe a bit/byte problem)
 
 	for (i = 0; i < size; i++)
 	{
-		conv_base->avx_mrsa_to_b[i] = (__m256i *)malloc(size * sizeof(__m256i) / 16);
+		conv_base->avx_mrsa_to_b[i] = (__m256i *)malloc(size * sizeof(__m256i) / 4);
 	}
 	for (i = 0; i < size; i++)
 	{
-		from_rns_to_m256i(conv_base->avx_mrsa_to_b[i],
-						  conv_base->rns_a, conv_base->mrsa_to_b[i]);
+		from_rns_to_m256i(conv_base->avx_mrsa_to_b[i], conv_base->rns_a, conv_base->mrsa_to_b[i]);
+		//print_m256i(conv_base->rns_a, conv_base->avx_mrsa_to_b[i]);
+		//printf("\n");
 	}
 } //call before calling function below
 
@@ -426,9 +427,9 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 	{
 		for (i = 1; i < size; i++)
 		{
-			avx_tmp = (_mm256_set1_epi64x(a[i]),
-					   conv_base->avx_mrsa_to_b[i - 1][j], conv_base->rns_b->avx_k[j]);
-			rop[j] = avx_add_mod_cr(rop[j], avx_tmp, conv_base->rns_b->avx_k[j]);
+			int64_t teee = a[i];
+			//avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]), conv_base->avx_mrsa_to_b[i - 1][j], conv_base->rns_b->avx_k[j]);
+			//rop[j] = avx_add_mod_cr(rop[j], avx_tmp, conv_base->rns_b->avx_k[j]);
 
 			if (&rop[j] < 0)
 			{ //Sinon, ca part en couille ????????????? jamais atteint en pratique

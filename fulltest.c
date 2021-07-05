@@ -429,6 +429,7 @@ int main(void)
     // TEST PARALLEL BASE CONVERSION
     /////////////////////////////
 
+    avx_init_mrs(&conv);
     avx_initialize_inverses_base_conversion(&conv);
 
     from_int_to_rns(op1, &rns_a, A);

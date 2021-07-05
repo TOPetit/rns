@@ -1,26 +1,6 @@
 #include "structs_data.h"
 
-#include "rns.h"
-
 #include <immintrin.h>
-
-#include <stdlib.h>
-
-#include <stdio.h>
-
-#include <unistd.h>
-
-#include <stdint.h>
-
-#include <string.h>
-
-#include <time.h>
-
-#include <gmp.h>
-
-#include <immintrin.h>
-
-#include <time.h>
 
 // RNS arithmetic functions
 void add_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb);

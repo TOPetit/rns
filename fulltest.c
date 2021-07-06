@@ -415,6 +415,7 @@ int main(void)
     from_rns_to_m256i(avx_op2, &rns_a, op2);
 
     avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+
     mul_rns_cr(res, &rns_a, op1, op2);
 
     from_m256i_to_rns(op1, &rns_a, avx_res);
@@ -450,6 +451,19 @@ int main(void)
         printf("OK\n");
     else
         printf("ERROR\n");
+
+    from_rns_to_m256i(avx_op1, &rns_a, op1);
+    from_rns_to_m256i(avx_op2, &rns_a, op2);
+
+    __m256i avx_up = avx_mul_mod_cr(avx_op1[0], avx_op2[0], rns_a.avx_k[0]);
+    __m256i avx_lo = avx_mul_mod_cr(avx_op1[1], avx_op2[1], rns_a.avx_k[1]);
+
+    __m256i prod[NB_COEFF / 4] = {avx_up, avx_lo};
+
+    mul_rns(res, &rns_a, op1, op2);
+
+    print_RNS(&rns_a, res);
+    print_m256i(&rns_a, prod);
 
     return 0;
 }

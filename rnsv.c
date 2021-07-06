@@ -83,11 +83,12 @@ inline void print_m256i(struct rns_base_t *base, __m256i *a)
 	for (j = 0; j < (base->size) / 4; j++)
 	{
 
-		printf("%lld %lld %lld %lld ", _mm256_extract_epi64(a[j], 3),
-			   _mm256_extract_epi64(a[j], 2),
+		printf("%lld %lld %lld %lld ", _mm256_extract_epi64(a[j], 0),
 			   _mm256_extract_epi64(a[j], 1),
-			   _mm256_extract_epi64(a[j], 0));
+			   _mm256_extract_epi64(a[j], 2),
+			   _mm256_extract_epi64(a[j], 3));
 	}
+	printf("\n");
 }
 
 ///////////////////////////////
@@ -96,10 +97,10 @@ inline void print_m256i(struct rns_base_t *base, __m256i *a)
 inline void print_alone_m256i(__m256i a)
 {
 	printf("->  ");
-	printf("%lld %lld %lld %lld\n", _mm256_extract_epi64(a, 3),
-		   _mm256_extract_epi64(a, 2),
+	printf("%lld %lld %lld %lld\n", _mm256_extract_epi64(a, 0),
 		   _mm256_extract_epi64(a, 1),
-		   _mm256_extract_epi64(a, 0));
+		   _mm256_extract_epi64(a, 2),
+		   _mm256_extract_epi64(a, 3));
 }
 
 inline void avx_init_rns(struct rns_base_t *base)
@@ -292,7 +293,7 @@ inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
 												_mm256_add_epi64(ret, tmp4)));
 }
 
-inline __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
+inline __m256i avx_mul_mod_cr_bis(__m256i a, __m256i b, __m256i k)
 {
 
 	__m256i tmp_mask = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
@@ -544,4 +545,23 @@ inline void avx_mult_mod_rns_cr_cox(__m256i *rop, __m256i *pa, __m256i *pab, __m
 	avx_mul_rns_cr(tmp2, mult->conv->rns_b, tmp0, mult->avx_p_modMb);	  // Q*P base2
 	avx_add_rns_cr(tmp0, mult->conv->rns_b, tmp1, tmp2);				  // A*B + Q*P in base 2
 	avx_mul_rns_cr(rop, mult->conv->rns_b, tmp0, mult->avx_inv_Ma_modMb); // Division by Ma
+}
+
+__m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
+{
+	int64_t tmp_a[4];
+	int64_t tmp_b[4];
+	int64_t tmp_k[4];
+	int64_t tmp_res[4];
+
+	_mm256_storeu_si256((__m256i *)&(tmp_a[0]), a);
+	_mm256_storeu_si256((__m256i *)&(tmp_b[0]), b);
+	_mm256_storeu_si256((__m256i *)&(tmp_k[0]), k);
+
+	for (int i = 0; i < 4; i++)
+	{
+		tmp_res[i] = mul_mod_cr(tmp_a[i], tmp_b[i], tmp_k[i]);
+	}
+
+	__m256i res = _mm256_set_epi64x(tmp_res[3], tmp_res[2], tmp_res[1], tmp_res[0]);
 }

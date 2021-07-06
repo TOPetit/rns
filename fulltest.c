@@ -436,10 +436,17 @@ int main(void)
     from_rns_to_m256i(avx_op1, &rns_a, op1);
     avx_base_conversion_cr(avx_op2, &conv, avx_op1, a);
     from_m256i_to_rns(op2, &rns_b, avx_op2);
-    from_rns_to_int_crt(B, &rns_b, op2);
+    from_int_to_rns(res, &rns_b, A);
+
+    printf("\nSequential in base b : ");
+    print_RNS(&rns_b, op2);
+    printf("\nVectorized in base b : ");
+    print_RNS(&rns_b, res);
+    printf("\nSequential in base a : ");
+    print_RNS(&rns_a, op1);
 
     printf("AVX-2 RNS base conversion... ");
-    if (mpz_cmp(A, B) == 0)
+    if (rns_equal(rns_b, op2, res))
         printf("OK\n");
     else
         printf("ERROR\n");

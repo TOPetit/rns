@@ -342,6 +342,7 @@ inline void avx_init_mrs(struct conv_base_t *conv_base)
 {
 	int i;
 	int size = conv_base->rns_a->size;
+	/*
 	conv_base->avx_mrsa_to_b = (__m256i **)malloc(size * sizeof(__m256i *));
 	//don't know why but sizeof has to be divided by 8 so it work (maybe a bit/byte problem)
 
@@ -349,12 +350,19 @@ inline void avx_init_mrs(struct conv_base_t *conv_base)
 	{
 		conv_base->avx_mrsa_to_b[i] = (__m256i *)malloc(size * sizeof(__m256i) / 4);
 	}
+	*/
+
+	__m256i tmp[NB_COEFF][NB_COEFF / 4];
+	conv_base->avx_mrsa_to_b = (__m256i **)malloc(size * sizeof(__m256i *));
+
 	for (i = 0; i < size; i++)
 	{
-		from_rns_to_m256i(conv_base->avx_mrsa_to_b[i], conv_base->rns_a, conv_base->mrsa_to_b[i]);
+		from_rns_to_m256i(tmp[i], conv_base->rns_a, conv_base->mrsa_to_b[i]);
 		//print_m256i(conv_base->rns_a, conv_base->avx_mrsa_to_b[i]);
 		//printf("\n");
+		conv_base->avx_mrsa_to_b[i] = &tmp[i][0];
 	}
+
 } //call before calling function below
 
 inline void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_base)
@@ -393,9 +401,6 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 	//	int64_t a[NB_COEFF];  // En externe, car ça prend du temps
 	int64_t tmp;
 	__m256i avx_tmp;
-	int128 tmp2;
-	int128 tmp3;
-	int64_t up, up2, lo, lo2;
 
 	int size = conv_base->rns_a->size;
 
@@ -427,9 +432,8 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 	{
 		for (i = 1; i < size; i++)
 		{
-			int64_t teee = a[i];
-			//avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]), conv_base->avx_mrsa_to_b[i - 1][j], conv_base->rns_b->avx_k[j]);
-			//rop[j] = avx_add_mod_cr(rop[j], avx_tmp, conv_base->rns_b->avx_k[j]);
+			avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]), conv_base->avx_mrsa_to_b[i - 1][j], conv_base->rns_b->avx_k[j]);
+			rop[j] = avx_add_mod_cr(rop[j], avx_tmp, conv_base->rns_b->avx_k[j]);
 
 			if (&rop[j] < 0)
 			{ //Sinon, ca part en couille ????????????? jamais atteint en pratique

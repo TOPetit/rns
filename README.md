@@ -36,9 +36,9 @@ sudo ./init.sh
 - [x] Better m256i -> int64_t rns conversion
 
 ## Test:
-- [ ] Conversion
-- [ ] Addition
-- [ ] Multiplication
-- [ ] Substraction
+- [x] Conversion
+- [x] Addition
+- [x] Multiplication
+- [x] Substraction
 - [ ] Base conversion
 - [ ] Modular multiplication

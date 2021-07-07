@@ -445,5 +445,81 @@ int main(void)
     else
         printf("ERROR\n");
 
+    /////////////////////////////
+    // TEST PARALLEL MODULAR MULTIPLICATION
+    /////////////////////////////
+
+    mpz_t inv_p_modM, inv_M_modMp, modul_p;
+    mpz_inits(inv_p_modM, inv_M_modMp, modul_p, NULL);
+
+    mpz_set_str(modul_p, "115792089021636622262124715160334756877804245386980633020041035952359812890593", 10);
+    mpz_set_str(inv_p_modM, "-7210642370083763919688086698199040857322895088554003933210287226647459666846134833419938084604981461493089686639677942359747717700454441525223348684285", 10);
+    mpz_set_str(inv_M_modMp, "2926906825829426928727294150364906856635623568440932569450673109926460590684432927230290255276608760237299661987870702836538185953568700154975953006659", 10);
+
+    int64_t paa[NB_COEFF];
+    int64_t pba[NB_COEFF];
+    int64_t pab[NB_COEFF];
+    int64_t pbb[NB_COEFF];
+
+    __m256i avx_paa[NB_COEFF / 4];
+    __m256i avx_pba[NB_COEFF / 4];
+    __m256i avx_pab[NB_COEFF / 4];
+    __m256i avx_pbb[NB_COEFF / 4];
+
+    int64_t pp1[NB_COEFF];
+    int64_t pp2[NB_COEFF];
+    int64_t pp3[NB_COEFF];
+
+    __m256i avx_pp1[NB_COEFF / 4];
+    __m256i avx_pp2[NB_COEFF / 4];
+    __m256i avx_pp3[NB_COEFF / 4];
+
+    from_rns_to_m256i(avx_pp1, &rns_a, pp1);
+    from_rns_to_m256i(avx_pp2, &rns_b, pp2);
+    from_rns_to_m256i(avx_pp3, &rns_b, pp3);
+
+    mpz_t tmp_gcd, t, tmp_inv;
+
+    mpz_init(tmp_gcd);
+    mpz_init(t);
+    mpz_init(tmp_inv);
+    from_int_to_rns(pp2, &rns_b, modul_p); // P mod Mb
+
+    mpz_sub(tmp_inv, rns_a.M, modul_p);
+    mpz_gcdext(tmp_gcd, inv_p_modM, t, tmp_inv, rns_a.M);
+    from_int_to_rns(pp1, &rns_a, inv_p_modM); //(-P)^-1 mod Ma
+
+    mpz_gcdext(tmp_gcd, inv_M_modMp, t, rns_a.M, rns_b.M);
+    from_int_to_rns(pp3, &rns_b, inv_M_modMp); // Ma^{-1} mod Mb
+
+    struct mod_mul_t mult;
+
+    mult.conv = &conv;
+    mult.avx_inv_p_modMa = avx_pp1;
+    mult.avx_p_modMb = avx_pp2;
+    mult.avx_inv_Ma_modMb = avx_pp3;
+
+    __m256i tmp0[NB_COEFF / 4];
+    __m256i tmp1[NB_COEFF / 4];
+    __m256i tmp2[NB_COEFF / 4];
+
+    from_int_to_rns(paa, &rns_a, A);
+    from_int_to_rns(pba, &rns_a, B);
+    from_int_to_rns(pab, &rns_b, A);
+    from_int_to_rns(pbb, &rns_b, B);
+
+    from_rns_to_m256i(avx_paa, &rns_a, paa);
+    from_rns_to_m256i(avx_pba, &rns_a, pba);
+    from_rns_to_m256i(avx_pab, &rns_b, pab);
+    from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+
+    avx_mult_mod_rns_cr(avx_res, avx_paa, avx_pab, avx_pba, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+
+    printf("AVX-2 RNS base conversion... ");
+    if (rns_equal(rns_b, op2, res))
+        printf("OK\n");
+    else
+        printf("ERROR\n");
+
     return 0;
 }

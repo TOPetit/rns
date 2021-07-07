@@ -293,7 +293,7 @@ inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
 												_mm256_add_epi64(ret, tmp4)));
 }
 
-inline __m256i avx_mul_mod_cr_bis(__m256i a, __m256i b, __m256i k)
+inline __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
 {
 
 	__m256i tmp_mask = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
@@ -401,10 +401,13 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 	int i, j;
 	//	int64_t a[NB_COEFF];  // En externe, car ça prend du temps
 	int64_t tmp;
+	int64_t tmp_rop[NB_COEFF];
 	__m256i avx_tmp;
-
 	int size = conv_base->rns_a->size;
 
+	// Set target number to 0
+	// for(j=0; j<NB_COEFF; j++)
+	// 	rop[j]=0;
 	from_m256i_to_rns(a, conv_base->rns_a, op);
 
 	for (i = 0; i < size - 1; i++)
@@ -413,40 +416,33 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 		{
 			tmp = a[j] - a[i];
 			a[j] = mul_mod_cr(tmp, conv_base->inva_to_b[i][j], conv_base->rns_a->k[j]);
-			if (a[j] < 0) // Sinon ca part en couille ?
-				a[j] += conv_base->rns_a->m[j];
+			// if(a[j]<0)	// Sinon ca part en couille ??????? To be Checked
+			// 	a[j]+=conv_base->rns_a->m[j];
 		}
 	}
 
 	// Residue of the MRS radix
-
-	int64_t tmp_rop[NB_COEFF];
-
 	for (j = 0; j < size; j++)
-	{
 		tmp_rop[j] = a[0] % conv_base->rns_b->m[j];
-	}
 
-	from_rns_to_m256i(rop, conv_base->rns_b, tmp_rop);
+	from_rns_to_m256i(rop, conv_base->rns_a, tmp_rop);
 
 	for (j = 0; j < size / 4; j++)
 	{
 		for (i = 1; i < size; i++)
 		{
-			avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]), conv_base->avx_mrsa_to_b[i - 1][j], conv_base->rns_b->avx_k[j]);
+			__m256i avx_mrsa_to_b = _mm256_set_epi64x(conv_base->mrsa_to_b[i - 1][4 * j + 3], conv_base->mrsa_to_b[i - 1][4 * j + 2], conv_base->mrsa_to_b[i - 1][4 * j + 1], conv_base->mrsa_to_b[i - 1][4 * j]);
+
+			avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]), avx_mrsa_to_b, conv_base->rns_b->avx_k[j]);
 			rop[j] = avx_add_mod_cr(rop[j], avx_tmp, conv_base->rns_b->avx_k[j]);
 
-			if (&rop[j] < 0)
-			{ //Sinon, ca part en couille ????????????? jamais atteint en pratique
-				rop[j] += conv_base->rns_b->m[j];
-				printf("conv");
-			}
-			//on verra pour le if après
+			// if (rop[j]<0){	//Sinon, ca part en couille ????????????? To be checked
+			// 	rop[j] += conv_base->rns_b->m[j];
+			// 	printf("conv");
+			// }
 		}
 	}
 }
-
-//TODO : function to initialize avx_p_modMa and the others
 
 ///////////////////////////////
 // RNS Modular multiplication
@@ -547,7 +543,7 @@ inline void avx_mult_mod_rns_cr_cox(__m256i *rop, __m256i *pa, __m256i *pab, __m
 	avx_mul_rns_cr(rop, mult->conv->rns_b, tmp0, mult->avx_inv_Ma_modMb); // Division by Ma
 }
 
-__m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
+__m256i avx_mul_mod_cr_bis(__m256i a, __m256i b, __m256i k)
 {
 	int64_t tmp_a[4];
 	int64_t tmp_b[4];

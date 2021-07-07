@@ -124,63 +124,6 @@ int main(void)
     from_rns_to_m256i(avx_k2, &rns_b, tmp_k);
     rns_b.avx_k = avx_k2;
 
-    /*
-    // Base
-    struct rns_base_t rns_a;
-    rns_a.size = NB_COEFF;
-
-    int64_t m_tmp[NB_COEFF] = {
-        32767,
-        32763,
-        32759,
-        32747,
-        32741,
-        32731,
-        32723,
-        32717};
-    rns_a.m = m_tmp;
-
-    int k_tmp[NB_COEFF] = {
-        1,
-        5,
-        9,
-        21,
-        27,
-        37,
-        45,
-        51};
-    rns_a.k = k_tmp;
-
-    init_rns(&rns_a);
-
-    struct rns_base_t rns_b;
-    rns_b.size = NB_COEFF;
-
-    int64_t m_tmp_bis[NB_COEFF] = {
-        32765,
-        32761,
-        32749,
-        32743,
-        32737,
-        32729,
-        32719,
-        32713};
-    rns_b.m = m_tmp_bis;
-
-    int k_tmp_bis[NB_COEFF] = {
-        3,
-        7,
-        19,
-        25,
-        31,
-        37,
-        45,
-        55};
-    rns_b.k = k_tmp_bis;
-
-    init_rns(&rns_b);
-    */
-
     gmp_printf("M = %Zd\n", rns_a.M);
 
     /////////////////////////////

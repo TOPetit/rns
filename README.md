@@ -40,5 +40,5 @@ sudo ./init.sh
 - [x] Addition
 - [x] Multiplication
 - [x] Substraction
-- [ ] Base conversion
+- [x] Base conversion
 - [ ] Modular multiplication

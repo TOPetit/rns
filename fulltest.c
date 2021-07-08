@@ -181,7 +181,7 @@ int main(void)
     init_rns(&rns_b);
     */
 
-    gmp_printf("M = %Zd\n", rns_a.M);
+    //gmp_printf("M = %Zd\n", rns_a.M);
 
     /////////////////////////////
     // TEST CONVERSION INT -> RNS
@@ -429,7 +429,7 @@ int main(void)
     // TEST PARALLEL BASE CONVERSION
     /////////////////////////////
 
-    //avx_init_mrs(&conv);
+    avx_init_mrs(&conv);
 
     from_int_to_rns(op1, &rns_a, A);
     from_rns_to_m256i(avx_op1, &rns_a, op1);

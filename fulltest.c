@@ -124,63 +124,6 @@ int main(void)
     from_rns_to_m256i(avx_k2, &rns_b, tmp_k);
     rns_b.avx_k = avx_k2;
 
-    /*
-    // Base
-    struct rns_base_t rns_a;
-    rns_a.size = NB_COEFF;
-
-    int64_t m_tmp[NB_COEFF] = {
-        32767,
-        32763,
-        32759,
-        32747,
-        32741,
-        32731,
-        32723,
-        32717};
-    rns_a.m = m_tmp;
-
-    int k_tmp[NB_COEFF] = {
-        1,
-        5,
-        9,
-        21,
-        27,
-        37,
-        45,
-        51};
-    rns_a.k = k_tmp;
-
-    init_rns(&rns_a);
-
-    struct rns_base_t rns_b;
-    rns_b.size = NB_COEFF;
-
-    int64_t m_tmp_bis[NB_COEFF] = {
-        32765,
-        32761,
-        32749,
-        32743,
-        32737,
-        32729,
-        32719,
-        32713};
-    rns_b.m = m_tmp_bis;
-
-    int k_tmp_bis[NB_COEFF] = {
-        3,
-        7,
-        19,
-        25,
-        31,
-        37,
-        45,
-        55};
-    rns_b.k = k_tmp_bis;
-
-    init_rns(&rns_b);
-    */
-
     gmp_printf("M = %Zd\n", rns_a.M);
 
     /////////////////////////////
@@ -213,6 +156,7 @@ int main(void)
     /////////////////////////////
     // TEST CONVERSION RNS -> INT
     /////////////////////////////
+    from_int_to_rns(op1, &rns_a, A);
     from_rns_to_int_crt(B, &rns_a, op1);
 
     //gmp_printf("%Zd\n%Zd\n", A, B);
@@ -319,6 +263,83 @@ int main(void)
     // TEST CONVERSION RNS -> AVX-2
     /////////////////////////////
 
+    mpz_t inv_p_modM, inv_M_modMp, modul_p;
+    mpz_inits(inv_p_modM, inv_M_modMp, modul_p, NULL);
+
+    int64_t pa[NB_COEFF];
+    int64_t pb[NB_COEFF];
+    int64_t pab[NB_COEFF];
+    int64_t pbb[NB_COEFF];
+    int64_t pc[NB_COEFF];
+    int64_t pp1[NB_COEFF];
+    int64_t pp2[NB_COEFF];
+    int64_t pp3[NB_COEFF];
+
+    // Set custom values
+    mpz_set_str(modul_p, "115792089021636622262124715160334756877804245386980633020041035952359812890593", 10);
+    mpz_set_str(inv_p_modM, "-7210642370083763919688086698199040857322895088554003933210287226647459666846134833419938084604981461493089686639677942359747717700454441525223348684285", 10);
+    mpz_set_str(inv_M_modMp, "2926906825829426928727294150364906856635623568440932569450673109926460590684432927230290255276608760237299661987870702836538185953568700154975953006659", 10);
+
+    //Modular multiplication
+
+    struct mod_mul_t mult;
+    mpz_t tmp_gcd, t, tmp_inv;
+
+    mpz_init(tmp_gcd);
+    mpz_init(t);
+    mpz_init(tmp_inv);
+    from_int_to_rns(pp2, &rns_b, modul_p); // P mod Mb
+
+    mpz_sub(tmp_inv, rns_a.M, modul_p);
+    mpz_gcdext(tmp_gcd, inv_p_modM, t, tmp_inv, rns_a.M);
+    from_int_to_rns(pp1, &rns_a, inv_p_modM); //(-P)^-1 mod Ma
+
+    mpz_gcdext(tmp_gcd, inv_M_modMp, t, rns_a.M, rns_b.M);
+    from_int_to_rns(pp3, &rns_b, inv_M_modMp); // Ma^{-1} mod Mb
+
+    mult.inv_p_modMa = pp1;
+    mult.p_modMb = pp2;
+    mult.inv_Ma_modMb = pp3;
+    mult.conv = &conv;
+
+    int64_t *tmp[4]; // RNS modular multiplication intermediate results
+    // One more for the base convertion
+    tmp[0] = (int64_t *)malloc(NB_COEFF * sizeof(int64_t));
+    tmp[1] = (int64_t *)malloc(NB_COEFF * sizeof(int64_t));
+    tmp[2] = (int64_t *)malloc(NB_COEFF * sizeof(int64_t));
+    tmp[3] = (int64_t *)malloc(NB_COEFF * sizeof(int64_t));
+
+    mpz_urandomm(A, r_state, modul_p); //Randomly generates A < P
+    mpz_urandomm(B, r_state, modul_p); //Randomly generates A < P
+    from_int_to_rns(pa, &rns_a, A);
+    from_int_to_rns(pb, &rns_a, B);
+    from_int_to_rns(pab, &rns_b, A);
+    from_int_to_rns(pbb, &rns_b, B);
+
+    //mult_mod_rns_cr(res, pa, pab, pb, pbb, &mult, tmp);
+    mul_rns_cr(res, &rns_a, pa, pb);
+
+    mpz_mul(C, A, B);
+    //mpz_mod(C, C, modul_p);
+
+    from_int_to_rns(op1, &rns_a, C);
+
+    from_rns_to_int_crt(D, &rns_a, res);
+    print_RNS(&rns_a, res);
+    print_RNS(&rns_a, op1);
+
+    gmp_printf("A   = %Zd\nB   = %Zd\nM   = %Zd\nRNS = %Zd\nGMP = %Zd\n", A, B, modul_p, D, C);
+
+    printf("Int64_t RNS mod mult... ");
+    if (rns_equal(rns_a, op1, res))
+        printf("OK\n");
+    else
+        printf("ERROR\n");
+
+    /////////////////////////////
+    // TEST CONVERSION RNS -> AVX-2
+    /////////////////////////////
+
     __m256i avx_op1[NB_COEFF / 8];
 
     mpz_urandomm(A, r_state, rns_a.M);
@@ -415,6 +436,7 @@ int main(void)
     from_rns_to_m256i(avx_op2, &rns_a, op2);
 
     avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
+
     mul_rns_cr(res, &rns_a, op1, op2);
 
     from_m256i_to_rns(op1, &rns_a, avx_res);
@@ -429,19 +451,98 @@ int main(void)
     // TEST PARALLEL BASE CONVERSION
     /////////////////////////////
 
+    avx_init_mrs(&conv);
     avx_initialize_inverses_base_conversion(&conv);
 
     from_int_to_rns(op1, &rns_a, A);
     from_rns_to_m256i(avx_op1, &rns_a, op1);
     avx_base_conversion_cr(avx_op2, &conv, avx_op1, a);
     from_m256i_to_rns(op2, &rns_b, avx_op2);
-    from_rns_to_int_crt(B, &rns_b, op2);
+    from_int_to_rns(res, &rns_b, A);
 
     printf("AVX-2 RNS base conversion... ");
-    if (mpz_cmp(A, B) == 0)
+    if (rns_equal(rns_b, op2, res))
         printf("OK\n");
     else
         printf("ERROR\n");
+
+    /*
+    /////////////////////////////
+    // TEST PARALLEL MODULAR MULTIPLICATION
+    /////////////////////////////
+
+    mpz_t inv_p_modM, inv_M_modMp, modul_p;
+    mpz_inits(inv_p_modM, inv_M_modMp, modul_p, NULL);
+
+    mpz_set_str(modul_p, "115792089021636622262124715160334756877804245386980633020041035952359812890593", 10);
+    mpz_set_str(inv_p_modM, "-7210642370083763919688086698199040857322895088554003933210287226647459666846134833419938084604981461493089686639677942359747717700454441525223348684285", 10);
+    mpz_set_str(inv_M_modMp, "2926906825829426928727294150364906856635623568440932569450673109926460590684432927230290255276608760237299661987870702836538185953568700154975953006659", 10);
+
+    int64_t paa[NB_COEFF];
+    int64_t pba[NB_COEFF];
+    int64_t pab[NB_COEFF];
+    int64_t pbb[NB_COEFF];
+
+    __m256i avx_paa[NB_COEFF / 4];
+    __m256i avx_pba[NB_COEFF / 4];
+    __m256i avx_pab[NB_COEFF / 4];
+    __m256i avx_pbb[NB_COEFF / 4];
+
+    int64_t pp1[NB_COEFF];
+    int64_t pp2[NB_COEFF];
+    int64_t pp3[NB_COEFF];
+
+    __m256i avx_pp1[NB_COEFF / 4];
+    __m256i avx_pp2[NB_COEFF / 4];
+    __m256i avx_pp3[NB_COEFF / 4];
+
+    from_rns_to_m256i(avx_pp1, &rns_a, pp1);
+    from_rns_to_m256i(avx_pp2, &rns_b, pp2);
+    from_rns_to_m256i(avx_pp3, &rns_b, pp3);
+
+    mpz_t tmp_gcd, t, tmp_inv;
+
+    mpz_init(tmp_gcd);
+    mpz_init(t);
+    mpz_init(tmp_inv);
+    from_int_to_rns(pp2, &rns_b, modul_p); // P mod Mb
+
+    mpz_sub(tmp_inv, rns_a.M, modul_p);
+    mpz_gcdext(tmp_gcd, inv_p_modM, t, tmp_inv, rns_a.M);
+    from_int_to_rns(pp1, &rns_a, inv_p_modM); //(-P)^-1 mod Ma
+
+    mpz_gcdext(tmp_gcd, inv_M_modMp, t, rns_a.M, rns_b.M);
+    from_int_to_rns(pp3, &rns_b, inv_M_modMp); // Ma^{-1} mod Mb
+
+    struct mod_mul_t mult;
+
+    mult.conv = &conv;
+    mult.avx_inv_p_modMa = avx_pp1;
+    mult.avx_p_modMb = avx_pp2;
+    mult.avx_inv_Ma_modMb = avx_pp3;
+
+    __m256i tmp0[NB_COEFF / 4];
+    __m256i tmp1[NB_COEFF / 4];
+    __m256i tmp2[NB_COEFF / 4];
+
+    from_int_to_rns(paa, &rns_a, A);
+    from_int_to_rns(pba, &rns_a, B);
+    from_int_to_rns(pab, &rns_b, A);
+    from_int_to_rns(pbb, &rns_b, B);
+
+    from_rns_to_m256i(avx_paa, &rns_a, paa);
+    from_rns_to_m256i(avx_pba, &rns_a, pba);
+    from_rns_to_m256i(avx_pab, &rns_b, pab);
+    from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+
+    avx_mult_mod_rns_cr(avx_res, avx_paa, avx_pab, avx_pba, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
+
+    printf("AVX-2 RNS base conversion... ");
+    if (rns_equal(rns_b, op2, res))
+        printf("OK\n");
+    else
+        printf("ERROR\n");
+    */
 
     return 0;
 }

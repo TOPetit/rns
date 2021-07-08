@@ -914,6 +914,9 @@ int main(void)
 	printf("\n\tHeating caches... ");
 	mpz_urandomm(A, state, M); //Randomly generates A < M
 
+	avx_init_mrs(&conv);
+	avx_initialize_inverses_base_conversion(&conv);
+
 	from_int_to_rns(op1, &rns_a, A);
 	from_rns_to_m256i(avx_op1, &rns_a, op1);
 

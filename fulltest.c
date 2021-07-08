@@ -430,6 +430,7 @@ int main(void)
     /////////////////////////////
 
     avx_init_mrs(&conv);
+    avx_initialize_inverses_base_conversion(&conv);
 
     from_int_to_rns(op1, &rns_a, A);
     from_rns_to_m256i(avx_op1, &rns_a, op1);

@@ -320,7 +320,7 @@ int main(void)
     mul_rns_cr(res, &rns_a, pa, pb);
 
     mpz_mul(C, A, B);
-    //mpz_mod(C, C, modul_p);
+    mpz_mod(C, C, modul_p);
 
     from_int_to_rns(op1, &rns_a, C);
 

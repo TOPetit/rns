@@ -353,16 +353,20 @@ inline void avx_init_mrs(struct conv_base_t *conv_base)
 	}
 	*/
 
-	__m256i tmp[NB_COEFF][NB_COEFF / 4];
-	conv_base->avx_mrsa_to_b = (__m256i **)malloc(size * sizeof(__m256i *));
+	__m256i tmp[size][size / 4];
 
-	for (i = 0; i < size; i++)
+	for (int j = 0; j < size / 4; j++)
 	{
-		from_rns_to_m256i(tmp[i], conv_base->rns_a, conv_base->mrsa_to_b[i]);
-		//print_m256i(conv_base->rns_a, conv_base->avx_mrsa_to_b[i]);
-		//printf("\n");
-		conv_base->avx_mrsa_to_b[i] = &tmp[i][0];
+
+		for (i = 0; i < size; i++)
+		{
+			tmp[i][j] = _mm256_set_epi64x(conv_base->mrsa_to_b[i][4 * j + 3], conv_base->mrsa_to_b[i][4 * j + 2], conv_base->mrsa_to_b[i][4 * j + 1], conv_base->mrsa_to_b[i][4 * j]);
+			//print_m256i(conv_base->rns_a, conv_base->avx_mrsa_to_b[i]);
+			//printf("\n");
+		}
 	}
+
+	conv_base->avx_mrsa_to_b = (__m256i **)&tmp;
 
 } //call before calling function below
 
@@ -422,18 +426,16 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 	}
 
 	// Residue of the MRS radix
-	for (j = 0; j < size; j++)
-		tmp_rop[j] = a[0] % conv_base->rns_b->m[j];
-
-	from_rns_to_m256i(rop, conv_base->rns_a, tmp_rop);
+	for (j = 0; j < size / 4; j++)
+		rop[j] = _mm256_set_epi64x(a[0] % conv_base->rns_b->m[4 * j], a[0] % conv_base->rns_b->m[4 * j + 1], a[0] % conv_base->rns_b->m[4 * j + 2], a[0] % conv_base->rns_b->m[4 * j + 3]);
 
 	for (j = 0; j < size / 4; j++)
 	{
 		for (i = 1; i < size; i++)
 		{
-			__m256i avx_mrsa_to_b = _mm256_set_epi64x(conv_base->mrsa_to_b[i - 1][4 * j + 3], conv_base->mrsa_to_b[i - 1][4 * j + 2], conv_base->mrsa_to_b[i - 1][4 * j + 1], conv_base->mrsa_to_b[i - 1][4 * j]);
+			//__m256i avx_mrsa_to_b = _mm256_set_epi64x(conv_base->mrsa_to_b[i - 1][4 * j + 3], conv_base->mrsa_to_b[i - 1][4 * j + 2], conv_base->mrsa_to_b[i - 1][4 * j + 1], conv_base->mrsa_to_b[i - 1][4 * j]);
 
-			avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]), avx_mrsa_to_b, conv_base->rns_b->avx_k[j]);
+			avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]), conv_base->avx_mrsa_to_b[i - 1][j], conv_base->rns_b->avx_k[j]);
 			rop[j] = avx_add_mod_cr(rop[j], avx_tmp, conv_base->rns_b->avx_k[j]);
 
 			// if (rop[j]<0){	//Sinon, ca part en couille ????????????? To be checked

@@ -156,6 +156,7 @@ int main(void)
     /////////////////////////////
     // TEST CONVERSION RNS -> INT
     /////////////////////////////
+    from_int_to_rns(op1, &rns_a, A);
     from_rns_to_int_crt(B, &rns_a, op1);
 
     //gmp_printf("%Zd\n%Zd\n", A, B);
@@ -279,9 +280,6 @@ int main(void)
     mpz_set_str(inv_p_modM, "-7210642370083763919688086698199040857322895088554003933210287226647459666846134833419938084604981461493089686639677942359747717700454441525223348684285", 10);
     mpz_set_str(inv_M_modMp, "2926906825829426928727294150364906856635623568440932569450673109926460590684432927230290255276608760237299661987870702836538185953568700154975953006659", 10);
 
-    // Initialization
-    base_conversion_cr(pb, &conv, pa, ttt);
-
     //Modular multiplication
 
     struct mod_mul_t mult;
@@ -311,15 +309,29 @@ int main(void)
     tmp[2] = (int64_t *)malloc(NB_COEFF * sizeof(int64_t));
     tmp[3] = (int64_t *)malloc(NB_COEFF * sizeof(int64_t));
 
-    mpz_urandomm(A, state, modul_p); //Randomly generates A < P
-    mpz_urandomm(B, state, modul_p); //Randomly generates A < P
+    mpz_urandomm(A, r_state, modul_p); //Randomly generates A < P
+    mpz_urandomm(B, r_state, modul_p); //Randomly generates A < P
     from_int_to_rns(pa, &rns_a, A);
     from_int_to_rns(pb, &rns_a, B);
     from_int_to_rns(pab, &rns_b, A);
     from_int_to_rns(pbb, &rns_b, B);
 
+    //mult_mod_rns_cr(res, pa, pab, pb, pbb, &mult, tmp);
+    mul_rns_cr(res, &rns_a, pa, pb);
+
+    mpz_mul(C, A, B);
+    //mpz_mod(C, C, modul_p);
+
+    from_int_to_rns(op1, &rns_a, C);
+
+    from_rns_to_int_crt(D, &rns_a, res);
+    print_RNS(&rns_a, res);
+    print_RNS(&rns_a, op1);
+
+    gmp_printf("A   = %Zd\nB   = %Zd\nM   = %Zd\nRNS = %Zd\nGMP = %Zd\n", A, B, modul_p, D, C);
+
     printf("Int64_t RNS mod mult... ");
-    if (false)
+    if (rns_equal(rns_a, op1, res))
         printf("OK\n");
     else
         printf("ERROR\n");

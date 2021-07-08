@@ -83,7 +83,8 @@ inline void print_m256i(struct rns_base_t *base, __m256i *a)
 	for (j = 0; j < (base->size) / 4; j++)
 	{
 
-		printf("%lld %lld %lld %lld ", _mm256_extract_epi64(a[j], 0),
+		printf("%lld %lld %lld %lld ", _mm256_extract_epi64(a[j], 3),
+			   _mm256_extract_epi64(a[j], 2),
 			   _mm256_extract_epi64(a[j], 1),
 			   _mm256_extract_epi64(a[j], 2),
 			   _mm256_extract_epi64(a[j], 3));
@@ -343,7 +344,7 @@ inline void avx_init_mrs(struct conv_base_t *conv_base)
 {
 	int i;
 	int size = conv_base->rns_a->size;
-	/*
+	__m256i tmp[NB_COEFF / 4];
 	conv_base->avx_mrsa_to_b = (__m256i **)malloc(size * sizeof(__m256i *));
 	//don't know why but sizeof has to be divided by 8 so it work (maybe a bit/byte problem)
 
@@ -351,48 +352,34 @@ inline void avx_init_mrs(struct conv_base_t *conv_base)
 	{
 		conv_base->avx_mrsa_to_b[i] = (__m256i *)malloc(size * sizeof(__m256i) / 4);
 	}
-	*/
-
-	__m256i tmp[size][size / 4];
-
-	for (int j = 0; j < size / 4; j++)
 	{
-
-		for (i = 0; i < size; i++)
-		{
-			tmp[i][j] = _mm256_set_epi64x(conv_base->mrsa_to_b[i][4 * j + 3], conv_base->mrsa_to_b[i][4 * j + 2], conv_base->mrsa_to_b[i][4 * j + 1], conv_base->mrsa_to_b[i][4 * j]);
-			//print_m256i(conv_base->rns_a, conv_base->avx_mrsa_to_b[i]);
-			//printf("\n");
-		}
+		from_rns_to_m256i(conv_base->avx_mrsa_to_b[i], conv_base->rns_a, conv_base->mrsa_to_b[i]);
 	}
-
-	conv_base->avx_mrsa_to_b = (__m256i **)&tmp;
 
 } //call before calling function below
 
 inline void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_base)
-{
 
 	int size = conv_base->rns_a->size;
 
-	__m256i **tmp_Arr;
+__m256i **tmp_Arr;
 
-	tmp_Arr = (__m256i **)_mm_malloc(size * sizeof(__m256i *), 32);
+tmp_Arr = (__m256i **)_mm_malloc(size * sizeof(__m256i *), 32);
 
-	for (int i = 0; i < size; i++)
+for (int i = 0; i < size; i++)
+{
+	tmp_Arr[i] = (__m256i *)_mm_malloc(size * sizeof(__m256i), 32);
+}
+
+for (int i = 0; i < size; i++)
+{
+	for (int j = 0; j < size; j++)
 	{
-		tmp_Arr[i] = (__m256i *)_mm_malloc(size * sizeof(__m256i), 32);
+		tmp_Arr[i][j] = _mm256_set1_epi64x(1) * conv_base->Mi_modPi[i][j];
+		//printf("%d %d %ld\n",i,j, conv_base->Mi_modPi[i][j]);
 	}
-
-	for (int i = 0; i < size; i++)
-	{
-		for (int j = 0; j < size; j++)
-		{
-			tmp_Arr[i][j] = _mm256_set1_epi64x(1) * conv_base->Mi_modPi[i][j];
-			//printf("%d %d %ld\n",i,j, conv_base->Mi_modPi[i][j]);
-		}
-	}
-	conv_base->avx_Mi_modPi = tmp_Arr;
+}
+conv_base->avx_Mi_modPi = tmp_Arr;
 }
 
 ///////////////////////////////////////////////////////
@@ -404,9 +391,8 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 {
 	int i, j;
 	//	int64_t a[NB_COEFF];  // En externe, car ça prend du temps
-	int64_t tmp;
-	int64_t tmp_rop[NB_COEFF];
 	__m256i avx_tmp;
+	int64_t tmp;
 	int size = conv_base->rns_a->size;
 
 	// Set target number to 0

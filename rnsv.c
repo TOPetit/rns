@@ -83,11 +83,12 @@ inline void print_m256i(struct rns_base_t *base, __m256i *a)
 	for (j = 0; j < (base->size) / 4; j++)
 	{
 
-		printf("%lld %lld %lld %lld\n", _mm256_extract_epi64(a[j], 3),
+		printf("%lld %lld %lld %lld ", _mm256_extract_epi64(a[j], 3),
 			   _mm256_extract_epi64(a[j], 2),
 			   _mm256_extract_epi64(a[j], 1),
 			   _mm256_extract_epi64(a[j], 0));
 	}
+	printf("\n");
 }
 
 ///////////////////////////////
@@ -348,13 +349,12 @@ inline void avx_init_mrs(struct conv_base_t *conv_base)
 
 	for (i = 0; i < size; i++)
 	{
-		conv_base->avx_mrsa_to_b[i] = (__m256i *)malloc(size * sizeof(__m256i) / 4);
+		conv_base->avx_mrsa_to_b[i] = (__m256i *)_mm_malloc(size * sizeof(__m256i) / 4, 32);
 	}
 
 	for (i = 0; i < size; i++)
 	{
-		from_rns_to_m256i(tmp, conv_base->rns_a, conv_base->mrsa_to_b[i]);
-		conv_base->avx_mrsa_to_b[i] = tmp;
+		from_rns_to_m256i(conv_base->avx_mrsa_to_b[i], conv_base->rns_a, conv_base->mrsa_to_b[i]);
 	}
 
 } //call before calling function below

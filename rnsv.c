@@ -359,27 +359,28 @@ inline void avx_init_mrs(struct conv_base_t *conv_base)
 } //call before calling function below
 
 inline void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_base)
+{
 
 	int size = conv_base->rns_a->size;
 
-__m256i **tmp_Arr;
+	__m256i **tmp_Arr;
 
-tmp_Arr = (__m256i **)_mm_malloc(size * sizeof(__m256i *), 32);
+	tmp_Arr = (__m256i **)_mm_malloc(size * sizeof(__m256i *), 32);
 
-for (int i = 0; i < size; i++)
-{
-	tmp_Arr[i] = (__m256i *)_mm_malloc(size * sizeof(__m256i), 32);
-}
-
-for (int i = 0; i < size; i++)
-{
-	for (int j = 0; j < size; j++)
+	for (int i = 0; i < size; i++)
 	{
-		tmp_Arr[i][j] = _mm256_set1_epi64x(1) * conv_base->Mi_modPi[i][j];
-		//printf("%d %d %ld\n",i,j, conv_base->Mi_modPi[i][j]);
+		tmp_Arr[i] = (__m256i *)_mm_malloc(size * sizeof(__m256i), 32);
 	}
-}
-conv_base->avx_Mi_modPi = tmp_Arr;
+
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			tmp_Arr[i][j] = _mm256_set1_epi64x(1) * conv_base->Mi_modPi[i][j];
+			//printf("%d %d %ld\n",i,j, conv_base->Mi_modPi[i][j]);
+		}
+	}
+	conv_base->avx_Mi_modPi = tmp_Arr;
 }
 
 ///////////////////////////////////////////////////////

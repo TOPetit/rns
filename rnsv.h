@@ -50,7 +50,6 @@ void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b, __m2
 void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b);
 
 __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k);
-__m256i avx_mul_mod_cr_bis(__m256i a, __m256i b, __m256i k);
 void avx_mul_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
 
 //void avx_init_mrs(__m256i **rop,struct conv_base_t *conv_base);

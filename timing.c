@@ -786,8 +786,6 @@ int main(void)
 	conv.rns_a = &rns_a;
 	conv.rns_b = &rns_b;
 	initialize_inverses_base_conversion(&conv);
-	avx_init_mrs(&conv);
-	avx_initialize_inverses_base_conversion(&conv);
 	/*
   	__m256i avx_invM_modPi[NB_COEFF/4];
   	from_int_to_m256i(conv.invM_modPi);

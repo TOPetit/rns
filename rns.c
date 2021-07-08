@@ -537,6 +537,7 @@ void base_conversion_cr(int64_t *rop, struct conv_base_t *conv_base, int64_t *op
 	int128 tmp2;
 	int128 tmp3;
 	int64_t up, up2, lo, lo2;
+	int64_t mask = ((int64_t)1 << 63) - 1; /////////////////////////////////////
 	int size = conv_base->rns_a->size;
 
 	// Set target number to 0
@@ -549,7 +550,7 @@ void base_conversion_cr(int64_t *rop, struct conv_base_t *conv_base, int64_t *op
 		for (j = i + 1; j < size; j++)
 		{
 			tmp = a[j] - a[i];
-			a[j] = mul_mod_cr(tmp, conv_base->inva_to_b[i][j], conv_base->rns_a->k[j]);
+			a[j] = mul_mod_cr_t(tmp, conv_base->inva_to_b[i][j], conv_base->rns_a->k[j]);
 			// if(a[j]<0)	// Sinon ca part en couille ??????? To be Checked
 			// 	a[j]+=conv_base->rns_a->m[j];
 		}

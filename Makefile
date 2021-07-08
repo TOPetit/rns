@@ -26,9 +26,3 @@ rnsv.o: rnsv.c rns.h structs_data.h
 clean:
 	rm *.o mainv timing testing fulltest
 
-doc :
-	pandoc theory.md -V fontsize=12pt -o theory.pdf
-
-cleandoc:
-	rm theory.pdf
-

@@ -425,5 +425,24 @@ int main(void)
     else
         printf("ERROR\n");
 
+    /////////////////////////////
+    // TEST PARALLEL BASE CONVERSION
+    /////////////////////////////
+
+    //avx_init_mrs(&conv);
+
+    from_int_to_rns(op1, &rns_a, A);
+    from_rns_to_m256i(avx_op1, &rns_a, op1);
+
+    avx_base_conversion_cr(avx_op2, &conv, avx_op1, a);
+    from_m256i_to_rns(op1, &rns_a, avx_op2);
+    from_int_to_rns(op2, &rns_b, A);
+
+    printf("AVX-2 RNS base conversion... ");
+    if (rns_equal(rns_b, op1, op2))
+        printf("OK\n");
+    else
+        printf("ERROR\n");
+
     return 0;
 }

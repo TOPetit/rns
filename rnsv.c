@@ -415,14 +415,15 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 
 	// Residue of the MRS radix
 	for (j = 0; j < size / 4; j++)
-		rop[j] = _mm256_set_epi64x(a[0] % conv_base->rns_b->m[4 * j], a[0] % conv_base->rns_b->m[4 * j + 1], a[0] % conv_base->rns_b->m[4 * j + 2], a[0] % conv_base->rns_b->m[4 * j + 3]);
+		rop[j] = _mm256_set_epi64x(a[0] > conv_base->rns_b->m[4 * j] ? a[0] - conv_base->rns_b->m[4 * j] : a[0],
+								   a[0] > conv_base->rns_b->m[4 * j + 1] ? a[0] - conv_base->rns_b->m[4 * j + 1] : a[0],
+								   a[0] > conv_base->rns_b->m[4 * j + 2] ? a[0] - conv_base->rns_b->m[4 * j + 2] : a[0],
+								   a[0] > conv_base->rns_b->m[4 * j + 3] ? a[0] - conv_base->rns_b->m[4 * j + 3] : a[0]);
 
 	for (j = 0; j < size / 4; j++)
 	{
 		for (i = 1; i < size; i++)
 		{
-			//__m256i avx_mrsa_to_b = _mm256_set_epi64x(conv_base->mrsa_to_b[i - 1][4 * j + 3], conv_base->mrsa_to_b[i - 1][4 * j + 2], conv_base->mrsa_to_b[i - 1][4 * j + 1], conv_base->mrsa_to_b[i - 1][4 * j]);
-
 			avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]), conv_base->avx_mrsa_to_b[i - 1][j], conv_base->rns_b->avx_k[j]);
 			rop[j] = avx_add_mod_cr(rop[j], avx_tmp, conv_base->rns_b->avx_k[j]);
 

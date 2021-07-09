@@ -558,7 +558,7 @@ void base_conversion_cr(int64_t *rop, struct conv_base_t *conv_base, int64_t *op
 
 	// Residue of the MRS radix
 	for (j = 0; j < size; j++)
-		rop[j] = a[0] % conv_base->rns_b->m[j];
+		rop[j] = (a[0] > conv_base->rns_b->m[j]) ? a[0] - conv_base->rns_b->m[j] : a[0];
 	for (j = 0; j < size; j++)
 	{
 		for (i = 1; i < size; i++)

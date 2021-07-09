@@ -392,14 +392,10 @@ inline void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_bas
 inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a)
 {
 	int i, j;
-	//	int64_t a[NB_COEFF];  // En externe, car ça prend du temps
 	__m256i avx_tmp;
 	int64_t tmp;
 	int size = conv_base->rns_a->size;
 
-	// Set target number to 0
-	// for(j=0; j<NB_COEFF; j++)
-	// 	rop[j]=0;
 	from_m256i_to_rns(a, conv_base->rns_a, op);
 
 	for (i = 0; i < size - 1; i++)

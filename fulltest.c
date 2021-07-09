@@ -386,6 +386,7 @@ int main(void)
 
     from_int_to_rns(op1, &rns_b, C);
 
+    /*
     printf("\nRNS = ");
     print_RNS(&rns_a, pc);
     printf("GMP = ");
@@ -398,6 +399,7 @@ int main(void)
         printf("OK\n");
     else
         printf("ERROR\n");
+    */
 
     /////////////////////////////
     // TEST CONVERSION RNS -> AVX-2
@@ -572,6 +574,7 @@ int main(void)
 
     from_int_to_rns(op1, &rns_b, C);
 
+    /*
     printf("\nRNS = ");
     print_m256i(&rns_a, avx_res);
     printf("GMP = ");
@@ -582,6 +585,7 @@ int main(void)
         printf("OK\n");
     else
         printf("ERROR\n");
+    */
 
     return 0;
 }

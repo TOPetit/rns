@@ -94,7 +94,7 @@ int main(void)
 	unsigned long before_cycles, after_cycles, cycles = ULONG_MAX;
 	unsigned long before_instructions, after_instructions, instructions = ULONG_MAX;
 	unsigned long before_ref, after_ref, ref = ULONG_MAX;
-/*
+
 	printf("\n\tBase :\n");
 	for (int i = 0; i < NB_COEFF; i++)
 	{
@@ -106,7 +106,7 @@ int main(void)
 	fprintf(fpt, "\"multiplication\" :\n\t{\n");
 	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
 
-	printf("\n\tHeating caches... ");*/
+	printf("\n\tHeating caches... ");
 	mpz_urandomm(A, state, M); // Randomly generates A < M
 	mpz_urandomm(B, state, M); // Randomly generated B < M
 	from_int_to_rns(op1, &rns_a, A);
@@ -116,10 +116,10 @@ int main(void)
 	{
 		mul_rns_cr(res, &rns_a, op1, op2);
 	}
-	/*
+	
 	printf("Done.\n");
 
-	printf("\tTesting... ");*/
+	printf("\tTesting... ");
 
 	for (int i = 0; i < NSAMPLES; i++)
 	{
@@ -193,13 +193,13 @@ int main(void)
 		fprintf(fpt, "\n");
 	}
 	fprintf(fpt, "\t\t],\n");
-/*
+
 	printf("Done.\n");
 	printf("\tRNS sequential multiplication : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential multiplication : %ld instructions.\n", instructions);
 	printf("\tRNS sequential multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS sequential multiplication : %ld reference CPU cycles.\n", ref);
-*/
+
 	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
 	timing = ULLONG_MAX;
@@ -222,9 +222,9 @@ int main(void)
 		avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
 	}
 
-	//printf("Done.\n");
+	printf("Done.\n");
 
-	//printf("\tTesting... ");
+	printf("\tTesting... ");
 
 	// timing
 	for (int i = 0; i < NSAMPLES; i++)
@@ -303,14 +303,14 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t]\n\t},\n");
-/*
+
 	printf("Done.\n");
 	printf("\tRNS vectorized multiplication : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized multiplication : %ld instructions.\n", instructions);
 	printf("\tRNS vectorized multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS vectorized multiplication : %ld reference CPU cycles.\n", ref);
 
-	printf("\n\n2. Addition :\n");*/
+	printf("\n\n2. Addition :\n");
 	fprintf(fpt, "\"addition\" :\n\t{\n");
 	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
 

@@ -2,6 +2,8 @@
 
 #include <immintrin.h>
 
+#include <limits.h>
+
 // RNS arithmetic functions
 void add_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb);
 void sub_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb);

@@ -405,7 +405,7 @@ int main(void)
     // TEST CONVERSION RNS -> AVX-2
     /////////////////////////////
 
-    __m256i avx_op1[NB_COEFF / 8];
+    __m256i avx_op1[NB_COEFF / 4];
 
     mpz_urandomm(A, r_state, rns_a.M);
     from_int_to_rns(op1, &rns_a, A);

@@ -18,7 +18,7 @@
 
 // ATTENTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Ne pas oublier de desactiver le turbo boost
-// /bin/sh -c "/usr/bin/echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
+// /bin/sh -c "/usr/bin/echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo"
 // pour fiabiliser la mesure
 
 inline static uint64_t cpucyclesStart(void)

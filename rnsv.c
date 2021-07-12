@@ -306,9 +306,8 @@ inline __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
 
 	__m256i up, lo, up2, lo2, up3, lo3;
 
-	avx_mul_aux(&up, &lo, a, b);
+	avx_mul_aux(&up2, &lo2, a, b);
 
-	avx_mul_aux(&up2, &lo2, up, k);
 	
 	
 	

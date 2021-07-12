@@ -321,7 +321,7 @@ inline __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
 
 	//on verra après pour le if
 
-	return up;
+	return res;
 }
 
 inline __m256i avx_mul_mod_cr__(__m256i a, __m256i b, __m256i k)

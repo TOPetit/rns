@@ -23,7 +23,7 @@ int main(void)
 
 	printf("\nVectorized RNS timing :\n");
 
-	printf("\n1. Generating data :\n");
+	//printf("\n1. Generating data :\n");
 
 	// Initializing random
 	gmp_randstate_t state;
@@ -94,7 +94,7 @@ int main(void)
 	unsigned long before_cycles, after_cycles, cycles = ULONG_MAX;
 	unsigned long before_instructions, after_instructions, instructions = ULONG_MAX;
 	unsigned long before_ref, after_ref, ref = ULONG_MAX;
-
+/*
 	printf("\n\tBase :\n");
 	for (int i = 0; i < NB_COEFF; i++)
 	{
@@ -106,7 +106,7 @@ int main(void)
 	fprintf(fpt, "\"multiplication\" :\n\t{\n");
 	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
 
-	printf("\n\tHeating caches... ");
+	printf("\n\tHeating caches... ");*/
 	mpz_urandomm(A, state, M); // Randomly generates A < M
 	mpz_urandomm(B, state, M); // Randomly generated B < M
 	from_int_to_rns(op1, &rns_a, A);
@@ -116,9 +116,10 @@ int main(void)
 	{
 		mul_rns_cr(res, &rns_a, op1, op2);
 	}
+	/*
 	printf("Done.\n");
 
-	printf("\tTesting... ");
+	printf("\tTesting... ");*/
 
 	for (int i = 0; i < NSAMPLES; i++)
 	{
@@ -192,13 +193,13 @@ int main(void)
 		fprintf(fpt, "\n");
 	}
 	fprintf(fpt, "\t\t],\n");
-
+/*
 	printf("Done.\n");
 	printf("\tRNS sequential multiplication : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential multiplication : %ld instructions.\n", instructions);
 	printf("\tRNS sequential multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS sequential multiplication : %ld reference CPU cycles.\n", ref);
-
+*/
 	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
 	timing = ULLONG_MAX;
@@ -206,7 +207,7 @@ int main(void)
 	instructions = ULONG_MAX;
 	ref = ULONG_MAX;
 
-	printf("\n\tHeating caches... ");
+	//printf("\n\tHeating caches... ");
 	mpz_urandomm(A, state, M); //Randomly generates A < M
 	mpz_urandomm(B, state, M); //Randomly generates B < M
 
@@ -221,9 +222,9 @@ int main(void)
 		avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
 	}
 
-	printf("Done.\n");
+	//printf("Done.\n");
 
-	printf("\tTesting... ");
+	//printf("\tTesting... ");
 
 	// timing
 	for (int i = 0; i < NSAMPLES; i++)
@@ -302,15 +303,14 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t]\n\t},\n");
-
+/*
 	printf("Done.\n");
 	printf("\tRNS vectorized multiplication : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized multiplication : %ld instructions.\n", instructions);
 	printf("\tRNS vectorized multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS vectorized multiplication : %ld reference CPU cycles.\n", ref);
 
-	printf("\n\n2. Addition :\n");
-
+	printf("\n\n2. Addition :\n");*/
 	fprintf(fpt, "\"addition\" :\n\t{\n");
 	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
 
@@ -319,7 +319,7 @@ int main(void)
 	instructions = ULONG_MAX;
 	ref = ULONG_MAX;
 
-	printf("\n\tHeating caches... ");
+	//printf("\n\tHeating caches... ");
 	mpz_urandomm(A, state, M); // Randomly generates A < M
 	mpz_urandomm(B, state, M); // Randomly generated B < M
 	from_int_to_rns(op1, &rns_a, A);
@@ -329,9 +329,9 @@ int main(void)
 	{
 		add_rns_cr(res, &rns_a, op1, op2);
 	}
-	printf("Done.\n");
+	//printf("Done.\n");
 
-	printf("\tTesting... ");
+	//printf("\tTesting... ");
 
 	for (int i = 0; i < NSAMPLES; i++)
 	{
@@ -407,13 +407,13 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t],\n");
-
+/*
 	printf("Done.\n");
 	printf("\tRNS sequential addition : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential addition : %ld instructions.\n", instructions);
 	printf("\tRNS sequential addition : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS sequential addition : %ld reference CPU cycles.\n", ref);
-
+*/
 	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
 	timing = ULLONG_MAX;
@@ -421,7 +421,7 @@ int main(void)
 	instructions = ULONG_MAX;
 	ref = ULONG_MAX;
 
-	printf("\n\tHeating caches... ");
+	//printf("\n\tHeating caches... ");
 	mpz_urandomm(A, state, M); //Randomly generates A < M
 	mpz_urandomm(B, state, M); //Randomly generates B < M
 
@@ -436,9 +436,9 @@ int main(void)
 		avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
 	}
 
-	printf("Done.\n");
+	//printf("Done.\n");
 
-	printf("\tTesting... ");
+	//printf("\tTesting... ");
 
 	// timing
 	for (int i = 0; i < NSAMPLES; i++)
@@ -518,7 +518,7 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t]\n\t},\n");
-
+/*
 	printf("Done.\n");
 	printf("\tRNS vectorized addition : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized addition : %ld instructions.\n", instructions);
@@ -526,7 +526,7 @@ int main(void)
 	printf("\tRNS vectorized addition : %ld reference CPU cycles.\n", ref);
 
 	printf("\n\n3. Substraction :\n");
-
+*/
 	fprintf(fpt, "\"substraction\" :\n\t{\n");
 	fprintf(fpt, "\t\"sequential\" :\n\t\t[\n");
 
@@ -535,7 +535,7 @@ int main(void)
 	instructions = ULONG_MAX;
 	ref = ULONG_MAX;
 
-	printf("\n\tHeating caches... ");
+	//printf("\n\tHeating caches... ");
 	mpz_urandomm(A, state, M); // Randomly generates A < M
 	mpz_urandomm(B, state, M); // Randomly generated B < M
 	from_int_to_rns(op1, &rns_a, A);
@@ -545,9 +545,9 @@ int main(void)
 	{
 		sub_rns_cr(res, &rns_a, op1, op2);
 	}
-	printf("Done.\n");
+	//printf("Done.\n");
 
-	printf("\tTesting... ");
+	//printf("\tTesting... ");
 
 	for (int i = 0; i < NSAMPLES; i++)
 	{
@@ -623,13 +623,13 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t],\n");
-
+/*
 	printf("Done.\n");
 	printf("\tRNS sequential substraction : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential substraction : %ld instructions.\n", instructions);
 	printf("\tRNS sequential substraction : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS sequential substraction : %ld reference CPU cycles.\n", ref);
-
+*/
 	fprintf(fpt, "\t\"parallel\" :\n\t\t[\n");
 
 	timing = ULLONG_MAX;
@@ -637,7 +637,7 @@ int main(void)
 	instructions = ULONG_MAX;
 	ref = ULONG_MAX;
 
-	printf("\n\tHeating caches... ");
+	//printf("\n\tHeating caches... ");
 	mpz_urandomm(A, state, M); //Randomly generates A < M
 	mpz_urandomm(B, state, M); //Randomly generates B < M
 
@@ -652,9 +652,9 @@ int main(void)
 		avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
 	}
 
-	printf("Done.\n");
+	//printf("Done.\n");
 
-	printf("\tTesting... ");
+	//printf("\tTesting... ");
 
 	// timing
 	for (int i = 0; i < NSAMPLES; i++)
@@ -733,13 +733,13 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t]\n\t},\n");
-
+/*
 	printf("Done.\n");
 	printf("\tRNS vectorized substraction : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized substraction : %ld instructions.\n", instructions);
 	printf("\tRNS vectorized substraction : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS vectorized substraction : %ld reference CPU cycles.\n", ref);
-
+*/
 	// Second Base
 	struct rns_base_t rns_b;
 
@@ -1312,7 +1312,7 @@ int main(void)
 	printf("\tRNS parallel modular multiplication : %ld instructions.\n", instructions);
 	printf("\tRNS parallel modular multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS parallel modular multiplication : %ld reference CPU cycles.\n", ref);
-
+/*
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
 	instructions = ULONG_MAX;
@@ -1777,7 +1777,7 @@ int main(void)
 	cycles = ULONG_MAX;
 	instructions = ULONG_MAX;
 	ref = ULONG_MAX;
-
+*/
 	fclose(fpt);
 
 	return 0;

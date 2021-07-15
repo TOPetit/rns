@@ -277,45 +277,16 @@ inline void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i 
 inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
 {
 
-	/*__m256i tmp_mask31 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 31);
-	__m256i tmp_mask32 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 32);
-	__m256i mask_lo31 = _mm256_sub_epi64(tmp_mask31, _mm256_set1_epi64x(1));
-	__m256i mask_lo32 = _mm256_sub_epi64(tmp_mask32, _mm256_set1_epi64x(1));
-	__m256i mask_up31 = _mm256_slli_epi64(mask_lo31, 32);
-	__m256i mask_up32 = _mm256_slli_epi64(mask_lo32, 31);
-
-	__m256i tmp_mask33 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 33);
-	__m256i mask_lo33 = _mm256_sub_epi64(tmp_mask33, _mm256_set1_epi64x(1));//*/
-	
-	
-	
-	
-
 	__m256i a_lo = _mm256_and_si256(a, mask_lo31);						  //31 bits
 	__m256i a_up = _mm256_srli_epi64(_mm256_and_si256(a, mask_up32), 31); //32 bits
 	__m256i b_lo = _mm256_and_si256(b, mask_lo32);						  // 32 bits
 	__m256i b_up = _mm256_srli_epi64(_mm256_and_si256(b, mask_up31), 32); //31 bits
-
-	//we could rework the way we apply the masks, so it's optimised
-	//for example, we should initialize them in extern
 
 	__m256i tmp1 = _mm256_mul_epu32(a_lo, b_lo); //63 bits
 	__m256i tmp2 = _mm256_mul_epu32(a_lo, b_up); //62 bits
 	__m256i tmp3 = _mm256_mul_epu32(a_up, b_lo); //64 bits
 	__m256i tmp4 = _mm256_mul_epu32(a_up, b_up); // 63 bits*/
 
-	/*//__m256i a_lo = _mm256_and_si256(a, mask_lo31);						  //31 bits
-	__m256i a_up = _mm256_srli_epi64(_mm256_and_si256(a, mask_up32), 31); //32 bits
-	//__m256i b_lo = _mm256_and_si256(b, mask_lo32);						  // 32 bits
-	__m256i b_up = _mm256_srli_epi64(_mm256_and_si256(b, mask_up31), 32); //31 bits
-
-	//we could rework the way we apply the masks, so it's optimised
-	//for example, we should initialize them in extern
-
-	__m256i tmp1 = _mm256_mul_epu32(a, b); //63 bits
-	__m256i tmp2 = _mm256_mul_epu32(a, b_up); //62 bits
-	__m256i tmp3 = _mm256_mul_epu32(a_up, b); //64 bits
-	__m256i tmp4 = _mm256_mul_epu32(a_up, b_up); // 63 bits*/
 	__m256i ret;
 	avx_add_aux_3e(&ret, rop_lo, tmp1,
 				   _mm256_srli_epi64(_mm256_slli_epi64(tmp2, 33), 1),
@@ -326,7 +297,6 @@ inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
 												_mm256_add_epi64(ret, tmp4)));
 }
 
-	//static __m256i tmp_mask = (__m256i){0x8000000000000000UL, 0x8000000000000000UL,0x8000000000000000UL,0x8000000000000000UL};//_mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
 static __m256i mask = (__m256i){0x7fffffffffffffffUL, 0x7fffffffffffffffUL,0x7fffffffffffffffUL,0x7fffffffffffffffUL};//_mm256_sub_epi64(tmp_mask, _mm256_set1_epi64x(1));
 static __m256i tmp_u_mod = (__m256i){0x8000000000000000UL, 0x8000000000000000UL,0x8000000000000000UL,0x8000000000000000UL};//_mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
 	

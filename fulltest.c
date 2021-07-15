@@ -525,7 +525,7 @@ int main(void)
     from_m256i_to_rns(op1, &rns_a, avx_op2);
     from_int_to_rns(op2, &rns_b, A);
 
-    printf("AVX-2 RNS base conversion... ");
+    printf("AVX-2 RNS base conversion cox-rower... ");
     if (rns_equal(rns_b, op1, op2))
         printf("OK\n");
     else

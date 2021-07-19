@@ -47,33 +47,22 @@ inline void print_int64_t_RNS(struct rns_base_t *base, int64_t *op)
 	printf("\n");
 }
 
-///////////////////////////////
-// prints the 8 RNS compounds of the 2 vectors
-///////////////////////////////
-inline void print_m256i(struct rns_base_t *base, __m256i *a)
+inline void print_alone_m256i(__m256i op)
+{
+	printf("%lld %lld %lld %lld ", _mm256_extract_epi64(op, 3),
+		   _mm256_extract_epi64(op, 2),
+		   _mm256_extract_epi64(op, 1),
+		   _mm256_extract_epi64(op, 0));
+}
+
+inline void print_m256i_RNS(struct rns_base_t *base, __m256i *op)
 {
 	int j;
 	for (j = 0; j < (base->size) / 4; j++)
 	{
-
-		printf("%lld %lld %lld %lld ", _mm256_extract_epi64(a[j], 3),
-			   _mm256_extract_epi64(a[j], 2),
-			   _mm256_extract_epi64(a[j], 1),
-			   _mm256_extract_epi64(a[j], 0));
+		print_alone_m256i(op[j]);
 	}
 	printf("\n");
-}
-
-///////////////////////////////
-// prints the 4 RNS compounds of only one vector
-///////////////////////////////
-inline void print_alone_m256i(__m256i a)
-{
-	printf("->  ");
-	printf("%lld %lld %lld %lld\n", _mm256_extract_epi64(a, 3),
-		   _mm256_extract_epi64(a, 2),
-		   _mm256_extract_epi64(a, 1),
-		   _mm256_extract_epi64(a, 0));
 }
 
 inline void avx_init_rns(struct rns_base_t *base)

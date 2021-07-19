@@ -44,21 +44,72 @@ ENSURES :
 */
 void from_int64_t_to_m256i_rns(__m256i *rop, struct rns_base_t *base, int64_t *op);
 
-/*print the representation of op in base
+// ----------------------------------------------------------------------------------------------------------
+// Prints
+// ------
+
+/*print the int64_t RNS representation of op in base
 
 BEFORE :
 	- base contains the RNS base used to represent op (even if only base->size matters here)
-	- a int64_t array to print
+	- op int64_t array to print
 
 ENSURES :
 	- op UNCHANGED
 	- base UNCHANGED
 */
 void print_int64_t_RNS(struct rns_base_t *base, int64_t *op);
-void print_m256i(struct rns_base_t *base, __m256i *a);
-void print_alone_m256i(__m256i a);
 
+/*print values inside of __m256i
+
+BEFORE :
+	- op __m256i to print
+
+ENSURES :
+	- op UNCHANGED
+*/
+void print_alone_m256i(__m256i op);
+
+/*print the __m256i RNS representation of op in base
+
+BEFORE :
+	- base contains the RNS base used to represent op (even if only base->size matters here)
+	- a __m256i array to print
+
+ENSURES :
+	- op UNCHANGED
+	- base UNCHANGED
+*/
+void print_m256i_RNS(struct rns_base_t *base, __m256i *op);
+
+// ----------------------------------------------------------------------------------------------------------
+// Initializations
+// ---------------
+
+/*Initializes avx constants regarding base.
+
+BEFORE :
+	- base contains all the correct int64_t constants
+
+NEEDS :
+	- base initialized with init_rns
+
+ENSURES :
+	- base contains all the needed avx constants to compute operations
+*/
 void avx_init_rns(struct rns_base_t *base);
+
+/*Initializes avx constants regarding conv_base.
+
+BEFORE :
+	- conv_base contains all the correct int64_t constants
+
+NEEDS :
+	- conv_base initialized with initialize_inverses_base_conversion
+
+ENSURES :
+	- conv_base contains all the needed avx constants to compute operations
+*/
 void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_base);
 
 __m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k);

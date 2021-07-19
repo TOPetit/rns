@@ -84,7 +84,7 @@ int main(void)
     }
 
     __m256i avx_k1[NB_COEFF / 4];
-    from_rns_to_m256i(avx_k1, &rns_a, tmp_k);
+    from_int64_t_to_m256i_rns(avx_k1, &rns_a, tmp_k);
     rns_a.avx_k = avx_k1;
 
     // Second Base
@@ -121,7 +121,7 @@ int main(void)
         tmp_k[j] = (int64_t)k2[j];
     }
     __m256i avx_k2[NB_COEFF / 4];
-    from_rns_to_m256i(avx_k2, &rns_b, tmp_k);
+    from_int64_t_to_m256i_rns(avx_k2, &rns_b, tmp_k);
     rns_b.avx_k = avx_k2;
 
     /*
@@ -409,7 +409,7 @@ int main(void)
 
     mpz_urandomm(A, r_state, rns_a.M);
     from_int_to_rns(op1, &rns_a, A);
-    from_rns_to_m256i(avx_op1, &rns_a, op1);
+    from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
 
     test = true;
     for (int i = 0; i < rns_a.size / 4; i++)
@@ -453,8 +453,8 @@ int main(void)
     //mpz_urandomm(B, r_state, rns_a.M);
     from_int_to_rns(op1, &rns_a, A);
     from_int_to_rns(op2, &rns_a, B);
-    from_rns_to_m256i(avx_op1, &rns_a, op1);
-    from_rns_to_m256i(avx_op2, &rns_a, op2);
+    from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
+    from_int64_t_to_m256i_rns(avx_op2, &rns_a, op2);
 
     avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
     add_rns_cr(res, &rns_a, op1, op2);
@@ -475,8 +475,8 @@ int main(void)
     //mpz_urandomm(B, r_state, rns_a.M);
     from_int_to_rns(op1, &rns_a, A);
     from_int_to_rns(op2, &rns_a, B);
-    from_rns_to_m256i(avx_op1, &rns_a, op1);
-    from_rns_to_m256i(avx_op2, &rns_a, op2);
+    from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
+    from_int64_t_to_m256i_rns(avx_op2, &rns_a, op2);
 
     avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
     sub_rns_cr(res, &rns_a, op1, op2);
@@ -497,8 +497,8 @@ int main(void)
     //mpz_urandomm(B, r_state, rns_a.M);
     from_int_to_rns(op1, &rns_a, A);
     from_int_to_rns(op2, &rns_a, B);
-    from_rns_to_m256i(avx_op1, &rns_a, op1);
-    from_rns_to_m256i(avx_op2, &rns_a, op2);
+    from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
+    from_int64_t_to_m256i_rns(avx_op2, &rns_a, op2);
 
     avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
     mul_rns_cr(res, &rns_a, op1, op2);
@@ -519,7 +519,7 @@ int main(void)
     avx_initialize_inverses_base_conversion(&conv);
 
     from_int_to_rns(op1, &rns_a, A);
-    from_rns_to_m256i(avx_op1, &rns_a, op1);
+    from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
 
     avx_base_conversion_cr(avx_op2, &conv, avx_op1, a);
     from_m256i_to_int64_t_rns(op1, &rns_a, avx_op2);
@@ -544,9 +544,9 @@ int main(void)
     __m256i avx_pp2[NB_COEFF / 4];
     __m256i avx_pp3[NB_COEFF / 4];
 
-    from_rns_to_m256i(avx_pp1, &rns_a, pp1);
-    from_rns_to_m256i(avx_pp2, &rns_b, pp2);
-    from_rns_to_m256i(avx_pp3, &rns_b, pp3);
+    from_int64_t_to_m256i_rns(avx_pp1, &rns_a, pp1);
+    from_int64_t_to_m256i_rns(avx_pp2, &rns_b, pp2);
+    from_int64_t_to_m256i_rns(avx_pp3, &rns_b, pp3);
 
     mult.avx_inv_p_modMa = avx_pp1;
     mult.avx_p_modMb = avx_pp2;
@@ -562,10 +562,10 @@ int main(void)
     from_int_to_rns(pab, &rns_b, A);
     from_int_to_rns(pbb, &rns_b, B);
 
-    from_rns_to_m256i(avx_pa, &rns_a, pa);
-    from_rns_to_m256i(avx_pb, &rns_a, pb);
-    from_rns_to_m256i(avx_pab, &rns_b, pab);
-    from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+    from_int64_t_to_m256i_rns(avx_pa, &rns_a, pa);
+    from_int64_t_to_m256i_rns(avx_pb, &rns_a, pb);
+    from_int64_t_to_m256i_rns(avx_pab, &rns_b, pab);
+    from_int64_t_to_m256i_rns(avx_pbb, &rns_b, pbb);
 
     avx_mult_mod_rns_cr(avx_res, avx_pa, avx_pab, avx_pb, avx_pbb, &mult, tmp0, tmp1, tmp2, a);
 

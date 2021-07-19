@@ -78,12 +78,12 @@ int main(void)
 	}
 
 	__m256i avx_k[NB_COEFF / 4];
-	from_rns_to_m256i(avx_k, &rns_a, tmp_k);
+	from_int64_t_to_m256i_rns(avx_k, &rns_a, tmp_k);
 	rns_a.avx_k = avx_k;
 
 	/*
   	__m256i avx_inv_Mi[NB_COEFF/4];
-  	from_rns_to_m256i(avx_inv_Mi, &rns_a, rns_a.inv_Mi);
+  	from_int64_t_to_m256i_rns(avx_inv_Mi, &rns_a, rns_a.inv_Mi);
   	rns_a.avx_inv_Mi = avx_inv_Mi;
   */
 
@@ -116,7 +116,7 @@ int main(void)
 	{
 		mul_rns_cr(res, &rns_a, op1, op2);
 	}
-	
+
 	printf("Done.\n");
 
 	printf("\tTesting... ");
@@ -213,8 +213,8 @@ int main(void)
 
 	from_int_to_rns(op1, &rns_a, A);
 	from_int_to_rns(op2, &rns_a, B);
-	from_rns_to_m256i(avx_op1, &rns_a, op1);
-	from_rns_to_m256i(avx_op2, &rns_a, op2);
+	from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
+	from_int64_t_to_m256i_rns(avx_op2, &rns_a, op2);
 
 	for (int i = 0; i < NTEST; i++)
 	{
@@ -233,8 +233,8 @@ int main(void)
 		mpz_urandomm(B, state, M); //Randomly generates B < M
 		from_int_to_rns(op1, &rns_a, A);
 		from_int_to_rns(op2, &rns_a, B);
-		from_rns_to_m256i(avx_op1, &rns_a, op1);
-		from_rns_to_m256i(avx_op2, &rns_a, op2);
+		from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
+		from_int64_t_to_m256i_rns(avx_op2, &rns_a, op2);
 		for (int j = 0; j < NTEST; j++)
 		{
 
@@ -407,7 +407,7 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t],\n");
-/*
+	/*
 	printf("Done.\n");
 	printf("\tRNS sequential addition : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential addition : %ld instructions.\n", instructions);
@@ -427,8 +427,8 @@ int main(void)
 
 	from_int_to_rns(op1, &rns_a, A);
 	from_int_to_rns(op2, &rns_a, B);
-	from_rns_to_m256i(avx_op1, &rns_a, op1);
-	from_rns_to_m256i(avx_op2, &rns_a, op2);
+	from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
+	from_int64_t_to_m256i_rns(avx_op2, &rns_a, op2);
 
 	for (int i = 0; i < NTEST; i++)
 	{
@@ -447,8 +447,8 @@ int main(void)
 		mpz_urandomm(B, state, M); //Randomly generates B < M
 		from_int_to_rns(op1, &rns_a, A);
 		from_int_to_rns(op2, &rns_a, B);
-		from_rns_to_m256i(avx_op1, &rns_a, op1);
-		from_rns_to_m256i(avx_op2, &rns_a, op2);
+		from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
+		from_int64_t_to_m256i_rns(avx_op2, &rns_a, op2);
 		for (int j = 0; j < NTEST; j++)
 		{
 
@@ -518,7 +518,7 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t]\n\t},\n");
-/*
+	/*
 	printf("Done.\n");
 	printf("\tRNS vectorized addition : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized addition : %ld instructions.\n", instructions);
@@ -623,7 +623,7 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t],\n");
-/*
+	/*
 	printf("Done.\n");
 	printf("\tRNS sequential substraction : %lld CPU cycles.\n", timing);
 	printf("\tRNS sequential substraction : %ld instructions.\n", instructions);
@@ -643,8 +643,8 @@ int main(void)
 
 	from_int_to_rns(op1, &rns_a, A);
 	from_int_to_rns(op2, &rns_a, B);
-	from_rns_to_m256i(avx_op1, &rns_a, op1);
-	from_rns_to_m256i(avx_op2, &rns_a, op2);
+	from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
+	from_int64_t_to_m256i_rns(avx_op2, &rns_a, op2);
 
 	for (int i = 0; i < NTEST; i++)
 	{
@@ -663,8 +663,8 @@ int main(void)
 		mpz_urandomm(B, state, M); //Randomly generates B < M
 		from_int_to_rns(op1, &rns_a, A);
 		from_int_to_rns(op2, &rns_a, B);
-		from_rns_to_m256i(avx_op1, &rns_a, op1);
-		from_rns_to_m256i(avx_op2, &rns_a, op2);
+		from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
+		from_int64_t_to_m256i_rns(avx_op2, &rns_a, op2);
 		for (int j = 0; j < NTEST; j++)
 		{
 
@@ -733,7 +733,7 @@ int main(void)
 	}
 
 	fprintf(fpt, "\t\t]\n\t},\n");
-/*
+	/*
 	printf("Done.\n");
 	printf("\tRNS vectorized substraction : %lld CPU cycles.\n", timing);
 	printf("\tRNS vectorized substraction : %ld instructions.\n", instructions);
@@ -772,12 +772,12 @@ int main(void)
 		tmp_k2[j] = (int64_t)k2_bis[j];
 	}
 	__m256i avx_k2[NB_COEFF / 4];
-	from_rns_to_m256i(avx_k2, &rns_b, tmp_k2);
+	from_int64_t_to_m256i_rns(avx_k2, &rns_b, tmp_k2);
 	rns_b.avx_k = avx_k2;
 
 	/*
 	__m256i avx_inv_Mi2[NB_COEFF/4];
-	from_rns_to_m256i(avx_inv_Mi2, &rns_b, rns_b.inv_Mi);
+	from_int64_t_to_m256i_rns(avx_inv_Mi2, &rns_b, rns_b.inv_Mi);
 	rns_b.avx_inv_Mi = avx_inv_Mi2;
 */
 
@@ -916,7 +916,7 @@ int main(void)
 	avx_initialize_inverses_base_conversion(&conv);
 
 	from_int_to_rns(op1, &rns_a, A);
-	from_rns_to_m256i(avx_op1, &rns_a, op1);
+	from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
 
 	for (int i = 0; i < NTEST; i++)
 	{
@@ -933,7 +933,7 @@ int main(void)
 	{
 		mpz_urandomm(A, state, M); //Randomly generates A < M
 		from_int_to_rns(op1, &rns_a, A);
-		from_rns_to_m256i(avx_op1, &rns_a, op1);
+		from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
 		for (int j = 0; j < NTEST; j++)
 		{
 			// RDTSC
@@ -1186,9 +1186,9 @@ int main(void)
 	__m256i avx_pp2[NB_COEFF / 4];
 	__m256i avx_pp3[NB_COEFF / 4];
 
-	from_rns_to_m256i(avx_pp1, &rns_a, pp1);
-	from_rns_to_m256i(avx_pp2, &rns_b, pp2);
-	from_rns_to_m256i(avx_pp3, &rns_b, pp3);
+	from_int64_t_to_m256i_rns(avx_pp1, &rns_a, pp1);
+	from_int64_t_to_m256i_rns(avx_pp2, &rns_b, pp2);
+	from_int64_t_to_m256i_rns(avx_pp3, &rns_b, pp3);
 
 	mult.avx_inv_p_modMa = avx_pp1;
 	mult.avx_p_modMb = avx_pp2;
@@ -1207,10 +1207,10 @@ int main(void)
 	from_int_to_rns(pab, &rns_b, A);
 	from_int_to_rns(pbb, &rns_b, B);
 
-	from_rns_to_m256i(avx_pa, &rns_a, pa);
-	from_rns_to_m256i(avx_pb, &rns_a, pb);
-	from_rns_to_m256i(avx_pab, &rns_b, pab);
-	from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+	from_int64_t_to_m256i_rns(avx_pa, &rns_a, pa);
+	from_int64_t_to_m256i_rns(avx_pb, &rns_a, pb);
+	from_int64_t_to_m256i_rns(avx_pab, &rns_b, pab);
+	from_int64_t_to_m256i_rns(avx_pbb, &rns_b, pbb);
 
 	// Heating caches
 	printf("\n\tHeating caches... ");
@@ -1234,10 +1234,10 @@ int main(void)
 		from_int_to_rns(pab, &rns_b, A);
 		from_int_to_rns(pbb, &rns_b, B);
 
-		from_rns_to_m256i(avx_pa, &rns_a, pa);
-		from_rns_to_m256i(avx_pb, &rns_a, pb);
-		from_rns_to_m256i(avx_pab, &rns_b, pab);
-		from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+		from_int64_t_to_m256i_rns(avx_pa, &rns_a, pa);
+		from_int64_t_to_m256i_rns(avx_pb, &rns_a, pb);
+		from_int64_t_to_m256i_rns(avx_pab, &rns_b, pab);
+		from_int64_t_to_m256i_rns(avx_pbb, &rns_b, pbb);
 
 		for (int j = 0; j < NTEST; j++)
 		{
@@ -1312,7 +1312,7 @@ int main(void)
 	printf("\tRNS parallel modular multiplication : %ld instructions.\n", instructions);
 	printf("\tRNS parallel modular multiplication : %ld actual CPU cycles.\n", cycles);
 	printf("\tRNS parallel modular multiplication : %ld reference CPU cycles.\n", ref);
-/*
+	/*
 	timing = ULLONG_MAX;
 	cycles = ULONG_MAX;
 	instructions = ULONG_MAX;
@@ -1450,10 +1450,10 @@ int main(void)
 	from_int_to_rns(pab, &rns_b, A);
 	from_int_to_rns(pbb, &rns_b, B);
 
-	from_rns_to_m256i(avx_pa, &rns_a, pa);
-	from_rns_to_m256i(avx_pb, &rns_a, pb);
-	from_rns_to_m256i(avx_pab, &rns_b, pab);
-	from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+	from_int64_t_to_m256i_rns(avx_pa, &rns_a, pa);
+	from_int64_t_to_m256i_rns(avx_pb, &rns_a, pb);
+	from_int64_t_to_m256i_rns(avx_pab, &rns_b, pab);
+	from_int64_t_to_m256i_rns(avx_pbb, &rns_b, pbb);
 
 	for (int i = 0; i < NTEST; i++)
 	{
@@ -1476,10 +1476,10 @@ int main(void)
 		from_int_to_rns(pab, &rns_b, A);
 		from_int_to_rns(pbb, &rns_b, B);
 
-		from_rns_to_m256i(avx_pa, &rns_a, pa);
-		from_rns_to_m256i(avx_pb, &rns_a, pb);
-		from_rns_to_m256i(avx_pab, &rns_b, pab);
-		from_rns_to_m256i(avx_pbb, &rns_b, pbb);
+		from_int64_t_to_m256i_rns(avx_pa, &rns_a, pa);
+		from_int64_t_to_m256i_rns(avx_pb, &rns_a, pb);
+		from_int64_t_to_m256i_rns(avx_pab, &rns_b, pab);
+		from_int64_t_to_m256i_rns(avx_pbb, &rns_b, pbb);
 
 		for (int j = 0; j < NTEST; j++)
 		{
@@ -1697,7 +1697,7 @@ int main(void)
 
 		mpz_urandomm(A, state, modul_p); //Randomly generates A < P
 		from_int_to_rns(op1, &rns_a, A);
-		from_rns_to_m256i(avx_op1, &rns_a, op1);
+		from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
 
 		for (int j = 0; j < NTEST; j++)
 		{

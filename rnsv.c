@@ -28,11 +28,7 @@ inline void from_m256i_to_int64_t_rns(int64_t *rop, struct rns_base_t *base, __m
 	}
 }
 
-///////////////////////////////
-// RNS to __m256i convertion
-///////////////////////////////
-//~ Assumes allocation already done for "rop".
-inline void from_rns_to_m256i(__m256i *rop, struct rns_base_t *base, int64_t *op)
+inline void from_int64_t_to_m256i_rns(__m256i *rop, struct rns_base_t *base, int64_t *op)
 {
 	int j;
 	for (j = 0; j < (base->size) / 4; j += 1)
@@ -399,7 +395,7 @@ inline void avx_init_mrs(struct conv_base_t *conv_base)
 
 	for (i = 0; i < size; i++)
 	{
-		from_rns_to_m256i(conv_base->avx_mrsa_to_b[i], conv_base->rns_a, conv_base->mrsa_to_b[i]);
+		from_int64_t_to_m256i_rns(conv_base->avx_mrsa_to_b[i], conv_base->rns_a, conv_base->mrsa_to_b[i]);
 	}
 
 } //call before calling function below

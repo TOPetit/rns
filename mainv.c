@@ -56,7 +56,7 @@ int main(void)
 	}
 
 	__m256i avx_k[NB_COEFF / 4];
-	from_rns_to_m256i(avx_k, &rns_a, tmp_k);
+	from_int64_t_to_m256i_rns(avx_k, &rns_a, tmp_k);
 	rns_a.avx_k = avx_k;
 
 	struct rns_base_t rns_b;
@@ -90,7 +90,7 @@ int main(void)
 		tmp_k2[j] = (int64_t)k2_bis[j];
 	}
 	__m256i avx_k2[NB_COEFF / 4];
-	from_rns_to_m256i(avx_k2, &rns_b, tmp_k2);
+	from_int64_t_to_m256i_rns(avx_k2, &rns_b, tmp_k2);
 	rns_b.avx_k = avx_k2;
 
 	printf("TEST ADD\n");
@@ -135,8 +135,8 @@ int main(void)
 	__m256i rop1_aux[NB_COEFF / 4];
 	__m256i rop2_aux[NB_COEFF / 4];
 
-	from_rns_to_m256i(rop1_aux, &rns_a, rop1);
-	from_rns_to_m256i(rop2_aux, &rns_a, rop2);
+	from_int64_t_to_m256i_rns(rop1_aux, &rns_a, rop1);
+	from_int64_t_to_m256i_rns(rop2_aux, &rns_a, rop2);
 
 	//print_m256i(&rns_a,rop1_aux);
 	//print_m256i(&rns_a,rop2_aux);
@@ -201,8 +201,8 @@ int main(void)
 	__m256i rop3_aux[NB_COEFF / 4];
 	__m256i rop4_aux[NB_COEFF / 4];
 
-	from_rns_to_m256i(rop3_aux, &rns_a, rop3);
-	from_rns_to_m256i(rop4_aux, &rns_a, rop4);
+	from_int64_t_to_m256i_rns(rop3_aux, &rns_a, rop3);
+	from_int64_t_to_m256i_rns(rop4_aux, &rns_a, rop4);
 
 	//print_m256i(&rns_a,rop3_aux);
 	//print_m256i(&rns_a,rop4_aux);
@@ -318,8 +318,8 @@ int main(void)
 	__m256i rop5_aux[NB_COEFF / 4];
 	__m256i rop6_aux[NB_COEFF / 4];
 
-	from_rns_to_m256i(rop5_aux, &rns_a, rop5);
-	from_rns_to_m256i(rop6_aux, &rns_a, rop6);
+	from_int64_t_to_m256i_rns(rop5_aux, &rns_a, rop5);
+	from_int64_t_to_m256i_rns(rop6_aux, &rns_a, rop6);
 
 	//print_m256i(&rns_a,rop5_aux);
 	//print_m256i(&rns_a,rop6_aux);
@@ -366,7 +366,7 @@ int main(void)
 
   __m256i avx_pa[NB_COEFF/4];
   __m256i avx_pb[NB_COEFF/4];
-  from_rns_to_m256i(avx_pa,&rns_a,pa);
+  from_int64_t_to_m256i_rns(avx_pa,&rns_a,pa);
 
   //avx_init_mrs(conv.avx_mrsa_to_b,&conv);
   avx_init_mrs(&conv);printf("dot\n");
@@ -471,8 +471,8 @@ int main(void)
 		mpz_urandomm(B, state, M); //Randomly generates B < M
 		from_int_to_rns(pta, &rns_a, A);
 		from_int_to_rns(ptb, &rns_a, B);
-		from_rns_to_m256i(avx_pta, &rns_a, pta);
-		from_rns_to_m256i(avx_ptb, &rns_a, ptb);
+		from_int64_t_to_m256i_rns(avx_pta, &rns_a, pta);
+		from_int64_t_to_m256i_rns(avx_ptb, &rns_a, ptb);
 		timer = (unsigned long long int)0x1 << 63;
 		for (int j = 0; j < NTEST; j++)
 		{
@@ -550,8 +550,8 @@ int main(void)
 		mpz_urandomm(B, state, M); //Randomly generates B < M
 		from_int_to_rns(pta, &rns_a, A);
 		from_int_to_rns(ptb, &rns_a, B);
-		from_rns_to_m256i(avx_pta, &rns_a, pta);
-		from_rns_to_m256i(avx_ptb, &rns_a, ptb);
+		from_int64_t_to_m256i_rns(avx_pta, &rns_a, pta);
+		from_int64_t_to_m256i_rns(avx_ptb, &rns_a, ptb);
 		timer = (unsigned long long int)0x1 << 63;
 		for (int j = 0; j < NTEST; j++)
 		{

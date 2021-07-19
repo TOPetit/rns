@@ -66,7 +66,7 @@ int main(void)
     }
 
     __m256i avx_k[NB_COEFF / 4];
-    from_rns_to_m256i(avx_k, &rns_a, tmp_k);
+    from_int64_t_to_m256i_rns(avx_k, &rns_a, tmp_k);
     rns_a.avx_k = avx_k;
 
     mpz_t M;
@@ -79,7 +79,7 @@ int main(void)
     from_int_to_rns(op1, &rns_a, A);
     print_RNS(&rns_a, op1);
     printf("\n");
-    from_rns_to_m256i(avx_op1, &rns_a, op1);
+    from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
     from_m256i_to_int64_t_rns(op2, &rns_a, avx_op1);
     from_m256i_to_int64_t_rns(op2, &rns_a, avx_op1);
     from_m256i_to_int64_t_rns(op2, &rns_a, avx_op1);
@@ -99,7 +99,7 @@ int main(void)
     mpz_set_str(A, "100106136745050507346481674824002435247796236765700289941745547607771451581114", 10);
 
     from_int_to_rns(op1, &rns_a, A);
-    from_rns_to_m256i(avx_op1, &rns_a, op1);
+    from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
 
     from_m256i_to_int64_t_rns(op2, &rns_a, avx_op1);
     from_m256i_to_int64_t_rns(op2, &rns_a, avx_op1);

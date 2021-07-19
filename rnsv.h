@@ -44,17 +44,11 @@ ENSURES :
 */
 void from_int64_t_to_m256i_rns(__m256i *rop, struct rns_base_t *base, int64_t *op);
 
-/*int64_t RNS to __m256i RNS conversion using store, more efficient than extract.
+/*print the representation of op in base
 
 BEFORE :
 	- base contains the RNS base used to represent op (even if only base->size matters here)
-	- a int64_t array to convert
-
-AFTER :
-	- rop contains the same values as op
-
-NEEDS :
-	- rop allocated
+	- a int64_t array to print
 
 ENSURES :
 	- op UNCHANGED

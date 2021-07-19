@@ -112,6 +112,19 @@ ENSURES :
 */
 void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_base);
 
+/*Initializes avx mrs constants regarding conv_base.
+
+BEFORE :
+	- conv_base contains all the correct int64_t and __m256i constants
+
+NEEDS :
+	- conv_base initialized with initialize_inverses_base_conversion and avx_initialize_inverses_base_conversion
+
+ENSURES :
+	- conv_base contains all the needed avx constants to compute base conversion with mixed radix
+*/
+void avx_init_mrs(struct conv_base_t *conv_base);
+
 __m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k);
 void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
 
@@ -125,7 +138,7 @@ __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k);
 void avx_mul_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
 
 //void avx_init_mrs(__m256i **rop,struct conv_base_t *conv_base);
-void avx_init_mrs(struct conv_base_t *conv_base);
+
 void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a);
 void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb,
 						 __m256i *pbb, struct mod_mul_t *mult, __m256i *tmp0, __m256i *tmp1, __m256i *tmp2, int64_t *a);

@@ -1,6 +1,6 @@
 # Makefile
 
-all: mainv timing testing fulltest main
+all: timing testing fulltest main
 
 main: main.c rns.o rns.o
 	gcc -g -march=native -Wno-overflow -o main main.c rns.o rnsv.o -lgmp
@@ -14,9 +14,6 @@ testing: testing.c rns.o rnsv.o
 timing: timing.c rns.o rnsv.o
 	gcc -g -march=native -Wno-overflow -o timing timing.c rns.o rnsv.o -lgmp
 
-mainv: mainv.c rns.o rnsv.o
-	gcc -march=native -Wno-overflow -o mainv mainv.c rns.o rnsv.o -lgmp
-
 test: test_rns.c rns.o tests.c
 	gcc -o rns test_rns.c rns.o -lgmp
 
@@ -27,5 +24,5 @@ rnsv.o: rnsv.c rns.h structs_data.h
 	gcc -g -O3 -march=native -Wno-overflow -c rnsv.c -lgmp 
 
 clean:
-	rm *.o mainv timing testing fulltest main
+	rm *.o timing testing fulltest main
 

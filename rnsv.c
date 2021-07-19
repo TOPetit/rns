@@ -239,13 +239,6 @@ inline __m256i avx_sub_mod_cr(__m256i a, __m256i b, __m256i k, __m256i m)
 	return res;
 }
 
-///////////////////////////////
-// RNS substraction
-///////////////////////////////
-// rop : result
-// base : RNS base
-// pa : A
-// pb : B
 inline void avx_sub_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb)
 {
 	int j;
@@ -257,36 +250,59 @@ inline void avx_sub_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 	}
 }
 
-//%%%%%%%%%%%%  MUL  %%%%%%%%%%%%%%%%%%%%%//
+// ----------------------------------------------------------------------------------------------------------
+// Multiplication
+// --------------
 
 static __m256i mask1 = (__m256i){0x7fffffffffffffffUL, 0x7fffffffffffffffUL, 0x7fffffffffffffffUL, 0x7fffffffffffffffUL};
 static __m256i mask2 = (__m256i){0x8000000000000000UL, 0x8000000000000000UL, 0x8000000000000000UL, 0x8000000000000000UL};
 
-///////////////////////////////
-// auxiliar addition between two terms
-///////////////////////////////
-// result = 2^63 * rop_up + rop_lo
-inline void avx_add_aux_2e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
+/*__m256i addition of 2 terms
+
+BEFORE :
+	- a first __m256i operand
+	- b second __m256i operand
+
+AFTER :
+	- rop_up contains the upper part of (a + b)
+	- rop_lo contains the lower part of (a + b)
+
+NEEDS :
+	- rop_up allocated
+	- rop_lo allocated
+
+ENSURES :
+	- a UNCHANGED
+	- b UNCHANGED
+*/
+static inline void avx_add_aux_2e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
 {
-	//given two positive numbers on 63 bits
-
-	/*__m256i tmp_mask3 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 62);
-	__m256i tmp_mask2 = _mm256_sub_epi64(tmp_mask3, _mm256_set1_epi64x(1));
-	__m256i mask1 = _mm256_add_epi64(tmp_mask2,
-									 _mm256_slli_epi64(_mm256_set1_epi64x(1), 62));
-	//__m256i mask2 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);*/
-
 	__m256i sum = _mm256_add_epi64(a, b);
 	*rop_lo = _mm256_and_si256(sum, mask1);
-	//*rop_up = _mm256_srli_epi64(_mm256_and_si256(sum, mask2), 63);
 	*rop_up = _mm256_srli_epi64(sum, 63);
 }
 
-///////////////////////////////
-// auxiliar addition between three terms
-///////////////////////////////
-// result = 2^63 * rop_up + rop_lo
-inline void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b, __m256i c)
+/*__m256i addition of 3 terms
+
+BEFORE :
+	- a first __m256i operand
+	- b second __m256i operand
+	- c third __m256i operand
+
+AFTER :
+	- rop_up contains the upper part of (a + b + c)
+	- rop_lo contains the lower part of (a + b + c)
+
+NEEDS :
+	- rop_up allocated
+	- rop_lo allocated
+
+ENSURES :
+	- a UNCHANGED
+	- b UNCHANGED
+	- c UNCHANGED
+*/
+static inline void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b, __m256i c)
 {
 
 	__m256i up, lo, up2, lo2;
@@ -300,50 +316,36 @@ static __m256i mask_lo32 = (__m256i){0xffffffffUL, 0xffffffffUL, 0xffffffffUL, 0
 static __m256i mask_up31 = (__m256i){0x7fffffff00000000UL, 0x7fffffff00000000UL, 0x7fffffff00000000UL, 0x7fffffff00000000UL};
 static __m256i mask_up32 = (__m256i){0x7fffffff80000000UL, 0x7fffffff80000000UL, 0x7fffffff80000000UL, 0x7fffffff80000000UL}; //*/
 
-///////////////////////////////
-// auxiliar multiplication between 2 63-bits numbers
-///////////////////////////////
-// result = 2^63 * rop_up + rop_lo
-// had to divide the numbers into asymetrical parts, hence the tmp's
-// having 62, 63 or 64 bits
-inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
+/*__m256i multiplication of 2 terms
+
+BEFORE :
+	- a first __m256i operand
+	- b second __m256i operand
+
+AFTER :
+	- rop_up contains the upper part of (a * b)
+	- rop_lo contains the lower part of (a * b)
+
+NEEDS :
+	- rop_up allocated
+	- rop_lo allocated
+
+ENSURES :
+	- a UNCHANGED
+	- b UNCHANGED
+*/
+static inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
 {
-
-	/*__m256i tmp_mask31 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 31);
-	__m256i tmp_mask32 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 32);
-	__m256i mask_lo31 = _mm256_sub_epi64(tmp_mask31, _mm256_set1_epi64x(1));
-	__m256i mask_lo32 = _mm256_sub_epi64(tmp_mask32, _mm256_set1_epi64x(1));
-	__m256i mask_up31 = _mm256_slli_epi64(mask_lo31, 32);
-	__m256i mask_up32 = _mm256_slli_epi64(mask_lo32, 31);
-
-	__m256i tmp_mask33 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 33);
-	__m256i mask_lo33 = _mm256_sub_epi64(tmp_mask33, _mm256_set1_epi64x(1));//*/
-
 	__m256i a_lo = _mm256_and_si256(a, mask_lo31);						  //31 bits
 	__m256i a_up = _mm256_srli_epi64(_mm256_and_si256(a, mask_up32), 31); //32 bits
 	__m256i b_lo = _mm256_and_si256(b, mask_lo32);						  // 32 bits
 	__m256i b_up = _mm256_srli_epi64(_mm256_and_si256(b, mask_up31), 32); //31 bits
-
-	//we could rework the way we apply the masks, so it's optimised
-	//for example, we should initialize them in extern
 
 	__m256i tmp1 = _mm256_mul_epu32(a_lo, b_lo); //63 bits
 	__m256i tmp2 = _mm256_mul_epu32(a_lo, b_up); //62 bits
 	__m256i tmp3 = _mm256_mul_epu32(a_up, b_lo); //64 bits
 	__m256i tmp4 = _mm256_mul_epu32(a_up, b_up); // 63 bits*/
 
-	/*//__m256i a_lo = _mm256_and_si256(a, mask_lo31);						  //31 bits
-	__m256i a_up = _mm256_srli_epi64(_mm256_and_si256(a, mask_up32), 31); //32 bits
-	//__m256i b_lo = _mm256_and_si256(b, mask_lo32);						  // 32 bits
-	__m256i b_up = _mm256_srli_epi64(_mm256_and_si256(b, mask_up31), 32); //31 bits
-
-	//we could rework the way we apply the masks, so it's optimised
-	//for example, we should initialize them in extern
-
-	__m256i tmp1 = _mm256_mul_epu32(a, b); //63 bits
-	__m256i tmp2 = _mm256_mul_epu32(a, b_up); //62 bits
-	__m256i tmp3 = _mm256_mul_epu32(a_up, b); //64 bits
-	__m256i tmp4 = _mm256_mul_epu32(a_up, b_up); // 63 bits*/
 	__m256i ret;
 	avx_add_aux_3e(&ret, rop_lo, tmp1,
 				   _mm256_srli_epi64(_mm256_slli_epi64(tmp2, 33), 1),
@@ -354,101 +356,59 @@ inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
 												_mm256_add_epi64(ret, tmp4)));
 }
 
-//static __m256i tmp_mask = (__m256i){0x8000000000000000UL, 0x8000000000000000UL,0x8000000000000000UL,0x8000000000000000UL};//_mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
 static __m256i mask = (__m256i){0x7fffffffffffffffUL, 0x7fffffffffffffffUL, 0x7fffffffffffffffUL, 0x7fffffffffffffffUL};	  //_mm256_sub_epi64(tmp_mask, _mm256_set1_epi64x(1));
 static __m256i tmp_u_mod = (__m256i){0x8000000000000000UL, 0x8000000000000000UL, 0x8000000000000000UL, 0x8000000000000000UL}; //_mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
 
-inline __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
+
+/*__m256i modular multiplication of 2 terms with Crandall moduli
+
+BEFORE :
+	- a first __m256i operand
+	- b second __m256i operand
+	- k Crandall numbers
+
+AFTER :
+	- rop contains the upper part of (a * b) mod (n^63-k)
+
+NEEDS :
+	- rop
+
+ENSURES :
+	- a UNCHANGED
+	- b UNCHANGED
+	- k UNCHANGED
+*/
+static inline __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
 {
-
 	__m256i u_mod = _mm256_sub_epi64(tmp_u_mod, k);
-
 	__m256i up, lo, up2, lo2, up3, lo3;
 
 	avx_mul_aux(&up, &lo, a, b);
-
 	avx_mul_aux(&up2, &lo2, up, k);
 
 	__m256i up2_times_k, ret1, ret2;
 	avx_mul_aux(&ret1, &up2_times_k, up2, k);
 	avx_add_aux_3e(&ret2, &lo3, lo, lo2, up2_times_k);
 	up3 = _mm256_add_epi64(ret1, ret2);
-
 	__m256i res = _mm256_add_epi64(lo3, _mm256_madd_epi16(up3, k));
-
-	//on verra après pour le if
-
 	return res;
 }
 
-inline __m256i avx_mul_mod_cr__(__m256i a, __m256i b, __m256i k)
-{
 
-	/*__m256i tmp_mask = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
-	__m256i mask = _mm256_sub_epi64(tmp_mask, _mm256_set1_epi64x(1));
-
-	__m256i tmp_u_mod = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
-	__m256i u_mod = _mm256_sub_epi64(tmp_u_mod, k);*/
-
-	__m256i up; //, lo, up2, lo2, up3, lo3;
-
-	//avx_mul_aux(&up, &lo, a, b);
-
-	//avx_mul_aux(&up2, &lo2, up, k);
-
-	int64_t *up64 = (int64_t *)&up;
-
-	int64_t *a64 = (int64_t *)&a;
-
-	int64_t *b64 = (int64_t *)&b;
-
-	int64_t *k64 = (int64_t *)&k;
-
-	up64[0] = mul_mod_cr(a64[0], b64[0], k[0]);
-	up64[1] = mul_mod_cr(a64[1], b64[1], k[1]);
-	up64[2] = mul_mod_cr(a64[2], b64[2], k[2]);
-	up64[3] = mul_mod_cr(a64[3], b64[3], k[3]);
-
-	/*up264[0] = mul_mod_cr(up64[0], b64[0], k[0]);
-	up264[1] = mul_mod_cr(up64[1], b64[1], k[1]);
-	up264[2] = mul_mod_cr(up64[2], b64[2], k[2]);
-	up264[3] = mul_mod_cr(up64[3], b64[3], k[3]);*/
-
-	/*__m256i up2_times_k, ret1, ret2;
-	avx_mul_aux(&ret1, &up2_times_k, up2, k);
-	avx_add_aux_3e(&ret2, &lo3, lo, lo2, up2_times_k);
-	up3 = _mm256_add_epi64(ret1, ret2);
-
-	__m256i res = _mm256_add_epi64(lo3, _mm256_madd_epi16(up3, k));*/
-
-	//on verra après pour le if
-
-	return up;
-}
-///////////////////////////////
-// RNS multiplication
-///////////////////////////////
-// rop : result
-// base : RNS base
-// pa : A
-// pb : B
 inline void avx_mul_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb)
 {
 	int j;
 
 	for (j = 0; j < (base->size) >> 2; j += 1)
 	{
-		rop[j] = avx_mul_mod_cr(pa[j], pb[j], base->avx_k[j]); //attention, les coeffs sont à l'envers !
+		rop[j] = avx_mul_mod_cr(pa[j], pb[j], base->avx_k[j]);
 	}
 }
 
-//%%%%%%%%%%%%  MOD MUL  %%%%%%%%%%%%%%%%%%%%%//
+// ----------------------------------------------------------------------------------------------------------
+// Multiplication using Crandall moduli
+// -------------------------------------
 
-///////////////////////////////////////////////////////
-// Converts a RNS number from a base into an other
-// using the MRS conversion. The RNS base uses Crandall
-// numbers
-///////////////////////////////////////////////////////
 inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a)
 {
 	int i, j;
@@ -464,19 +424,12 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 		{
 			tmp = a[j] - a[i];
 			a[j] = mul_mod_cr(tmp, conv_base->inva_to_b[i][j], conv_base->rns_a->k[j]);
-			// if(a[j]<0)	// Sinon ca part en couille ??????? To be Checked
-			// 	a[j]+=conv_base->rns_a->m[j];
+			
 		}
 	}
 
-	// Residue of the MRS radix
-
 	__m256i a0_256 = _mm256_set1_epi64x(a[0]);
 	for (j = 0; j < size / 4; j++)
-	/*rop[j] = _mm256_set_epi64x(a[0] > conv_base->rns_b->m[4 * j] ? a[0] - conv_base->rns_b->m[4 * j] : a[0],
-								   a[0] > conv_base->rns_b->m[4 * j + 1] ? a[0] - conv_base->rns_b->m[4 * j + 1] : a[0],
-								   a[0] > conv_base->rns_b->m[4 * j + 2] ? a[0] - conv_base->rns_b->m[4 * j + 2] : a[0],
-								   a[0] > conv_base->rns_b->m[4 * j + 3] ? a[0] - conv_base->rns_b->m[4 * j + 3] : a[0]);*/
 	{
 		__m256i b256 = _mm256_lddqu_si256((__m256i *)&conv_base->rns_b->m[j >> 2]);
 		__m256i cmp256 = _mm256_cmpgt_epi64(a0_256, b256);
@@ -489,11 +442,6 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 		{
 			avx_tmp = avx_mul_mod_cr(_mm256_set1_epi64x(a[i]), conv_base->avx_mrsa_to_b[i - 1][j], conv_base->rns_b->avx_k[j]);
 			rop[j] = avx_add_mod_cr(rop[j], avx_tmp, conv_base->rns_b->avx_k[j]);
-
-			// if (rop[j]<0){	//Sinon, ca part en couille ????????????? To be checked
-			// 	rop[j] += conv_base->rns_b->m[j];
-			// 	printf("conv");
-			// }
 		}
 	}
 }

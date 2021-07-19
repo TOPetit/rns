@@ -4,6 +4,7 @@
 
 #include <limits.h>
 
+
 // ----------------------------------------------------------------------------------------------------------
 // Conversions
 // -----------
@@ -44,6 +45,7 @@ ENSURES :
 */
 void from_int64_t_to_m256i_rns(__m256i *rop, struct rns_base_t *base, int64_t *op);
 
+
 // ----------------------------------------------------------------------------------------------------------
 // Prints
 // ------
@@ -81,6 +83,7 @@ ENSURES :
 	- base UNCHANGED
 */
 void print_m256i_RNS(struct rns_base_t *base, __m256i *op);
+
 
 // ----------------------------------------------------------------------------------------------------------
 // Initializations
@@ -125,6 +128,7 @@ ENSURES :
 */
 void avx_init_mrs(struct conv_base_t *conv_base);
 
+
 // ----------------------------------------------------------------------------------------------------------
 // Addition
 // --------
@@ -148,6 +152,7 @@ ENSURES :
 	- base UNCHANGED
 */
 void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
+
 
 // ----------------------------------------------------------------------------------------------------------
 // Substraction
@@ -173,14 +178,35 @@ ENSURES :
 */
 void avx_sub_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
 
-void avx_add_aux_2e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b);
-void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b, __m256i c);
-void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b);
 
-__m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k);
+// ----------------------------------------------------------------------------------------------------------
+// Multiplication
+// --------------
+
+/*__m256i RNS multiplication using Crandall moduli RNS base.
+
+BEFORE :
+	- pa first __m256i array operand
+	- pb second __m256i array operand
+	- base contains the RNS base used to represent pa and pb
+
+AFTER :
+	- rop contains (pa * pb) represented in base 
+
+NEEDS :
+	- rop allocated
+
+ENSURES :
+	- pa UNCHANGED
+	- pb UNCHANGED
+	- base UNCHANGED
+*/
 void avx_mul_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
 
-//void avx_init_mrs(__m256i **rop,struct conv_base_t *conv_base);
+
+// ----------------------------------------------------------------------------------------------------------
+// Multiplication using Crandall moduli
+// -------------------------------------
 
 void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a);
 void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb,

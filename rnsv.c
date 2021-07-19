@@ -430,11 +430,11 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 		{
 			tmp = a[j] - a[i];
 			a[j] = mul_mod_cr(tmp, conv_base->inva_to_b[i][j], conv_base->rns_a->k[j]);
-			
 		}
 	}
 
 	__m256i a0_256 = _mm256_set1_epi64x(a[0]);
+	
 	for (j = 0; j < size / 4; j++)
 	{
 		__m256i b256 = _mm256_lddqu_si256((__m256i *)&conv_base->rns_b->m[j >> 2]);

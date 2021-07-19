@@ -1,4 +1,3 @@
-
 #include "rnsv.h"
 
 #include <stdlib.h>
@@ -111,7 +110,7 @@ inline void avx_init_rns(struct rns_base_t *base)
 
 	int n = base->size;
 
-	__m256i *avx_inv_Mi = (__m256i *)_mm_malloc(n * sizeof(__m256i),32);
+	__m256i *avx_inv_Mi = (__m256i *)_mm_malloc(n * sizeof(__m256i), 32);
 
 	for (int i = 0; i < n; i++)
 	{
@@ -120,7 +119,7 @@ inline void avx_init_rns(struct rns_base_t *base)
 
 	base->avx_inv_Mi = avx_inv_Mi;
 
-	__m256i *tmp = (__m256i *)_mm_malloc(n * sizeof(__m256i) / 4,32);
+	__m256i *tmp = (__m256i *)_mm_malloc(n * sizeof(__m256i) / 4, 32);
 
 	for (int i = 0; i < n / 4; i++)
 	{
@@ -222,8 +221,8 @@ inline void avx_sub_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 
 //%%%%%%%%%%%%  MUL  %%%%%%%%%%%%%%%%%%%%%//
 
-	static __m256i mask1 =  (__m256i){0x7fffffffffffffffUL, 0x7fffffffffffffffUL,0x7fffffffffffffffUL,0x7fffffffffffffffUL};
-	static __m256i mask2 =  (__m256i){0x8000000000000000UL, 0x8000000000000000UL,0x8000000000000000UL,0x8000000000000000UL};
+static __m256i mask1 = (__m256i){0x7fffffffffffffffUL, 0x7fffffffffffffffUL, 0x7fffffffffffffffUL, 0x7fffffffffffffffUL};
+static __m256i mask2 = (__m256i){0x8000000000000000UL, 0x8000000000000000UL, 0x8000000000000000UL, 0x8000000000000000UL};
 
 ///////////////////////////////
 // auxiliar addition between two terms
@@ -258,16 +257,11 @@ inline void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i 
 	*rop_up = _mm256_add_epi64(up, up2);
 }
 
-	
-	
-	
-	
-	static __m256i mask_lo31 = (__m256i){0x7fffffffUL, 0x7fffffffUL,0x7fffffffUL,0x7fffffffUL};
-	static __m256i mask_lo32 = (__m256i){0xffffffffUL, 0xffffffffUL,0xffffffffUL,0xffffffffUL};
-	static __m256i mask_up31 = (__m256i){0x7fffffff00000000UL, 0x7fffffff00000000UL,0x7fffffff00000000UL,0x7fffffff00000000UL};
-	static __m256i mask_up32 = (__m256i){0x7fffffff80000000UL, 0x7fffffff80000000UL,0x7fffffff80000000UL,0x7fffffff80000000UL};//*/
-	
-	
+static __m256i mask_lo31 = (__m256i){0x7fffffffUL, 0x7fffffffUL, 0x7fffffffUL, 0x7fffffffUL};
+static __m256i mask_lo32 = (__m256i){0xffffffffUL, 0xffffffffUL, 0xffffffffUL, 0xffffffffUL};
+static __m256i mask_up31 = (__m256i){0x7fffffff00000000UL, 0x7fffffff00000000UL, 0x7fffffff00000000UL, 0x7fffffff00000000UL};
+static __m256i mask_up32 = (__m256i){0x7fffffff80000000UL, 0x7fffffff80000000UL, 0x7fffffff80000000UL, 0x7fffffff80000000UL}; //*/
+
 ///////////////////////////////
 // auxiliar multiplication between 2 63-bits numbers
 ///////////////////////////////
@@ -277,16 +271,41 @@ inline void avx_add_aux_3e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i 
 inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
 {
 
+	/*__m256i tmp_mask31 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 31);
+	__m256i tmp_mask32 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 32);
+	__m256i mask_lo31 = _mm256_sub_epi64(tmp_mask31, _mm256_set1_epi64x(1));
+	__m256i mask_lo32 = _mm256_sub_epi64(tmp_mask32, _mm256_set1_epi64x(1));
+	__m256i mask_up31 = _mm256_slli_epi64(mask_lo31, 32);
+	__m256i mask_up32 = _mm256_slli_epi64(mask_lo32, 31);
+
+	__m256i tmp_mask33 = _mm256_slli_epi64(_mm256_set1_epi64x(1), 33);
+	__m256i mask_lo33 = _mm256_sub_epi64(tmp_mask33, _mm256_set1_epi64x(1));//*/
+
 	__m256i a_lo = _mm256_and_si256(a, mask_lo31);						  //31 bits
 	__m256i a_up = _mm256_srli_epi64(_mm256_and_si256(a, mask_up32), 31); //32 bits
 	__m256i b_lo = _mm256_and_si256(b, mask_lo32);						  // 32 bits
 	__m256i b_up = _mm256_srli_epi64(_mm256_and_si256(b, mask_up31), 32); //31 bits
+
+	//we could rework the way we apply the masks, so it's optimised
+	//for example, we should initialize them in extern
 
 	__m256i tmp1 = _mm256_mul_epu32(a_lo, b_lo); //63 bits
 	__m256i tmp2 = _mm256_mul_epu32(a_lo, b_up); //62 bits
 	__m256i tmp3 = _mm256_mul_epu32(a_up, b_lo); //64 bits
 	__m256i tmp4 = _mm256_mul_epu32(a_up, b_up); // 63 bits*/
 
+	/*//__m256i a_lo = _mm256_and_si256(a, mask_lo31);						  //31 bits
+	__m256i a_up = _mm256_srli_epi64(_mm256_and_si256(a, mask_up32), 31); //32 bits
+	//__m256i b_lo = _mm256_and_si256(b, mask_lo32);						  // 32 bits
+	__m256i b_up = _mm256_srli_epi64(_mm256_and_si256(b, mask_up31), 32); //31 bits
+
+	//we could rework the way we apply the masks, so it's optimised
+	//for example, we should initialize them in extern
+
+	__m256i tmp1 = _mm256_mul_epu32(a, b); //63 bits
+	__m256i tmp2 = _mm256_mul_epu32(a, b_up); //62 bits
+	__m256i tmp3 = _mm256_mul_epu32(a_up, b); //64 bits
+	__m256i tmp4 = _mm256_mul_epu32(a_up, b_up); // 63 bits*/
 	__m256i ret;
 	avx_add_aux_3e(&ret, rop_lo, tmp1,
 				   _mm256_srli_epi64(_mm256_slli_epi64(tmp2, 33), 1),
@@ -297,9 +316,10 @@ inline void avx_mul_aux(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b)
 												_mm256_add_epi64(ret, tmp4)));
 }
 
-static __m256i mask = (__m256i){0x7fffffffffffffffUL, 0x7fffffffffffffffUL,0x7fffffffffffffffUL,0x7fffffffffffffffUL};//_mm256_sub_epi64(tmp_mask, _mm256_set1_epi64x(1));
-static __m256i tmp_u_mod = (__m256i){0x8000000000000000UL, 0x8000000000000000UL,0x8000000000000000UL,0x8000000000000000UL};//_mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
-	
+//static __m256i tmp_mask = (__m256i){0x8000000000000000UL, 0x8000000000000000UL,0x8000000000000000UL,0x8000000000000000UL};//_mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
+static __m256i mask = (__m256i){0x7fffffffffffffffUL, 0x7fffffffffffffffUL, 0x7fffffffffffffffUL, 0x7fffffffffffffffUL};	  //_mm256_sub_epi64(tmp_mask, _mm256_set1_epi64x(1));
+static __m256i tmp_u_mod = (__m256i){0x8000000000000000UL, 0x8000000000000000UL, 0x8000000000000000UL, 0x8000000000000000UL}; //_mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
+
 inline __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
 {
 
@@ -310,9 +330,7 @@ inline __m256i avx_mul_mod_cr(__m256i a, __m256i b, __m256i k)
 	avx_mul_aux(&up, &lo, a, b);
 
 	avx_mul_aux(&up2, &lo2, up, k);
-	
-	
-	
+
 	__m256i up2_times_k, ret1, ret2;
 	avx_mul_aux(&ret1, &up2_times_k, up2, k);
 	avx_add_aux_3e(&ret2, &lo3, lo, lo2, up2_times_k);
@@ -334,32 +352,30 @@ inline __m256i avx_mul_mod_cr__(__m256i a, __m256i b, __m256i k)
 	__m256i tmp_u_mod = _mm256_slli_epi64(_mm256_set1_epi64x(1), 63);
 	__m256i u_mod = _mm256_sub_epi64(tmp_u_mod, k);*/
 
-	__m256i up;//, lo, up2, lo2, up3, lo3;
+	__m256i up; //, lo, up2, lo2, up3, lo3;
 
 	//avx_mul_aux(&up, &lo, a, b);
 
 	//avx_mul_aux(&up2, &lo2, up, k);
-	
-	int64_t * up64 = (int64_t *) &up;
-	
-	int64_t * a64 = (int64_t *) &a;
-	
-	int64_t * b64 = (int64_t *) &b;
-	
-	int64_t * k64 = (int64_t *) &k;
-	
+
+	int64_t *up64 = (int64_t *)&up;
+
+	int64_t *a64 = (int64_t *)&a;
+
+	int64_t *b64 = (int64_t *)&b;
+
+	int64_t *k64 = (int64_t *)&k;
+
 	up64[0] = mul_mod_cr(a64[0], b64[0], k[0]);
 	up64[1] = mul_mod_cr(a64[1], b64[1], k[1]);
 	up64[2] = mul_mod_cr(a64[2], b64[2], k[2]);
 	up64[3] = mul_mod_cr(a64[3], b64[3], k[3]);
-	
-	
+
 	/*up264[0] = mul_mod_cr(up64[0], b64[0], k[0]);
 	up264[1] = mul_mod_cr(up64[1], b64[1], k[1]);
 	up264[2] = mul_mod_cr(up64[2], b64[2], k[2]);
 	up264[3] = mul_mod_cr(up64[3], b64[3], k[3]);*/
-	
-	
+
 	/*__m256i up2_times_k, ret1, ret2;
 	avx_mul_aux(&ret1, &up2_times_k, up2, k);
 	avx_add_aux_3e(&ret2, &lo3, lo, lo2, up2_times_k);
@@ -382,7 +398,7 @@ inline void avx_mul_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 {
 	int j;
 
-	for (j = 0; j < (base->size) >>2; j += 1)
+	for (j = 0; j < (base->size) >> 2; j += 1)
 	{
 		rop[j] = avx_mul_mod_cr(pa[j], pb[j], base->avx_k[j]); //attention, les coeffs sont à l'envers !
 	}
@@ -461,17 +477,17 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 	}
 
 	// Residue of the MRS radix
-	
+
 	__m256i a0_256 = _mm256_set1_epi64x(a[0]);
 	for (j = 0; j < size / 4; j++)
-		/*rop[j] = _mm256_set_epi64x(a[0] > conv_base->rns_b->m[4 * j] ? a[0] - conv_base->rns_b->m[4 * j] : a[0],
+	/*rop[j] = _mm256_set_epi64x(a[0] > conv_base->rns_b->m[4 * j] ? a[0] - conv_base->rns_b->m[4 * j] : a[0],
 								   a[0] > conv_base->rns_b->m[4 * j + 1] ? a[0] - conv_base->rns_b->m[4 * j + 1] : a[0],
 								   a[0] > conv_base->rns_b->m[4 * j + 2] ? a[0] - conv_base->rns_b->m[4 * j + 2] : a[0],
 								   a[0] > conv_base->rns_b->m[4 * j + 3] ? a[0] - conv_base->rns_b->m[4 * j + 3] : a[0]);*/
 	{
-		__m256i b256 = _mm256_lddqu_si256((__m256i *) &conv_base->rns_b->m[j>>2]);
-		__m256i cmp256 = _mm256_cmpgt_epi64(a0_256,b256);
-		rop[j] = _mm256_sub_epi64(a0_256, _mm256_and_si256(cmp256,b256));
+		__m256i b256 = _mm256_lddqu_si256((__m256i *)&conv_base->rns_b->m[j >> 2]);
+		__m256i cmp256 = _mm256_cmpgt_epi64(a0_256, b256);
+		rop[j] = _mm256_sub_epi64(a0_256, _mm256_and_si256(cmp256, b256));
 	}
 
 	for (j = 0; j < size / 4; j++)

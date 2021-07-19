@@ -430,7 +430,7 @@ int main(void)
     // TEST CONVERSION AVX-2 -> RNS
     /////////////////////////////
 
-    from_m256i_to_rns(op2, &rns_a, avx_op1);
+    from_m256i_to_int64_t_rns(op2, &rns_a, avx_op1);
 
     printf("Conversion from AVX-2 to RNS... ");
     if (rns_equal(rns_a, op1, op2))
@@ -459,7 +459,7 @@ int main(void)
     avx_add_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
     add_rns_cr(res, &rns_a, op1, op2);
 
-    from_m256i_to_rns(op1, &rns_a, avx_res);
+    from_m256i_to_int64_t_rns(op1, &rns_a, avx_res);
 
     printf("AVX-2 RNS addition... ");
     if (rns_equal(rns_a, op1, res))
@@ -481,7 +481,7 @@ int main(void)
     avx_sub_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
     sub_rns_cr(res, &rns_a, op1, op2);
 
-    from_m256i_to_rns(op1, &rns_a, avx_res);
+    from_m256i_to_int64_t_rns(op1, &rns_a, avx_res);
 
     printf("AVX-2 RNS substraction... ");
     if (rns_equal(rns_a, op1, res))
@@ -503,7 +503,7 @@ int main(void)
     avx_mul_rns_cr(avx_res, &rns_a, avx_op1, avx_op2);
     mul_rns_cr(res, &rns_a, op1, op2);
 
-    from_m256i_to_rns(op1, &rns_a, avx_res);
+    from_m256i_to_int64_t_rns(op1, &rns_a, avx_res);
 
     printf("AVX-2 RNS multiplication... ");
     if (rns_equal(rns_a, op1, res))
@@ -522,7 +522,7 @@ int main(void)
     from_rns_to_m256i(avx_op1, &rns_a, op1);
 
     avx_base_conversion_cr(avx_op2, &conv, avx_op1, a);
-    from_m256i_to_rns(op1, &rns_a, avx_op2);
+    from_m256i_to_int64_t_rns(op1, &rns_a, avx_op2);
     from_int_to_rns(op2, &rns_b, A);
 
     printf("AVX-2 RNS base conversion cox-rower... ");

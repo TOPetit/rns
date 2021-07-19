@@ -131,8 +131,6 @@ int main(void)
     mpz_t D;
     mpz_inits(D, NULL);
 
-    
-
     /////////////////////////////
     // TEST SEQUENTIAL MULTIPLICATION
     /////////////////////////////
@@ -207,17 +205,14 @@ int main(void)
     // TEST CONVERSION RNS -> AVX-2
     /////////////////////////////
 
-    
     /////////////////////////////
     // TEST PARALLEL ADDITION
     /////////////////////////////
 
-    
     __m256i avx_op1[NB_COEFF / 4];
     __m256i avx_op2[NB_COEFF / 4];
     __m256i avx_res[NB_COEFF / 4];
 
-    
     /////////////////////////////
     // TEST PARALLEL BASE CONVERSION
     /////////////////////////////
@@ -229,7 +224,7 @@ int main(void)
     from_rns_to_m256i(avx_op1, &rns_a, op1);
 
     avx_base_conversion_cr(avx_op2, &conv, avx_op1, a);
-    from_m256i_to_rns(op1, &rns_a, avx_op2);
+    from_m256i_to_int64_t_rns(op1, &rns_a, avx_op2);
     from_int_to_rns(op2, &rns_b, A);
 
     printf("AVX-2 RNS base conversion... ");
@@ -238,6 +233,5 @@ int main(void)
     else
         printf("ERROR\n");
 
-    
     return 0;
 }

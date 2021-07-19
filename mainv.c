@@ -148,7 +148,7 @@ int main(void)
 
 	//print_m256i(&rns_a,result_avx_aux);
 
-	from_m256i_to_rns(result_avx, &rns_a, result_avx_aux);
+	from_m256i_to_int64_t_rns(result_avx, &rns_a, result_avx_aux);
 
 	//print_RNS(&rns_a,result_avx);
 
@@ -214,7 +214,7 @@ int main(void)
 
 	//print_m256i(&rns_a,result_sub_avx_aux);
 
-	from_m256i_to_rns(result_sub_avx, &rns_a, result_sub_avx_aux);
+	from_m256i_to_int64_t_rns(result_sub_avx, &rns_a, result_sub_avx_aux);
 
 	from_rns_to_int_crt(S3, &rns_a, result_sub_avx);
 	gmp_printf("résultat : %Zd\n", S3);
@@ -331,7 +331,7 @@ int main(void)
 
 	//print_m256i(&rns_a,result_mul_avx_aux);
 
-	from_m256i_to_rns(result_mul_avx, &rns_a, result_mul_avx_aux);
+	from_m256i_to_int64_t_rns(result_mul_avx, &rns_a, result_mul_avx_aux);
 
 	from_rns_to_int_crt(K3, &rns_a, result_mul_avx);
 	gmp_printf("résultat : %Zd\n", K3);
@@ -371,7 +371,7 @@ int main(void)
   //avx_init_mrs(conv.avx_mrsa_to_b,&conv);
   avx_init_mrs(&conv);printf("dot\n");
   avx_base_conversion_cr(avx_pb, &conv, avx_pa, ttt);	printf("dot\n");
-  from_m256i_to_rns(pb,&rns_b,avx_pb);	printf("dot2\n");
+  from_m256i_to_int64_t_rns(pb,&rns_b,avx_pb);	printf("dot2\n");
   //print_RNS(&rns_b,pb);
 
   from_rns_to_int_crt(Z2, &rns_b, pb);printf("dot2\n");*/

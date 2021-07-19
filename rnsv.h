@@ -4,35 +4,28 @@
 
 #include <limits.h>
 
-// RNS arithmetic functions
-void add_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb);
-void sub_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb);
-void mul_rns(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb);
-// void mult_mod_rns(int64_t *rop, int64_t *pa, int64_t *pb, struct mod_mul_t *mult, int64_t *tmp[3]);
-void mult_mod_rns(int64_t *rop, int64_t *pa, int64_t *pab, int64_t *pb,
-				  int64_t *pbb, struct mod_mul_t *mult, int64_t *tmp[3]);
+// ----------------------------------------------------------------------------------------------------------
+// Conversions
+// -----------
 
-void init_rns(struct rns_base_t *base);
-void from_int_to_rns(int64_t *rop, struct rns_base_t *base, mpz_t op);
-void from_rns_to_int_crt(mpz_t rop, struct rns_base_t *base, int64_t *op);
-void initialize_inverses_base_conversion(struct conv_base_t *conv_base);
-void base_conversion(int64_t *rop, struct conv_base_t *conv_base, int64_t *op);
+/*__m256i RNS to int64_t RNS conversion using store, more efficient than extract.
 
-void base_conversion_cr(int64_t *rop, struct conv_base_t *conv_base, int64_t *op, int64_t *a);
-void add_rns_cr(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb);
-void sub_rns_cr(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb);
-void mul_rns_cr(int64_t *rop, struct rns_base_t *base, int64_t *pa, int64_t *pb);
-// void mult_mod_rns_cr(int64_t *rop, int64_t *pa, int64_t *pb, struct mod_mul_t *mult, int64_t *tmp[4]);
-void mult_mod_rns_cr(int64_t *rop, int64_t *pa, int64_t *pab, int64_t *pb,
-					 int64_t *pbb, struct mod_mul_t *mult, int64_t *tmp[4]);
+BEFORE :
+	- base contains the RNS base used to represent op (even if only base->size matters here)
+	- op int64_t array to convert
 
-int64_t add_mod_cr(int64_t a, int64_t b, int k);
-int64_t mul_mod_cr(int64_t a, int64_t b, int k);
+AFTER :
+	- rop contains the same values as op
 
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
+NEEDS :
+	- rop initialized
 
-void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op);
-void from_m256i_to_rns_bis(int64_t *rop, struct rns_base_t *base, __m256i *op);
+ENSURES :
+	- op UNCHANGED
+	- base UNCHANGED
+*/
+void from_m256i_to_int64_t_rns(int64_t *rop, struct rns_base_t *base, __m256i *op);
+
 void from_rns_to_m256i(__m256i *rop, struct rns_base_t *base, int64_t *op);
 
 void print_RNS(struct rns_base_t *base, int64_t *a);

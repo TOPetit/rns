@@ -20,31 +20,9 @@
 
 #include "rns.h"
 
-///////////////////////////////
-// RNS to __m256i convertion
-///////////////////////////////
-//~ Assumes allocation already done for "rop".
-inline void from_m256i_to_rns_bis(int64_t *rop, struct rns_base_t *base, __m256i *op)
+inline void from_m256i_to_int64_t_rns(int64_t *rop, struct rns_base_t *base, __m256i *op)
 {
-	int j;
-	for (j = 0; j < (base->size) / 4; j += 1)
-	{
-
-		rop[4 * j] = _mm256_extract_epi64(op[j], 0);
-		rop[4 * j + 1] = _mm256_extract_epi64(op[j], 1);
-		rop[4 * j + 2] = _mm256_extract_epi64(op[j], 2);
-		rop[4 * j + 3] = _mm256_extract_epi64(op[j], 3);
-	}
-}
-
-///////////////////////////////
-// RNS to __m256i convertion without extract (more efficient ~100 cycles less)
-// Better to code it directly in function and removing for when timing is important
-///////////////////////////////
-//~ Assumes allocation already done for "rop".
-inline void from_m256i_to_rns(int64_t *rop, struct rns_base_t *base, __m256i *op)
-{
-	for (int i = 0; i < NB_COEFF / 4; i++)
+	for (int i = 0; i < base->size / 4; i++)
 	{
 		_mm256_storeu_si256((__m256i *)&rop[4 * i], op[i]);
 	}
@@ -463,7 +441,7 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 	int64_t tmp;
 	int size = conv_base->rns_a->size;
 
-	from_m256i_to_rns(a, conv_base->rns_a, op);
+	from_m256i_to_int64_t_rns(a, conv_base->rns_a, op);
 
 	for (i = 0; i < size - 1; i++)
 	{

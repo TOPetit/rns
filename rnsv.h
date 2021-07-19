@@ -125,9 +125,52 @@ ENSURES :
 */
 void avx_init_mrs(struct conv_base_t *conv_base);
 
-__m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k);
+// ----------------------------------------------------------------------------------------------------------
+// Addition
+// --------
+
+/*__m256i RNS addition.
+
+BEFORE :
+	- pa first __m256i array operand
+	- pb second __m256i array operand
+	- base contains the RNS base used to represent pa and pb
+
+AFTER :
+	- rop contains (pa + pb) represented in base 
+
+NEEDS :
+	- rop allocated
+
+ENSURES :
+	- pa UNCHANGED
+	- pb UNCHANGED
+	- base UNCHANGED
+*/
 void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
 
+// ----------------------------------------------------------------------------------------------------------
+// Substraction
+// ------------
+
+/*__m256i RNS substraction using Crandall moduli RNS base.
+
+BEFORE :
+	- pa first __m256i array operand
+	- pb second __m256i array operand
+	- base contains the RNS base used to represent pa and pb
+
+AFTER :
+	- rop contains (pa - pb) represented in base 
+
+NEEDS :
+	- rop allocated
+
+ENSURES :
+	- pa UNCHANGED
+	- pb UNCHANGED
+	- base UNCHANGED
+*/
 void avx_sub_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
 
 void avx_add_aux_2e(__m256i *rop_up, __m256i *rop_lo, __m256i a, __m256i b);

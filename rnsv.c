@@ -143,12 +143,28 @@ inline void avx_initialize_inverses_base_conversion(struct conv_base_t *conv_bas
 	conv_base->avx_Mi_modPi = tmp_Arr;
 }
 
-//%%%%%%%%%%%%  ADD  %%%%%%%%%%%%%%%%%%%%%//
+// ----------------------------------------------------------------------------------------------------------
+// Addition
+// --------
 
-///////////////////////////////////////////////////
-// Modular addition and multiplication using
-// Crandall moduli
-///////////////////////////////////////////////////
+/* _m256i addition with Crandall moduli.
+
+BEFORE :
+	- a first __m256i operand
+	- b second __m256i operand
+	- k Crandall moduli
+
+AFTER :
+	- rop contains (a + b) mod k
+
+NEEDS :
+	- rop allocated
+
+ENSURES :
+	- a UNCHANGED
+	- b UNCHANGED
+	- k UNCHANGED
+*/
 inline __m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k)
 {
 
@@ -161,22 +177,13 @@ inline __m256i avx_add_mod_cr(__m256i a, __m256i b, __m256i k)
 
 	__m256i lo = _mm256_and_si256(tmp, mask); // La partie basse de la somme
 
-	__m256i tmp_res = _mm256_madd_epi16(up, k); // mul et add ? Il ne manque pas un terme ?
+	__m256i tmp_res = _mm256_madd_epi16(up, k);
 
 	__m256i res = _mm256_add_epi64(lo, tmp_res);
-
-	//on verra après pour le if
 
 	return res;
 }
 
-///////////////////////////////
-// RNS addition
-///////////////////////////////
-// rop : result
-// base : RNS base
-// pa : A
-// pb : B
 inline void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb)
 {
 	int j;
@@ -184,16 +191,33 @@ inline void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, _
 	for (j = 0; j < (base->size) / 4; j += 1)
 	{
 		rop[j] = avx_add_mod_cr(pa[j], pb[j], base->avx_k[j]);
-		//attention, les coeffs sont à l'envers !
 	}
 }
 
-//%%%%%%%%%%%%  SUB  %%%%%%%%%%%%%%%%%%%%%//
+// ----------------------------------------------------------------------------------------------------------
+// Substraction
+// ------------
 
-///////////////////////////////////////////////////
-// Modular substraction and multiplication using
-// Crandall moduli
-///////////////////////////////////////////////////
+/* _m256i substraction with Crandall moduli.
+
+BEFORE :
+	- a first __m256i operand
+	- b second __m256i operand
+	- k Crandall numbers
+	- m Moduli
+
+AFTER :
+	- rop contains (a - b) mod k
+
+NEEDS :
+	- rop allocated
+
+ENSURES :
+	- a UNCHANGED
+	- b UNCHANGED
+	- k UNCHANGED
+	- m UNCHANGED
+*/
 inline __m256i avx_sub_mod_cr(__m256i a, __m256i b, __m256i k, __m256i m)
 {
 

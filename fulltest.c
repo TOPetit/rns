@@ -388,9 +388,9 @@ int main(void)
 
     /*
     printf("\nRNS = ");
-    print_RNS(&rns_a, pc);
+    print_int64_t_RNS(&rns_a, pc);
     printf("GMP = ");
-    print_RNS(&rns_a, op1);
+    print_int64_t_RNS(&rns_a, op1);
 
     //gmp_printf("RNS = %Zd\nGMP = %Zd\n", D, C);
 
@@ -578,7 +578,7 @@ int main(void)
     printf("\nRNS = ");
     print_m256i(&rns_a, avx_res);
     printf("GMP = ");
-    print_RNS(&rns_a, op1);
+    print_int64_t_RNS(&rns_a, op1);
 
     printf("AVX-2 RNS modular multiplication... ");
     if (mpz_cmp(C, D) == 0)

@@ -37,15 +37,12 @@ inline void from_int64_t_to_m256i_rns(__m256i *rop, struct rns_base_t *base, int
 	}
 }
 
-///////////////////////////////
-// prints the 8 RNS compounds
-///////////////////////////////
-inline void print_RNS(struct rns_base_t *base, int64_t *a)
+inline void print_int64_t_RNS(struct rns_base_t *base, int64_t *op)
 {
 	int j;
 	for (j = 0; j < base->size; j++)
 	{
-		printf("%ld ", a[j]);
+		printf("%ld ", op[j]);
 	}
 	printf("\n");
 }

@@ -456,6 +456,7 @@ inline void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i
 	avx_mul_rns_cr(tmp0, mult->conv->rns_a, pa, pb);					  //A*B
 	avx_mul_rns_cr(tmp1, mult->conv->rns_b, pab, pbb);					  //A*B in base2
 	avx_mul_rns_cr(tmp2, mult->conv->rns_a, tmp0, mult->avx_inv_p_modMa); //Q*{P-1}
+	from_m256i_to_int64_t_rns(a, mult->conv->rns_a, tmp2);				  //storing tmp2 in a
 	avx_base_conversion_cr(tmp0, mult->conv, tmp2, a);					  // Q in base2
 	avx_mul_rns_cr(tmp2, mult->conv->rns_b, tmp0, mult->avx_p_modMb);	  // Q*P base2
 	avx_add_rns_cr(tmp0, mult->conv->rns_b, tmp1, tmp2);				  // A*B + Q*P in base 2
@@ -519,6 +520,7 @@ inline void avx_mult_mod_rns_cr_cox(__m256i *rop, __m256i *pa, __m256i *pab, __m
 	avx_mul_rns_cr(tmp0, mult->conv->rns_a, pa, pb);					  //A*B
 	avx_mul_rns_cr(tmp1, mult->conv->rns_b, pab, pbb);					  //A*B in base2
 	avx_mul_rns_cr(tmp2, mult->conv->rns_a, tmp0, mult->avx_inv_p_modMa); //Q*{P-1}
+	from_m256i_to_int64_t_rns(a, mult->conv->rns_a, tmp2);				  //storing tmp2 in a
 	avx_base_conversion_cox(tmp0, mult->conv, tmp2, a);					  //Q in base 2
 	avx_mul_rns_cr(tmp2, mult->conv->rns_b, tmp0, mult->avx_p_modMb);	  // Q*P base2
 	avx_add_rns_cr(tmp0, mult->conv->rns_b, tmp1, tmp2);				  // A*B + Q*P in base 2

@@ -16,6 +16,6 @@ $$\framebox[1.1\width]{$\widetilde{A}\widetilde{B}\ =\ AB(-2^{4n})\ =\ \widetild
 Addition in trivial.
 $$\framebox[1.1\width]{$\widetilde{A}+\widetilde{B}\ =\ A(-2^{2n})+B(-2^{2n})\ =\ (A+B)(-2^{2n})\ =\ \widetilde{A+B}$}$$
 
-## Soustraction
+## Substraction
 Same as addition.
 $$\framebox[1.1\width]{$\widetilde{A}-\widetilde{B}\ =\ A(-2^{2n})-B(-2^{2n})\ =\ (A-B)(-2^{2n})\ =\ \widetilde{A-B}$}$$

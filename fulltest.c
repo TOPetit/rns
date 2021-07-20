@@ -309,7 +309,23 @@ int main(void)
     from_rns_to_int_crt(A, &rns_a, op1);
     from_rns_to_int_crt(B, &rns_b, op2);
 
-    printf("Int64_t RNS base conversion... ");
+    printf("Int64_t RNS base conversion cr... ");
+    if (mpz_cmp(A, B) == 0)
+        printf("OK\n");
+    else
+        printf("ERROR\n");
+
+    /////////////////////////////
+    // TEST SEQUENTIAL BASE CONVERSION COX
+    /////////////////////////////
+
+    base_conversion_cox(op2, &conv, op1, 0, 0, 0);
+    from_rns_to_int_crt(A, &rns_a, op1);
+    from_rns_to_int_crt(B, &rns_b, op2);
+    gmp_printf("A to be converted = %Zd\n", A);
+    gmp_printf("A converted =       %Zd\n", B);
+
+    printf("Int64_t RNS base conversion cox... ");
     if (mpz_cmp(A, B) == 0)
         printf("OK\n");
     else

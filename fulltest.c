@@ -521,7 +521,7 @@ int main(void)
     from_int_to_rns(op1, &rns_a, A);
     from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
 
-    avx_base_conversion_cr(avx_op2, &conv, avx_op1, a);
+    avx_base_conversion_cr(avx_op2, &conv, avx_op1, op1);
     from_m256i_to_int64_t_rns(op1, &rns_a, avx_op2);
     from_int_to_rns(op2, &rns_b, A);
 

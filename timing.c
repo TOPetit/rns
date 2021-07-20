@@ -809,7 +809,7 @@ int main(void)
 	for (int i = 0; i < NTEST; i++)
 	{
 
-		avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
+		avx_base_conversion_cr(avx_op2, &conv, avx_op1, op1);
 	}
 
 	printf("Done.\n");
@@ -827,7 +827,7 @@ int main(void)
 			// RDTSC
 			t1 = cpucyclesStart();
 
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
+			avx_base_conversion_cr(avx_op2, &conv, avx_op1, op1);
 			
 			t2 = cpucyclesStop();
 
@@ -837,7 +837,7 @@ int main(void)
 			// Instructions
 			before_instructions = rdpmc_instructions();
 
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
+			avx_base_conversion_cr(avx_op2, &conv, avx_op1, op1);
 			
 			after_instructions = rdpmc_instructions();
 
@@ -847,7 +847,7 @@ int main(void)
 			// actual cycles
 			before_cycles = rdpmc_actual_cycles();
 
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
+			avx_base_conversion_cr(avx_op2, &conv, avx_op1, op1);
 			
 			after_cycles = rdpmc_actual_cycles();
 
@@ -857,7 +857,7 @@ int main(void)
 			// reference cycles
 			before_ref = rdpmc_reference_cycles();
 
-			avx_base_conversion_cr(avx_op2, &conv, avx_op1, ttt);
+			avx_base_conversion_cr(avx_op2, &conv, avx_op1, op1);
 			
 			after_ref = rdpmc_reference_cycles();
 

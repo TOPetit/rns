@@ -212,6 +212,7 @@ void avx_mul_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i 
 
 BEFORE :
 	- op __m256i in conv_base->rns_a
+	- a int64_t RNS representation of op
 	- conv_base base conversion constants
 
 AFTER :

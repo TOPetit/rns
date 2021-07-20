@@ -422,8 +422,6 @@ inline void avx_base_conversion_cr(__m256i *rop, struct conv_base_t *conv_base, 
 	int64_t tmp;
 	int size = conv_base->rns_a->size;
 
-	from_m256i_to_int64_t_rns(a, conv_base->rns_a, op);
-
 	for (i = 0; i < size - 1; i++)
 	{
 		for (j = i + 1; j < size; j++)

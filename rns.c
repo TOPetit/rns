@@ -1,4 +1,5 @@
 #include "rns.h"
+#include "rnsv.h"
 
 #include <stdlib.h>
 
@@ -648,6 +649,7 @@ void base_conversion_cox(int64_t *rop, struct conv_base_t *conv_base, int64_t *o
 	alpha = ((int64_t)1 << (q - 1)); //////////////////////////////////////////
 
 	mask = ((int64_t)1 << r) - ((int64_t)1 << (r - q));
+
 	mask2 = ((int64_t)1 << q);
 	n = conv_base->rns_a->size;
 
@@ -682,6 +684,8 @@ void base_conversion_cox(int64_t *rop, struct conv_base_t *conv_base, int64_t *o
 
 		for (j = 0; j < size; j++) // Computation of tmp2 has been simplified
 		{
+			//printf("Mi_modPi = %ld\n", conv_base->Mi_modPi[i][j]);
+
 			tmp = mul_mod_cr(xhi, conv_base->Mi_modPi[i][j], conv_base->rns_b->k[j]);
 			tmp2 = conv_base->invM_modPi[j] * k_i;
 			tmp3 = add_mod_cr(tmp, tmp2, conv_base->rns_b->k[j]);

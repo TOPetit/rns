@@ -301,7 +301,7 @@ int main(void)
     conv.rns_b = &rns_b;
     initialize_inverses_base_conversion(&conv);
 
-    mpz_urandomm(A, r_state, rns_a.M);
+    mpz_set_str(A, "16174817301453483504153245823054680454784778746814874128407814768681478719", 10);
     from_int_to_rns(op1, &rns_a, A);
 
     int64_t a[NB_COEFF];
@@ -322,8 +322,6 @@ int main(void)
     base_conversion_cox(op2, &conv, op1, 0, 0, 0);
     from_rns_to_int_crt(A, &rns_a, op1);
     from_rns_to_int_crt(B, &rns_b, op2);
-    gmp_printf("A to be converted = %Zd\n", A);
-    gmp_printf("A converted =       %Zd\n", B);
 
     printf("Int64_t RNS base conversion cox... ");
     if (mpz_cmp(A, B) == 0)
@@ -534,10 +532,11 @@ int main(void)
     avx_init_mrs(&conv);
     avx_initialize_inverses_base_conversion(&conv);
 
+    mpz_set_str(A, "16174817301453483504153245823054680454784778746814874128407814768681478719", 10);
     from_int_to_rns(op1, &rns_a, A);
     from_int64_t_to_m256i_rns(avx_op1, &rns_a, op1);
 
-    avx_base_conversion_cr(avx_op2, &conv, avx_op1, op1);
+    avx_base_conversion_cox(avx_op2, &conv, avx_op1, 0, 0);
     from_m256i_to_int64_t_rns(op1, &rns_a, avx_op2);
     from_int_to_rns(op2, &rns_b, A);
 

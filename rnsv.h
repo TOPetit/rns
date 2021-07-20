@@ -4,7 +4,6 @@
 
 #include <limits.h>
 
-
 // ----------------------------------------------------------------------------------------------------------
 // Conversions
 // -----------
@@ -45,7 +44,6 @@ ENSURES :
 */
 void from_int64_t_to_m256i_rns(__m256i *rop, struct rns_base_t *base, int64_t *op);
 
-
 // ----------------------------------------------------------------------------------------------------------
 // Prints
 // ------
@@ -83,7 +81,6 @@ ENSURES :
 	- base UNCHANGED
 */
 void print_m256i_RNS(struct rns_base_t *base, __m256i *op);
-
 
 // ----------------------------------------------------------------------------------------------------------
 // Initializations
@@ -128,7 +125,6 @@ ENSURES :
 */
 void avx_init_mrs(struct conv_base_t *conv_base);
 
-
 // ----------------------------------------------------------------------------------------------------------
 // Addition
 // --------
@@ -152,7 +148,6 @@ ENSURES :
 	- base UNCHANGED
 */
 void avx_add_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
-
 
 // ----------------------------------------------------------------------------------------------------------
 // Substraction
@@ -178,7 +173,6 @@ ENSURES :
 */
 void avx_sub_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
 
-
 // ----------------------------------------------------------------------------------------------------------
 // Multiplication
 // --------------
@@ -202,7 +196,6 @@ ENSURES :
 	- base UNCHANGED
 */
 void avx_mul_rns_cr(__m256i *rop, struct rns_base_t *base, __m256i *pa, __m256i *pb);
-
 
 // ----------------------------------------------------------------------------------------------------------
 // Multiplication using Crandall moduli
@@ -256,7 +249,6 @@ ENSURES :
 void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb,
 						 __m256i *pbb, struct mod_mul_t *mult, __m256i *tmp0, __m256i *tmp1, __m256i *tmp2, int64_t *a);
 
-
 // ----------------------------------------------------------------------------------------------------------
 // Multiplication using Cox-Rower method
 // -------------------------------------
@@ -266,20 +258,20 @@ void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i *pb,
 BEFORE :
 	- op __m256i in conv_base->rns_a
 	- conv_base base conversion constants
+	- a int64_t RNS representation of op in conv_base->rns_a
 
 AFTER :
 	- rop contains op represented in conv_base->rns_b
 
 NEEDS :
 	- rop allocated
-	- r, q and alpha allocated
 	- conv_base correctly initialized
 
 ENSURES :
 	- op UNCHANGED
 	- conv_base UNCHANGED
 */
-void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int r, int q);
+void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a);
 
 /*__m256i RNS modular multiplication using Cox-Rower method.
 

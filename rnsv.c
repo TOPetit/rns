@@ -466,20 +466,19 @@ inline void avx_mult_mod_rns_cr(__m256i *rop, __m256i *pa, __m256i *pab, __m256i
 // Multiplication using Cox-Rower method
 // -------------------------------------
 
-inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int r, int q)
+static __m256i cox_mask = (__m256i){0x7F00000000000000UL, 0x7F00000000000000UL, 0x7F00000000000000UL, 0x7F00000000000000UL};
+static __m256i cox_mask2 = (__m256i){0x80UL, 0x80UL, 0x80UL, 0x80UL};
+static __m256i cox_sigma = (__m256i){0x40UL, 0x40UL, 0x40UL, 0x40UL};
+
+inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base, __m256i *op, int64_t *a)
 {
 	int i, j;
 	int size = conv_base->rns_a->size;
 
-	r = 63;
-	q = 7;
-	__m256i alpha = _mm256_slli_epi64(_mm256_set1_epi64x(1), q - 1);
+	int r = 63;
+	int q = 7;
 
-	__m256i mask = _mm256_sub_epi64(_mm256_slli_epi64(_mm256_set1_epi64x(1), r), _mm256_slli_epi64(_mm256_set1_epi64x(1), r - q));
-
-	__m256i mask2 = _mm256_slli_epi64(_mm256_set1_epi64x(1), q);
-
-	__m256i sigma = alpha;
+	__m256i sigma = cox_sigma;
 
 	for (i = 0; i < size / 4; i++)
 	{
@@ -490,16 +489,13 @@ inline void avx_base_conversion_cox(__m256i *rop, struct conv_base_t *conv_base,
 
 	__m256i tmp0, tmp1, tmp2;
 
-	int64_t tmp_op[NB_COEFF];
-	from_m256i_to_int64_t_rns(tmp_op, conv_base->rns_a, op);
-
 	for (i = 0; i < size; i++)
 	{
-		xhi = _mm256_set1_epi64x(mul_mod_cr(tmp_op[i], conv_base->rns_a->int_inv_Mi[i], conv_base->rns_a->k[i]));
+		xhi = _mm256_set1_epi64x(mul_mod_cr(a[i], conv_base->rns_a->int_inv_Mi[i], conv_base->rns_a->k[i]));
 
-		trunk = xhi & mask;
+		trunk = xhi & cox_mask;
 		sigma = _mm256_add_epi64(sigma, _mm256_srli_epi64(trunk, r - q));
-		k_i = sigma & mask2;
+		k_i = sigma & cox_mask2;
 
 		sigma = _mm256_sub_epi64(sigma, k_i);
 		k_i = _mm256_srli_epi64(k_i, q);
@@ -523,7 +519,7 @@ inline void avx_mult_mod_rns_cr_cox(__m256i *rop, __m256i *pa, __m256i *pab, __m
 	avx_mul_rns_cr(tmp0, mult->conv->rns_a, pa, pb);					  //A*B
 	avx_mul_rns_cr(tmp1, mult->conv->rns_b, pab, pbb);					  //A*B in base2
 	avx_mul_rns_cr(tmp2, mult->conv->rns_a, tmp0, mult->avx_inv_p_modMa); //Q*{P-1}
-	avx_base_conversion_cox(tmp0, mult->conv, tmp2, 0, 0);				  //Q in base 2
+	avx_base_conversion_cox(tmp0, mult->conv, tmp2, a);					  //Q in base 2
 	avx_mul_rns_cr(tmp2, mult->conv->rns_b, tmp0, mult->avx_p_modMb);	  // Q*P base2
 	avx_add_rns_cr(tmp0, mult->conv->rns_b, tmp1, tmp2);				  // A*B + Q*P in base 2
 	avx_mul_rns_cr(rop, mult->conv->rns_b, tmp0, mult->avx_inv_Ma_modMb); // Division by Ma

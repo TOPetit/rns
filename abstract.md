@@ -1,5 +1,9 @@
 # Residue Number System (RNS) - A faster approach to computing
 
+<center>Théo PETIT, IAA/IMATH - University of Toulon</center>
+
+<center>Summer 2021</center>
+
 ## Abstract
 
 Computing is about speed, especially when dealing whith very large number (hundreths of digits). When you can improve hardware to compute faster, playing wih reprentations of those numbers can be a great way to tackle physical barriers. Systems such as RNS are about exploring new number representations to fasten basic compuations (addition and multiplication).
@@ -9,7 +13,7 @@ When it comes to protect sensible data, one company need to ensure his encryptio
 
 Cryptography, computation, modulo operation.
 
-# Keywords
+## Keywords
 
 Hardware limitation, number systems, performance by parallel computing
 
@@ -29,12 +33,24 @@ We implemented this computation method in C language, firstly in a sequential wa
 
 ## Results and conclusion
 
-```
-![result.png](./result.png)
-```
+As we see on the following figure, the parallel computing aspect of the new algorithm is far better than the sequential one. The parallel version droping by a factor of 4 when computing addition.
+
+![result](results/result.png)
 
 ## Related work
 
 AMNS (an other number representation) presentation (way more difficult...)
 
 AVX vector usage (mostly intel)
+
+## Implications
+
+Despite this computing method being far better than the usual algorithm, the representation might be a limiting factor. The computing tool we are using is an aspect of Intel's processing unit that is still very limited. As use case for the everyday customer is close to non-existant, it is very unlikely that Intel manufactures better hardware for our algorithm to be efficient. 
+
+## Bibliography
+
+[1] - Residue Number System Wikipedia page -_https://en.wikipedia.org/wiki/Residue_number_system_
+
+[2] - Efficient modular operations using the adapted modular number system - by Laurent-Stéphane Didier, Fangan-Yssouf Dosso & Pascal Véron
+
+[3] - # Efficient Modular Arithmetic in Adapted Modular Number System Using Lagrange Representation - by C. Nègre & Thomas Plantard

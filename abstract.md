@@ -19,3 +19,5 @@ Their RNS represntation is $(7, 11, 12)$ and $(3, 6, 0)$.
 Therefore, the reprentation of $623 + 234$ is $(7 + 3 mod 11, 11 + 6 mod 12, 12 + 0 mod 13)\ =\ (10, 5, 12)$
 And we can check the correcness of the result a it is easy to calculate (due to the small scale of the example): $623 + 234 = 857$. And the representation of $857$ is $(10, 5, 12)$.
 What is so great about this method is that the three smaller operations we did are independants, they can be computed in parallel. Instead of storing and computing two large numbers, we would rather store more and compute 6 smaller numbers (storage is not an issue in computer science).
+
+## Related work
